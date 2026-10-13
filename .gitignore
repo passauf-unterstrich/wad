@@ -1,0 +1,8 @@
+# Bauergebnisse (werden aus dem Quelltext jederzeit neu erzeugt)
+build/
+
+# Persönliche Xcode-Einstellungen
+xcuserdata/
+
+# macOS-Ordnerdaten
+.DS_Store
