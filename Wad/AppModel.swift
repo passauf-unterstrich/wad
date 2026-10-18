@@ -11,6 +11,12 @@ final class AppModel: ObservableObject {
     @Published var mode = DictationController.Mode.live {
         didSet { dictation.mode = mode }
     }
+    /// Schreibt alles klein. Die einzige Einstellung, die Wad sich über einen Neustart hinweg merkt:
+    /// ein einzelner Ja/Nein-Wert in macOS' Einstellungsablage, nie ein Text.
+    @Published var isLowercase = UserDefaults.standard.bool(forKey: AppModel.lowercaseKey) {
+        didSet { UserDefaults.standard.set(isLowercase, forKey: Self.lowercaseKey) }
+    }
+    private static let lowercaseKey = "Kleinschreibung"
     @Published private(set) var dictationState = DictationController.State.idle
     @Published private(set) var hasMicrophone = Permissions.hasMicrophone
     @Published private(set) var hasAccessibility = Permissions.hasAccessibility
@@ -42,8 +48,14 @@ final class AppModel: ObservableObject {
                                         isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown,
                                         background: { worker.async(execute: $0) })
         dictation.onStateChange = { [weak self] state in self?.dictationState = state }
-        dictation.onText = { [weak self] text in self?.inserter.insert(text) }
-        dictation.onDictationFinished = { [weak self] text in self?.dictations.add(text) }
+        dictation.onText = { [weak self] text in
+            guard let self else { return }
+            inserter.insert(styled(text))
+        }
+        dictation.onDictationFinished = { [weak self] text in
+            guard let self else { return }
+            dictations.add(styled(text))
+        }
         clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
         clipboardWatcher.start()
         worker.async { [weak self, transcriber] in
@@ -79,6 +91,10 @@ final class AppModel: ObservableObject {
         log.notice("Start, Mikrofon: \(self.hasMicrophone, privacy: .public), Bedienungshilfen: \(self.hasAccessibility, privacy: .public)")
         if hasAccessibility { hotkey.start() } else { waitForAccessibility() }
         askForMissingPermissions()
+    }
+
+    private func styled(_ text: String) -> String {
+        isLowercase ? text.lowercased(with: .current) : text
     }
 
     /// Zeigt einen Hinweis oben im Menü und als Ausrufezeichen am Symbol, für acht Sekunden.

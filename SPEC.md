@@ -48,6 +48,7 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 ### 1.3 Dropdown-Menü (schlicht, Apple-typisch)
 1. **Diktieren an / aus** (Schalter). Ist es aus, reagiert Wad nicht auf die Taste.
 2. **Modus:** *Live (Standard)* oder *Am Ende einfügen*.
+2a. **Kleinschreibung** (Schalter, Ergänzung vom 18.10.2026 auf Linus' Wunsch): schreibt jedes Diktat komplett klein. Wad merkt sich diesen Schalter über einen Neustart hinweg, als einzigen Ja/Nein-Wert in den macOS-Einstellungen, nie als Text.
 3. **Letzte Diktate ▸** bis zu 20 Einträge, neuester oben. Klick kopiert den Text in die Zwischenablage. Darunter: *Diktate löschen*.
 4. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
 5. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.

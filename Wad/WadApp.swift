@@ -17,6 +17,7 @@ struct WadApp: App {
                 Text("Live").tag(DictationController.Mode.live)
                 Text("Am Ende einfügen").tag(DictationController.Mode.atEnd)
             }
+            Toggle("Kleinschreibung", isOn: $model.isLowercase)
             Divider()
             // Untermenüs statt langer Zeilen: Das Hauptmenü bleibt schmal,
             // macOS klappt die Listen zur Seite auf, an der Platz ist.
