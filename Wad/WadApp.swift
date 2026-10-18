@@ -15,14 +15,15 @@ struct WadApp: App {
                 Text("Am Ende einfügen").tag(DictationController.Mode.atEnd)
             }
             Divider()
-            if let transcript = model.lastTranscript {
-                // Ein Untermenü statt einer langen Zeile: Das Hauptmenü bleibt schmal,
-                // macOS klappt die Liste zur Seite auf, an der Platz ist.
-                Menu("Letzte Diktate") {
-                    Text(Self.menuTitle(for: transcript))
-                }
-                Divider()
-            }
+            // Untermenüs statt langer Zeilen: Das Hauptmenü bleibt schmal,
+            // macOS klappt die Listen zur Seite auf, an der Platz ist.
+            historyMenu("Letzte Diktate", entries: model.dictations.entries,
+                        empty: "Noch keine Diktate", clear: "Diktate löschen",
+                        onClear: model.clearDictations)
+            historyMenu("Zwischenablage-Verlauf", entries: model.clipboard.entries,
+                        empty: "Noch nichts kopiert", clear: "Verlauf löschen",
+                        onClear: model.clearClipboardHistory)
+            Divider()
             if model.isTranscriberReady == false {
                 Text("Spracherkennung nicht verfügbar")
                 Divider()
@@ -46,6 +47,22 @@ struct WadApp: App {
             .keyboardShortcut("q")
         } label: {
             menuBarIcon
+        }
+    }
+
+    /// Ein Verlauf als Untermenü. Ein Klick legt den vollen Text in die Zwischenablage.
+    private func historyMenu(_ title: String, entries: [String], empty: String, clear: String,
+                             onClear: @escaping () -> Void) -> some View {
+        Menu(title) {
+            if entries.isEmpty {
+                Text(empty)
+            }
+            ForEach(entries, id: \.self) { entry in
+                Button(Self.menuTitle(for: entry)) { model.copyToClipboard(entry) }
+            }
+            Divider()
+            Button(clear, action: onClear)
+                .disabled(entries.isEmpty)
         }
     }
 

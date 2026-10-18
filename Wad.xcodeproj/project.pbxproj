@@ -35,6 +35,11 @@
 		D10000000000000000002002 /* DictationSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000002 /* DictationSession.swift */; };
 		D10000000000000000002003 /* TestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000003 /* TestDoubles.swift */; };
 		D10000000000000000002004 /* ChunkPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* ChunkPlannerTests.swift */; };
+		E10000000000000000001001 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* History.swift */; };
+		E10000000000000000001002 /* ClipboardWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000002 /* ClipboardWatcher.swift */; };
+		E10000000000000000002001 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* History.swift */; };
+		E10000000000000000002002 /* ClipboardWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000002 /* ClipboardWatcher.swift */; };
+		E10000000000000000002003 /* HistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* HistoryTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +68,9 @@
 		D10000000000000000000003 /* TestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TestDoubles.swift"; sourceTree = "<group>"; };
 		D10000000000000000000004 /* ChunkPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChunkPlannerTests.swift"; sourceTree = "<group>"; };
 		D10000000000000000000005 /* ggml-silero-v6.2.0.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ggml-silero-v6.2.0.bin"; sourceTree = "<group>"; };
+		E10000000000000000000001 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
+		E10000000000000000000002 /* ClipboardWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardWatcher.swift; sourceTree = "<group>"; };
+		E10000000000000000000003 /* HistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +132,8 @@
 				C10000000000000000000001 /* TextInserter.swift */,
 				D10000000000000000000001 /* ChunkPlanner.swift */,
 				D10000000000000000000002 /* DictationSession.swift */,
+				E10000000000000000000001 /* History.swift */,
+				E10000000000000000000002 /* ClipboardWatcher.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -144,6 +154,7 @@
 				A1000000000000000000000D /* DictationControllerTests.swift */,
 				D10000000000000000000004 /* ChunkPlannerTests.swift */,
 				D10000000000000000000003 /* TestDoubles.swift */,
+				E10000000000000000000003 /* HistoryTests.swift */,
 				C10000000000000000000002 /* TextInserterTests.swift */,
 			);
 			path = WadTests;
@@ -243,6 +254,8 @@
 				C10000000000000000001001 /* TextInserter.swift in Sources */,
 				D10000000000000000001001 /* ChunkPlanner.swift in Sources */,
 				D10000000000000000001002 /* DictationSession.swift in Sources */,
+				E10000000000000000001001 /* History.swift in Sources */,
+				E10000000000000000001002 /* ClipboardWatcher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,6 +274,9 @@
 				D10000000000000000002002 /* DictationSession.swift in Sources */,
 				D10000000000000000002003 /* TestDoubles.swift in Sources */,
 				D10000000000000000002004 /* ChunkPlannerTests.swift in Sources */,
+				E10000000000000000002001 /* History.swift in Sources */,
+				E10000000000000000002002 /* ClipboardWatcher.swift in Sources */,
+				E10000000000000000002003 /* HistoryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

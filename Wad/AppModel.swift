@@ -16,13 +16,15 @@ final class AppModel: ObservableObject {
     @Published private(set) var hasAccessibility = Permissions.hasAccessibility
     /// Ob das Sprachmodell bereitsteht. `nil`, solange es noch lädt.
     @Published private(set) var isTranscriberReady: Bool?
-    /// Text des letzten Diktats, nur im Arbeitsspeicher. Ab Etappe 6 wird daraus der Verlauf.
-    @Published private(set) var lastTranscript: String?
+    /// Die beiden Verläufe, nur im Arbeitsspeicher (SPEC 2.4).
+    @Published private(set) var dictations = History()
+    @Published private(set) var clipboard = History()
 
     private let hotkey = HotkeyMonitor()
     private let recorder = MicrophoneRecorder()
     private let transcriber: WhisperTranscriber
     private let inserter = TextInserter()
+    private let clipboardWatcher = ClipboardWatcher()
     private let dictation: DictationController
     /// Die eine Warteschlange für alles, was die Spracherkennung tut: laden, prüfen, umwandeln.
     private let worker: DispatchQueue
@@ -38,7 +40,9 @@ final class AppModel: ObservableObject {
                                         background: { worker.async(execute: $0) })
         dictation.onStateChange = { [weak self] state in self?.dictationState = state }
         dictation.onText = { [weak self] text in self?.inserter.insert(text) }
-        dictation.onDictationFinished = { [weak self] text in self?.lastTranscript = text }
+        dictation.onDictationFinished = { [weak self] text in self?.dictations.add(text) }
+        clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
+        clipboardWatcher.start()
         worker.async { [transcriber] in
             let ready = (try? transcriber.load()) != nil
             DispatchQueue.main.async { [weak self] in self?.isTranscriberReady = ready }
@@ -64,6 +68,20 @@ final class AppModel: ObservableObject {
         log.notice("Start, Mikrofon: \(self.hasMicrophone, privacy: .public), Bedienungshilfen: \(self.hasAccessibility, privacy: .public)")
         if hasAccessibility { hotkey.start() } else { waitForAccessibility() }
         askForMissingPermissions()
+    }
+
+    /// Legt einen Eintrag aus einem Verlauf wieder in die Zwischenablage.
+    func copyToClipboard(_ text: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    func clearDictations() {
+        dictations.clear()
+    }
+
+    func clearClipboardHistory() {
+        clipboard.clear()
     }
 
     /// Fragt nacheinander statt gleichzeitig, damit nie zwei Systemdialoge übereinander liegen.
