@@ -8,12 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		A10000000000000000000011 /* WadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* WadApp.swift */; };
+		A10000000000000000000014 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* AppModel.swift */; };
+		A10000000000000000000015 /* HotkeyMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* HotkeyMonitor.swift */; };
+		A10000000000000000000016 /* Permissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000006 /* Permissions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A10000000000000000000001 /* WadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WadApp.swift; sourceTree = "<group>"; };
 		A10000000000000000000002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A10000000000000000000003 /* Wad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000004 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		A10000000000000000000005 /* HotkeyMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyMonitor.swift; sourceTree = "<group>"; };
+		A10000000000000000000006 /* Permissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Permissions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +45,9 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000001 /* WadApp.swift */,
+				A10000000000000000000004 /* AppModel.swift */,
+				A10000000000000000000005 /* HotkeyMonitor.swift */,
+				A10000000000000000000006 /* Permissions.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -105,6 +114,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000011 /* WadApp.swift in Sources */,
+				A10000000000000000000014 /* AppModel.swift in Sources */,
+				A10000000000000000000015 /* HotkeyMonitor.swift in Sources */,
+				A10000000000000000000016 /* Permissions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,8 +161,9 @@
 		A10000000000000000000073 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				DEVELOPMENT_TEAM = WW659WX8GA;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Wad/Info.plist;
@@ -163,8 +176,9 @@
 		A10000000000000000000074 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				DEVELOPMENT_TEAM = WW659WX8GA;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Wad/Info.plist;
