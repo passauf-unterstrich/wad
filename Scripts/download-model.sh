@@ -1,6 +1,6 @@
 #!/bin/zsh
 # download-model.sh
-# Lädt Wads Sprachmodell vom offiziellen whisper.cpp-Bereich auf Hugging Face nach Models/
+# Lädt Wads zwei Modelle vom offiziellen whisper.cpp-Bereich auf Hugging Face nach Models/
 # und bricht ab, wenn die Prüfsumme nicht mit der veröffentlichten übereinstimmt.
 # Das Modell ist zu groß für Git und wird deshalb nach dem Klonen einmal so geholt.
 
@@ -13,3 +13,9 @@ sha256=394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2
 mkdir -p Models
 curl -L --fail -o "Models/$name" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$name"
 echo "$sha256  Models/$name" | shasum -a 256 -c -
+
+# Sprachdetektor Silero VAD: erkennt Pausen fürs Live-Chunking und echte Stille.
+vad=ggml-silero-v6.2.0.bin
+vad_sha256=2aa269b785eeb53a82983a20501ddf7c1d9c48e33ab63a41391ac6c9f7fb6987
+curl -L --fail -o "Models/$vad" "https://huggingface.co/ggml-org/whisper-vad/resolve/main/$vad"
+echo "$vad_sha256  Models/$vad" | shasum -a 256 -c -

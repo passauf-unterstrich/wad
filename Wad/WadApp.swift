@@ -10,6 +10,10 @@ struct WadApp: App {
     var body: some Scene {
         MenuBarExtra {
             Toggle("Diktieren", isOn: $model.isEnabled)
+            Picker("Modus", selection: $model.mode) {
+                Text("Live").tag(DictationController.Mode.live)
+                Text("Am Ende einfügen").tag(DictationController.Mode.atEnd)
+            }
             Divider()
             if let transcript = model.lastTranscript {
                 // Ein Untermenü statt einer langen Zeile: Das Hauptmenü bleibt schmal,

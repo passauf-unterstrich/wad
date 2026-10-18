@@ -48,6 +48,18 @@ final class TextInserterTests: XCTestCase {
         XCTAssertEqual(pasteboard.string(forType: .string), "vom Nutzer")
     }
 
+    func testQuickSuccessiveInsertsRestoreTheOriginal() {
+        pasteboard.clearContents()
+        pasteboard.setString("vorher", forType: .string)
+
+        inserter.insert("Stück 1")
+        inserter.insert(" Stück 2")
+        XCTAssertEqual(seenWhilePasting, " Stück 2")
+
+        waitForRestore()
+        XCTAssertEqual(pasteboard.string(forType: .string), "vorher")
+    }
+
     func testEmptyClipboardStaysEmpty() {
         pasteboard.clearContents()
         inserter.insert("Diktat")

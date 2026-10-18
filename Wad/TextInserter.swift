@@ -16,6 +16,8 @@ final class TextInserter {
     private let pasteboard: NSPasteboard
     private let restoreDelay: TimeInterval
     private let sendPasteShortcut: () -> Void
+    /// Der gesicherte Inhalt und die geplante Wiederherstellung, solange sie noch aussteht.
+    private var pending: (saved: [NSPasteboardItem], restore: DispatchWorkItem)?
 
     init(pasteboard: NSPasteboard = .general,
          restoreDelay: TimeInterval = TextInserter.restoreDelay,
@@ -26,7 +28,10 @@ final class TextInserter {
     }
 
     func insert(_ text: String) {
-        let saved = snapshot()
+        // Folgen zwei Stücke kurz aufeinander, liegt noch Wads eigener Text in der Zwischenablage.
+        // Dann bleibt die ursprüngliche Sicherung gültig, statt den Diktat-Text zu sichern.
+        let saved = pending?.saved ?? snapshot()
+        pending?.restore.cancel()
 
         let item = NSPasteboardItem()
         item.setString(text, forType: .string)
@@ -37,12 +42,15 @@ final class TextInserter {
 
         sendPasteShortcut()
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + restoreDelay) { [self] in
+        let restore = DispatchWorkItem { [self] in
+            pending = nil
             // Hat der Nutzer inzwischen selbst etwas kopiert, gehört die Zwischenablage ihm.
             guard pasteboard.changeCount == ownChange else { return }
             pasteboard.clearContents()
             if !saved.isEmpty { pasteboard.writeObjects(saved) }
         }
+        pending = (saved, restore)
+        DispatchQueue.main.asyncAfter(deadline: .now() + restoreDelay, execute: restore)
     }
 
     /// Kopiert jeden Eintrag in jedem Format, also auch Bilder, Dateien und formatierten Text.

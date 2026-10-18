@@ -1,7 +1,8 @@
 // MicrophoneRecorder.swift
 // Nimmt über das Mikrofon auf, solange start() … stop() läuft, und schreibt direkt in einen
-// AudioBuffer. Für jede Aufnahme entsteht eine frische Audio-Engine, die stop() vollständig
-// abbaut. Damit gibt macOS das Mikrofon sofort frei, und der orange Punkt verschwindet.
+// AudioBuffer, den der Aufnahme-Automat schon während der Aufnahme lesen kann. Für jede
+// Aufnahme entsteht eine frische Audio-Engine, die stop() vollständig abbaut. Damit gibt
+// macOS das Mikrofon sofort frei, und der orange Punkt verschwindet.
 
 import AVFoundation
 
@@ -21,10 +22,9 @@ final class MicrophoneRecorder: AudioCapture {
     var onDeviceChange: (() -> Void)?
 
     private var engine: AVAudioEngine?
-    private var buffer: AudioBuffer?
     private var deviceObserver: NSObjectProtocol?
 
-    func start() throws {
+    func start(onAudio: @escaping () -> Void) throws -> AudioBuffer {
         let engine = AVAudioEngine()
         let input = engine.inputNode
         let inputFormat = input.outputFormat(forBus: 0)
@@ -39,6 +39,7 @@ final class MicrophoneRecorder: AudioCapture {
         let buffer = AudioBuffer(maxDuration: DictationController.maxDuration)
         input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { pcm, _ in
             Self.convert(pcm, with: converter, into: buffer)
+            onAudio()
         }
         engine.prepare()
         do {
@@ -54,10 +55,10 @@ final class MicrophoneRecorder: AudioCapture {
             self?.onDeviceChange?()
         }
         self.engine = engine
-        self.buffer = buffer
+        return buffer
     }
 
-    func stop() -> AudioBuffer {
+    func stop() {
         if let engine {
             engine.inputNode.removeTap(onBus: 0)
             engine.stop()
@@ -66,8 +67,6 @@ final class MicrophoneRecorder: AudioCapture {
         engine = nil
         if let deviceObserver { NotificationCenter.default.removeObserver(deviceObserver) }
         deviceObserver = nil
-        defer { buffer = nil }
-        return buffer ?? AudioBuffer(maxDuration: 0)
     }
 
     /// Rechnet ein Stück Mikrofon-Audio auf 16 kHz mono um und hängt es an. Läuft auf dem Audio-Thread.

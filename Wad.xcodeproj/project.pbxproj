@@ -28,6 +28,13 @@
 		C10000000000000000001001 /* TextInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000001 /* TextInserter.swift */; };
 		C10000000000000000001002 /* TextInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000001 /* TextInserter.swift */; };
 		C10000000000000000001003 /* TextInserterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000002 /* TextInserterTests.swift */; };
+		D10000000000000000001001 /* ChunkPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* ChunkPlanner.swift */; };
+		D10000000000000000001002 /* DictationSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000002 /* DictationSession.swift */; };
+		D10000000000000000001005 /* ggml-silero-v6.2.0.bin in Resources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000005 /* ggml-silero-v6.2.0.bin */; };
+		D10000000000000000002001 /* ChunkPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* ChunkPlanner.swift */; };
+		D10000000000000000002002 /* DictationSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000002 /* DictationSession.swift */; };
+		D10000000000000000002003 /* TestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000003 /* TestDoubles.swift */; };
+		D10000000000000000002004 /* ChunkPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* ChunkPlannerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +58,11 @@
 		B10000000000000000000004 /* ggml-large-v3-turbo-q5_0.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ggml-large-v3-turbo-q5_0.bin"; sourceTree = "<group>"; };
 		C10000000000000000000001 /* TextInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInserter.swift; sourceTree = "<group>"; };
 		C10000000000000000000002 /* TextInserterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInserterTests.swift; sourceTree = "<group>"; };
+		D10000000000000000000001 /* ChunkPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChunkPlanner.swift"; sourceTree = "<group>"; };
+		D10000000000000000000002 /* DictationSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DictationSession.swift"; sourceTree = "<group>"; };
+		D10000000000000000000003 /* TestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TestDoubles.swift"; sourceTree = "<group>"; };
+		D10000000000000000000004 /* ChunkPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChunkPlannerTests.swift"; sourceTree = "<group>"; };
+		D10000000000000000000005 /* ggml-silero-v6.2.0.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ggml-silero-v6.2.0.bin"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +88,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B10000000000000000001004 /* ggml-large-v3-turbo-q5_0.bin in Resources */,
+				D10000000000000000001005 /* ggml-silero-v6.2.0.bin in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +122,8 @@
 				B10000000000000000000002 /* WhisperTranscriber.swift */,
 				B10000000000000000000003 /* Wad-Bridging-Header.h */,
 				C10000000000000000000001 /* TextInserter.swift */,
+				D10000000000000000000001 /* ChunkPlanner.swift */,
+				D10000000000000000000002 /* DictationSession.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -127,6 +142,8 @@
 			isa = PBXGroup;
 			children = (
 				A1000000000000000000000D /* DictationControllerTests.swift */,
+				D10000000000000000000004 /* ChunkPlannerTests.swift */,
+				D10000000000000000000003 /* TestDoubles.swift */,
 				C10000000000000000000002 /* TextInserterTests.swift */,
 			);
 			path = WadTests;
@@ -136,6 +153,7 @@
 			isa = PBXGroup;
 			children = (
 				B10000000000000000000004 /* ggml-large-v3-turbo-q5_0.bin */,
+				D10000000000000000000005 /* ggml-silero-v6.2.0.bin */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -223,6 +241,8 @@
 				B10000000000000000001001 /* Transcriber.swift in Sources */,
 				B10000000000000000001003 /* WhisperTranscriber.swift in Sources */,
 				C10000000000000000001001 /* TextInserter.swift in Sources */,
+				D10000000000000000001001 /* ChunkPlanner.swift in Sources */,
+				D10000000000000000001002 /* DictationSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,6 +257,10 @@
 				A1000000000000000000002B /* DictationControllerTests.swift in Sources */,
 				C10000000000000000001002 /* TextInserter.swift in Sources */,
 				C10000000000000000001003 /* TextInserterTests.swift in Sources */,
+				D10000000000000000002001 /* ChunkPlanner.swift in Sources */,
+				D10000000000000000002002 /* DictationSession.swift in Sources */,
+				D10000000000000000002003 /* TestDoubles.swift in Sources */,
+				D10000000000000000002004 /* ChunkPlannerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

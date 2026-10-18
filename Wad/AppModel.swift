@@ -1,13 +1,15 @@
 // AppModel.swift
 // Verbindet Wads Teile: Taste, Aufnahme-Automat, Spracherkennung, Einfügen, Berechtigungen
-// und Systemereignisse.
-// Menü und Symbol lesen ihren Zustand nur von hier.
+// und Systemereignisse. Menü und Symbol lesen ihren Zustand nur von hier.
 
 import SwiftUI
 
 final class AppModel: ObservableObject {
     @Published var isEnabled = true {
         didSet { if !isEnabled { dictation.cancel(reason: "Diktieren ausgeschaltet") } }
+    }
+    @Published var mode = DictationController.Mode.live {
+        didSet { dictation.mode = mode }
     }
     @Published private(set) var dictationState = DictationController.State.idle
     @Published private(set) var hasMicrophone = Permissions.hasMicrophone
@@ -22,18 +24,24 @@ final class AppModel: ObservableObject {
     private let transcriber: WhisperTranscriber
     private let inserter = TextInserter()
     private let dictation: DictationController
+    /// Die eine Warteschlange für alles, was die Spracherkennung tut: laden, prüfen, umwandeln.
+    private let worker: DispatchQueue
     private var observers: [NSObjectProtocol] = []
     private var accessibilityTimer: Timer?
 
     init() {
         transcriber = WhisperTranscriber()
+        let worker = DispatchQueue(label: "com.linushundt.Wad.transcription", qos: .userInitiated)
+        self.worker = worker
         dictation = DictationController(capture: recorder, transcriber: transcriber,
-                                        isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown)
-        transcriber.onLoaded = { [weak self] error in self?.isTranscriberReady = error == nil }
+                                        isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown,
+                                        background: { worker.async(execute: $0) })
         dictation.onStateChange = { [weak self] state in self?.dictationState = state }
-        dictation.onTranscript = { [weak self] text in
-            self?.lastTranscript = text
-            self?.inserter.insert(text)
+        dictation.onText = { [weak self] text in self?.inserter.insert(text) }
+        dictation.onDictationFinished = { [weak self] text in self?.lastTranscript = text }
+        worker.async { [transcriber] in
+            let ready = (try? transcriber.load()) != nil
+            DispatchQueue.main.async { [weak self] in self?.isTranscriberReady = ready }
         }
         recorder.onDeviceChange = { [weak self] in self?.dictation.cancel(reason: "Audiogerät gewechselt") }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
@@ -47,8 +55,10 @@ final class AppModel: ObservableObject {
         observers.append(NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            self?.dictation.cancel(reason: "Wad wird beendet")
-            self?.transcriber.shutdown()
+            guard let self else { return }
+            dictation.cancel(reason: "Wad wird beendet")
+            // Wartet eine laufende Umwandlung ab und gibt die Modelle dann frei.
+            worker.sync { self.transcriber.unload() }
         })
 
         log.notice("Start, Mikrofon: \(self.hasMicrophone, privacy: .public), Bedienungshilfen: \(self.hasAccessibility, privacy: .public)")

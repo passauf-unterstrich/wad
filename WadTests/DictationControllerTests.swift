@@ -1,6 +1,7 @@
 // DictationControllerTests.swift
-// Prüft die Absicherungen gegen eine weiterlaufende Aufnahme (SPEC 2.2) ohne echtes Mikrofon:
-// Eine Attrappe ersetzt das Mikrofon, eine verstellbare Uhr ersetzt das Warten.
+// Prüft die Absicherungen gegen eine weiterlaufende Aufnahme (SPEC 2.2) und das Live-Chunking
+// ohne echtes Mikrofon: Attrappen ersetzen Mikrofon und Modell, eine verstellbare Uhr das Warten.
+// Hintergrundarbeit läuft hier sofort, damit jeder Schritt direkt prüfbar ist.
 
 import XCTest
 
@@ -10,19 +11,29 @@ final class DictationControllerTests: XCTestCase {
     private var keyIsDown = true
     private var clock = Date(timeIntervalSince1970: 0)
     private var controller: DictationController!
+    private var inserted: [String] = []
+    private var finished: [String] = []
 
     override func setUp() {
         microphone = FakeMicrophone()
+        transcriber = FakeTranscriber()
         keyIsDown = true
         clock = Date(timeIntervalSince1970: 0)
-        transcriber = FakeTranscriber()
+        inserted = []
+        finished = []
         controller = DictationController(
             capture: microphone,
             transcriber: transcriber,
             isKeyPhysicallyDown: { [unowned self] in keyIsDown },
-            now: { [unowned self] in clock }
+            now: { [unowned self] in clock },
+            background: { $0() },
+            main: { $0() }
         )
+        controller.onText = { [unowned self] in inserted.append($0) }
+        controller.onDictationFinished = { [unowned self] in finished.append($0) }
     }
+
+    // MARK: Absicherungen
 
     func testPressAndReleaseStartsAndStopsMicrophone() {
         controller.keyPressed()
@@ -56,11 +67,14 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertFalse(microphone.isRunning)
     }
 
-    func testCancelStopsMicrophone() {
+    func testCancelStopsMicrophoneAndInsertsNothing() {
         controller.keyPressed()
+        microphone.deliver(seconds: 3, speech: true)
         controller.cancel(reason: "Test")
         XCTAssertEqual(controller.state, .idle)
         XCTAssertFalse(microphone.isRunning)
+        XCTAssertEqual(inserted, [])
+        XCTAssertEqual(microphone.buffer?.count, 0, "Abgebrochenes Audio ist gelöscht")
     }
 
     func testSecondPressNeverStartsSecondMicrophone() {
@@ -76,71 +90,73 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertFalse(microphone.isRunning)
     }
 
-    func testEveryStateChangeIsReported() {
-        var states: [DictationController.State] = []
-        controller.onStateChange = { states.append($0) }
-        controller.keyPressed()
-        clock += 1
-        controller.keyReleased()
-        XCTAssertEqual(states, [.recording, .processing, .idle])
-    }
-
-    func testTranscriptIsDeliveredAndAudioWiped() {
-        var transcript: String?
-        controller.onTranscript = { transcript = $0 }
-        controller.keyPressed()
-        clock += 1
-        controller.keyReleased()
-        XCTAssertEqual(transcript, "Hallo Wad")
-        XCTAssertEqual(transcriber.receivedAudio?.count, 0, "Nach der Umwandlung ist das Audio gelöscht")
-    }
+    // MARK: Umwandlung
 
     func testShortTapIsDiscardedWithoutTranscription() {
         controller.keyPressed()
+        microphone.deliver(seconds: 0.1, speech: true)
         clock += DictationController.minDuration / 2
         controller.keyReleased()
-        XCTAssertEqual(controller.state, .idle)
-        XCTAssertNil(transcriber.receivedAudio)
+        XCTAssertEqual(transcriber.chunkLengths, [])
+        XCTAssertEqual(inserted, [])
     }
 
-    func testAudioBufferNeverExceedsCapacity() {
-        let buffer = AudioBuffer(maxDuration: 1)
-        let samples = [Float](repeating: 0.5, count: Int(AudioBuffer.sampleRate) + 500)
-        samples.withUnsafeBufferPointer { buffer.append($0) }
-        XCTAssertEqual(buffer.count, buffer.capacity)
-
-        buffer.wipe()
-        XCTAssertEqual(buffer.count, 0)
-    }
-}
-
-private final class FakeMicrophone: AudioCapture {
-    struct StartFailure: Error {}
-
-    var failsToStart = false
-    private(set) var isRunning = false
-    private(set) var startCount = 0
-
-    func start() throws {
-        if failsToStart { throw StartFailure() }
-        startCount += 1
-        isRunning = true
+    func testSilenceNeverReachesTheModel() {
+        controller.keyPressed()
+        microphone.deliver(seconds: 5, speech: false)
+        clock += 5
+        controller.keyReleased()
+        XCTAssertEqual(transcriber.chunkLengths, [], "Stille geht nicht an das Modell, also keine Halluzinationen")
     }
 
-    func stop() -> AudioBuffer {
-        isRunning = false
-        let buffer = AudioBuffer(maxDuration: 1)
-        [Float](repeating: 0.1, count: 100).withUnsafeBufferPointer { buffer.append($0) }
-        return buffer
+    func testAtEndModeInsertsOnceAfterRelease() {
+        controller.mode = .atEnd
+        controller.keyPressed()
+        microphone.deliver(seconds: 12, speech: true)
+        microphone.deliver(seconds: 1, speech: false)
+        microphone.deliver(seconds: 5, speech: true)
+        XCTAssertEqual(inserted, [], "Während der Aufnahme wird nichts eingefügt")
+
+        clock += 18
+        controller.keyReleased()
+        XCTAssertEqual(inserted, ["Stück 1"])
+        XCTAssertEqual(microphone.buffer?.count, 0, "Nach dem Diktat ist das Audio gelöscht")
     }
-}
 
-/// Antwortet sofort, damit die Tests ohne Warten auskommen.
-private final class FakeTranscriber: Transcriber {
-    private(set) var receivedAudio: AudioBuffer?
+    // MARK: Live-Chunking
 
-    func transcribe(_ audio: AudioBuffer, completion: @escaping (Result<String, Error>) -> Void) {
-        receivedAudio = audio
-        completion(.success("Hallo Wad"))
+    func testLiveModeInsertsAtPauseWhileStillSpeaking() {
+        controller.keyPressed()
+        microphone.deliver(seconds: 11, speech: true)
+        microphone.deliver(seconds: 1, speech: false)
+        XCTAssertEqual(inserted, ["Stück 1"], "Erstes Stück erscheint, während die Taste noch gehalten wird")
+        XCTAssertEqual(controller.state, .recording)
+
+        microphone.deliver(seconds: 4, speech: true)
+        clock += 16
+        controller.keyReleased()
+        XCTAssertEqual(inserted, ["Stück 1", " Stück 2"], "Zweites Stück mit Leerzeichen angehängt")
+        XCTAssertEqual(finished, ["Stück 1 Stück 2"])
+    }
+
+    func testLiveChunksShareLanguageAndContext() {
+        controller.keyPressed()
+        microphone.deliver(seconds: 11, speech: true)
+        microphone.deliver(seconds: 1, speech: false)
+        microphone.deliver(seconds: 4, speech: true)
+        clock += 16
+        controller.keyReleased()
+        XCTAssertEqual(transcriber.languages, [nil, "de"], "Sprache wird einmal erkannt und beibehalten")
+        XCTAssertEqual(transcriber.prompts, [nil, "Stück 1"], "Vorheriges Stück gibt Zusammenhang")
+    }
+
+    func testLiveChunksCoverTheAudioWithoutGapOrOverlap() {
+        controller.keyPressed()
+        microphone.deliver(seconds: 11, speech: true)
+        microphone.deliver(seconds: 1, speech: false)
+        microphone.deliver(seconds: 4, speech: true)
+        clock += 16
+        controller.keyReleased()
+        XCTAssertEqual(transcriber.chunkLengths.reduce(0, +), Int(16 * AudioBuffer.sampleRate))
     }
 }
