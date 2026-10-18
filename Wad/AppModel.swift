@@ -1,36 +1,60 @@
 // AppModel.swift
-// Zentraler Zustand von Wad: ob Diktieren an ist, ob die Taste gerade gehalten wird
-// und ob die Bedienungshilfen-Berechtigung vorliegt. Menü und Symbol lesen nur von hier.
+// Verbindet Wads Teile: Taste, Aufnahme-Automat, Berechtigungen und Systemereignisse.
+// Menü und Symbol lesen ihren Zustand nur von hier.
 
 import SwiftUI
-import os
-
-/// Protokoll nur für Zustandswechsel, nie mit Inhalten. Lesbar mit: log show --predicate 'subsystem == "com.linushundt.Wad"'
-let log = Logger(subsystem: "com.linushundt.Wad", category: "Zustand")
 
 final class AppModel: ObservableObject {
     @Published var isEnabled = true {
-        didSet { if !isEnabled { isKeyHeld = false } }
+        didSet { if !isEnabled { dictation.cancel(reason: "Diktieren ausgeschaltet") } }
     }
-    @Published private(set) var isKeyHeld = false
+    @Published private(set) var dictationState = DictationController.State.idle
+    @Published private(set) var hasMicrophone = Permissions.hasMicrophone
     @Published private(set) var hasAccessibility = Permissions.hasAccessibility
 
     private let hotkey = HotkeyMonitor()
-    private var accessibilityObserver: NSObjectProtocol?
+    private let recorder = MicrophoneRecorder()
+    private let dictation: DictationController
+    private var observers: [NSObjectProtocol] = []
     private var accessibilityTimer: Timer?
 
     init() {
+        dictation = DictationController(capture: recorder, isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown)
+        dictation.onStateChange = { [weak self] state in self?.dictationState = state }
+        recorder.onDeviceChange = { [weak self] in self?.dictation.cancel(reason: "Audiogerät gewechselt") }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
-        accessibilityObserver = Permissions.observeAccessibilityChanges { [weak self] in
+
+        observers = SystemEvents.observeInterruptions { [weak self] reason in
+            self?.dictation.cancel(reason: reason)
+        }
+        observers.append(Permissions.observeAccessibilityChanges { [weak self] in
             self?.refreshAccessibility()
+        })
+
+        log.notice("Start, Mikrofon: \(self.hasMicrophone, privacy: .public), Bedienungshilfen: \(self.hasAccessibility, privacy: .public)")
+        if hasAccessibility { hotkey.start() } else { waitForAccessibility() }
+        askForMissingPermissions()
+    }
+
+    /// Fragt nacheinander statt gleichzeitig, damit nie zwei Systemdialoge übereinander liegen.
+    private func askForMissingPermissions() {
+        Permissions.requestMicrophone { [weak self] granted in
+            guard let self else { return }
+            hasMicrophone = granted
+            if !hasAccessibility { Permissions.requestAccessibility() }
         }
-        log.notice("Start, Bedienungshilfen: \(self.hasAccessibility, privacy: .public)")
-        if hasAccessibility {
-            hotkey.start()
-        } else {
-            Permissions.requestAccessibility()
-            waitForAccessibility()
+    }
+
+    private func keyChanged(_ isPressed: Bool) {
+        guard isPressed else {
+            dictation.keyReleased()
+            return
         }
+        guard isEnabled else { return }
+        // Das Mikrofon-Recht kann jederzeit in den Systemeinstellungen entzogen werden.
+        hasMicrophone = Permissions.hasMicrophone
+        guard hasMicrophone else { return }
+        dictation.keyPressed()
     }
 
     /// Solange die Freigabe fehlt, prüft Wad jede Sekunde nach, weil macOS eine neue Freigabe
@@ -55,12 +79,8 @@ final class AppModel: ObservableObject {
             Permissions.relaunch()
         } else {
             hotkey.stop()
-            isKeyHeld = false
+            dictation.cancel(reason: "Bedienungshilfen entzogen")
             waitForAccessibility()
         }
-    }
-
-    private func keyChanged(_ isPressed: Bool) {
-        isKeyHeld = isEnabled && isPressed
     }
 }

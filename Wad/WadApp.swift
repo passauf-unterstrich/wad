@@ -11,10 +11,17 @@ struct WadApp: App {
         MenuBarExtra {
             Toggle("Diktieren", isOn: $model.isEnabled)
             Divider()
+            if !model.hasMicrophone {
+                Button("Mikrofon erlauben …") {
+                    Permissions.openMicrophoneSettings()
+                }
+            }
             if !model.hasAccessibility {
                 Button("Bedienungshilfen erlauben …") {
                     Permissions.openAccessibilitySettings()
                 }
+            }
+            if !model.hasMicrophone || !model.hasAccessibility {
                 Divider()
             }
             Button("Wad beenden") {
@@ -27,7 +34,7 @@ struct WadApp: App {
     }
 
     private var menuBarIcon: Image {
-        if model.isKeyHeld { return Image(nsImage: MenuBarIcon.recording) }
+        if model.dictationState == .recording { return Image(nsImage: MenuBarIcon.recording) }
         return Image(nsImage: model.isEnabled ? MenuBarIcon.enabled : MenuBarIcon.disabled)
     }
 }

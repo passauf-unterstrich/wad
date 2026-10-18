@@ -12,6 +12,15 @@
 		A10000000000000000000015 /* HotkeyMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* HotkeyMonitor.swift */; };
 		A10000000000000000000016 /* Permissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000006 /* Permissions.swift */; };
 		A10000000000000000000017 /* MenuBarIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000007 /* MenuBarIcon.swift */; };
+		A10000000000000000000018 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000008 /* Log.swift */; };
+		A10000000000000000000019 /* AudioBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000009 /* AudioBuffer.swift */; };
+		A1000000000000000000001A /* DictationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000A /* DictationController.swift */; };
+		A1000000000000000000001B /* MicrophoneRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000B /* MicrophoneRecorder.swift */; };
+		A1000000000000000000001C /* SystemEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000C /* SystemEvents.swift */; };
+		A10000000000000000000028 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000008 /* Log.swift */; };
+		A10000000000000000000029 /* AudioBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000009 /* AudioBuffer.swift */; };
+		A1000000000000000000002A /* DictationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000A /* DictationController.swift */; };
+		A1000000000000000000002B /* DictationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000D /* DictationControllerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,10 +31,24 @@
 		A10000000000000000000005 /* HotkeyMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyMonitor.swift; sourceTree = "<group>"; };
 		A10000000000000000000006 /* Permissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Permissions.swift; sourceTree = "<group>"; };
 		A10000000000000000000007 /* MenuBarIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIcon.swift; sourceTree = "<group>"; };
+		A10000000000000000000008 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		A10000000000000000000009 /* AudioBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBuffer.swift; sourceTree = "<group>"; };
+		A1000000000000000000000A /* DictationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationController.swift; sourceTree = "<group>"; };
+		A1000000000000000000000B /* MicrophoneRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneRecorder.swift; sourceTree = "<group>"; };
+		A1000000000000000000000C /* SystemEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemEvents.swift; sourceTree = "<group>"; };
+		A1000000000000000000000D /* DictationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationControllerTests.swift; sourceTree = "<group>"; };
+		A1000000000000000000000E /* WadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		A10000000000000000000021 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000023 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -39,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000032 /* Wad */,
+				A10000000000000000000034 /* WadTests */,
 				A10000000000000000000033 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -51,6 +75,11 @@
 				A10000000000000000000005 /* HotkeyMonitor.swift */,
 				A10000000000000000000006 /* Permissions.swift */,
 				A10000000000000000000007 /* MenuBarIcon.swift */,
+				A10000000000000000000008 /* Log.swift */,
+				A10000000000000000000009 /* AudioBuffer.swift */,
+				A1000000000000000000000A /* DictationController.swift */,
+				A1000000000000000000000B /* MicrophoneRecorder.swift */,
+				A1000000000000000000000C /* SystemEvents.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -60,8 +89,17 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000003 /* Wad.app */,
+				A1000000000000000000000E /* WadTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000034 /* WadTests */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000000000000000000D /* DictationControllerTests.swift */,
+			);
+			path = WadTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -82,6 +120,22 @@
 			productName = Wad;
 			productReference = A10000000000000000000003 /* Wad.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A10000000000000000000042 /* WadTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000063 /* Build configuration list for PBXNativeTarget "WadTests" */;
+			buildPhases = (
+				A10000000000000000000024 /* Sources */,
+				A10000000000000000000023 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WadTests;
+			productName = WadTests;
+			productReference = A1000000000000000000000E /* WadTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -107,6 +161,7 @@
 			projectRoot = "";
 			targets = (
 				A10000000000000000000041 /* Wad */,
+				A10000000000000000000042 /* WadTests */,
 			);
 		};
 /* End PBXProject section */
@@ -121,6 +176,22 @@
 				A10000000000000000000014 /* AppModel.swift in Sources */,
 				A10000000000000000000015 /* HotkeyMonitor.swift in Sources */,
 				A10000000000000000000016 /* Permissions.swift in Sources */,
+				A10000000000000000000018 /* Log.swift in Sources */,
+				A10000000000000000000019 /* AudioBuffer.swift in Sources */,
+				A1000000000000000000001A /* DictationController.swift in Sources */,
+				A1000000000000000000001B /* MicrophoneRecorder.swift in Sources */,
+				A1000000000000000000001C /* SystemEvents.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000024 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000028 /* Log.swift in Sources */,
+				A10000000000000000000029 /* AudioBuffer.swift in Sources */,
+				A1000000000000000000002A /* DictationController.swift in Sources */,
+				A1000000000000000000002B /* DictationControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,7 +242,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WW659WX8GA;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = YES;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
 				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
 				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
@@ -200,7 +271,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WW659WX8GA;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = YES;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
 				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
 				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
@@ -217,6 +288,28 @@
 				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
 				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
 				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
+			};
+			name = Release;
+		};
+		A10000000000000000000075 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.linushundt.WadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A10000000000000000000076 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.linushundt.WadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -237,6 +330,15 @@
 			buildConfigurations = (
 				A10000000000000000000073 /* Debug */,
 				A10000000000000000000074 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000063 /* Build configuration list for PBXNativeTarget "WadTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000075 /* Debug */,
+				A10000000000000000000076 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

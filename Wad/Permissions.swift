@@ -1,10 +1,26 @@
 // Permissions.swift
-// Prüft und erfragt die Bedienungshilfen-Berechtigung und öffnet die passende Systemeinstellung.
+// Prüft und erfragt Wads zwei Berechtigungen, Mikrofon und Bedienungshilfen (SPEC 2.7),
+// und öffnet die jeweils passende Systemeinstellung.
 
 import AppKit
 import ApplicationServices
+import AVFoundation
 
 enum Permissions {
+    static var hasMicrophone: Bool { AVCaptureDevice.authorizationStatus(for: .audio) == .authorized }
+
+    /// Fragt einmalig nach dem Mikrofon. Hat der Nutzer schon entschieden, kommt sofort die Antwort.
+    static func requestMicrophone(completion: @escaping (Bool) -> Void) {
+        AVCaptureDevice.requestAccess(for: .audio) { granted in
+            DispatchQueue.main.async { completion(granted) }
+        }
+    }
+
+    static func openMicrophoneSettings() {
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
+        NSWorkspace.shared.open(url)
+    }
+
     static var hasAccessibility: Bool { AXIsProcessTrusted() }
 
     /// Zeigt den Systemdialog, der zur Freigabe in den Bedienungshilfen führt. Macht nichts, wenn sie schon erteilt ist.

@@ -50,6 +50,12 @@ final class HotkeyMonitor {
         return event.modifierFlags.rawValue & rightOptionFlag != 0
     }
 
+    /// Fragt direkt beim System nach, ob die rechte Option-Taste in diesem Moment unten ist,
+    /// unabhängig von Ereignissen. Grundlage der Gegenprüfung während der Aufnahme (SPEC 2.2).
+    static func isRightOptionDown() -> Bool {
+        UInt(CGEventSource.flagsState(.hidSystemState).rawValue) & rightOptionFlag != 0
+    }
+
     /// Tastencode der rechten Option-Taste (Apple: kVK_RightOption).
     private static let rightOptionKeyCode: UInt16 = 61
     /// Bit in den Flags, das nur für die rechte Option-Taste steht (Apple: NX_DEVICERALTKEYMASK).

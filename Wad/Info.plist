@@ -19,6 +19,9 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<!-- Dieser Satz erscheint im Mikrofon-Dialog von macOS. -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Wad hört nur zu, solange du die rechte Option-Taste gedrückt hältst. Die Aufnahme bleibt im Arbeitsspeicher deines Mac und wird nie gespeichert.</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<!-- Wad lebt nur in der Menüleiste: kein Dock-Symbol, kein Eintrag im App-Umschalter. -->
