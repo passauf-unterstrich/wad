@@ -27,6 +27,8 @@ final class HotkeyMonitor {
         }) {
             monitors.append(local)
         }
+
+        log.notice("Tasten-Beobachter gestartet: \(self.monitors.count, privacy: .public) von 2")
     }
 
     func stop() {

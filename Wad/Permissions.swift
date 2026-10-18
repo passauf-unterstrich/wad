@@ -24,7 +24,10 @@ enum Permissions {
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.createsNewApplicationInstance = true
         NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { _, error in
-            guard error == nil else { return }
+            guard error == nil else {
+                log.error("Neustart fehlgeschlagen: \(error!.localizedDescription, privacy: .public)")
+                return
+            }
             DispatchQueue.main.async { NSApplication.shared.terminate(nil) }
         }
     }

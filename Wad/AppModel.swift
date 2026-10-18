@@ -3,6 +3,10 @@
 // und ob die Bedienungshilfen-Berechtigung vorliegt. Menü und Symbol lesen nur von hier.
 
 import SwiftUI
+import os
+
+/// Protokoll nur für Zustandswechsel, nie mit Inhalten. Lesbar mit: log show --predicate 'subsystem == "com.linushundt.Wad"'
+let log = Logger(subsystem: "com.linushundt.Wad", category: "Zustand")
 
 final class AppModel: ObservableObject {
     @Published var isEnabled = true {
@@ -20,6 +24,7 @@ final class AppModel: ObservableObject {
         accessibilityObserver = Permissions.observeAccessibilityChanges { [weak self] in
             self?.refreshAccessibility()
         }
+        log.notice("Start, Bedienungshilfen: \(self.hasAccessibility, privacy: .public)")
         if hasAccessibility {
             hotkey.start()
         } else {
@@ -41,6 +46,7 @@ final class AppModel: ObservableObject {
     private func refreshAccessibility() {
         let isTrusted = Permissions.hasAccessibility
         guard isTrusted != hasAccessibility else { return }
+        log.notice("Bedienungshilfen geändert: \(isTrusted, privacy: .public)")
         hasAccessibility = isTrusted
         if isTrusted {
             accessibilityTimer?.invalidate()
