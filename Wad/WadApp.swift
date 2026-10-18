@@ -27,18 +27,7 @@ struct WadApp: App {
     }
 
     private var menuBarIcon: Image {
-        if model.isKeyHeld { return Image(nsImage: Self.recordingIcon) }
-        return Image(systemName: model.isEnabled ? "mic" : "mic.slash")
+        if model.isKeyHeld { return Image(nsImage: MenuBarIcon.recording) }
+        return Image(nsImage: model.isEnabled ? MenuBarIcon.enabled : MenuBarIcon.disabled)
     }
-
-    /// Roter Kreis. Menüleisten-Symbole sind sonst einfarbig („Template“), deshalb wird er
-    /// als farbiges Bild erzeugt und ausdrücklich nicht als Template markiert.
-    private static let recordingIcon: NSImage = {
-        let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .regular)
-            .applying(NSImage.SymbolConfiguration(paletteColors: [.systemRed]))
-        let image = NSImage(systemSymbolName: "circle.fill", accessibilityDescription: "Wad nimmt auf")!
-            .withSymbolConfiguration(config)!
-        image.isTemplate = false
-        return image
-    }()
 }
