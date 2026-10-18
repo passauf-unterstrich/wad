@@ -25,6 +25,9 @@
 		B10000000000000000001002 /* Transcriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* Transcriber.swift */; };
 		B10000000000000000001003 /* WhisperTranscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* WhisperTranscriber.swift */; };
 		B10000000000000000001004 /* ggml-large-v3-turbo-q5_0.bin in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* ggml-large-v3-turbo-q5_0.bin */; };
+		C10000000000000000001001 /* TextInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000001 /* TextInserter.swift */; };
+		C10000000000000000001002 /* TextInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000001 /* TextInserter.swift */; };
+		C10000000000000000001003 /* TextInserterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000002 /* TextInserterTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +49,8 @@
 		B10000000000000000000002 /* WhisperTranscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperTranscriber.swift; sourceTree = "<group>"; };
 		B10000000000000000000003 /* Wad-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Wad-Bridging-Header.h"; sourceTree = "<group>"; };
 		B10000000000000000000004 /* ggml-large-v3-turbo-q5_0.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ggml-large-v3-turbo-q5_0.bin"; sourceTree = "<group>"; };
+		C10000000000000000000001 /* TextInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInserter.swift; sourceTree = "<group>"; };
+		C10000000000000000000002 /* TextInserterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInserterTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +108,7 @@
 				B10000000000000000000001 /* Transcriber.swift */,
 				B10000000000000000000002 /* WhisperTranscriber.swift */,
 				B10000000000000000000003 /* Wad-Bridging-Header.h */,
+				C10000000000000000000001 /* TextInserter.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -121,6 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000000000000000000000D /* DictationControllerTests.swift */,
+				C10000000000000000000002 /* TextInserterTests.swift */,
 			);
 			path = WadTests;
 			sourceTree = "<group>";
@@ -215,6 +222,7 @@
 				A1000000000000000000001C /* SystemEvents.swift in Sources */,
 				B10000000000000000001001 /* Transcriber.swift in Sources */,
 				B10000000000000000001003 /* WhisperTranscriber.swift in Sources */,
+				C10000000000000000001001 /* TextInserter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,6 +235,8 @@
 				A1000000000000000000002A /* DictationController.swift in Sources */,
 				B10000000000000000001002 /* Transcriber.swift in Sources */,
 				A1000000000000000000002B /* DictationControllerTests.swift in Sources */,
+				C10000000000000000001002 /* TextInserter.swift in Sources */,
+				C10000000000000000001003 /* TextInserterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

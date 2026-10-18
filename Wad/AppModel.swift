@@ -1,5 +1,6 @@
 // AppModel.swift
-// Verbindet Wads Teile: Taste, Aufnahme-Automat, Spracherkennung, Berechtigungen und Systemereignisse.
+// Verbindet Wads Teile: Taste, Aufnahme-Automat, Spracherkennung, Einfügen, Berechtigungen
+// und Systemereignisse.
 // Menü und Symbol lesen ihren Zustand nur von hier.
 
 import SwiftUI
@@ -19,6 +20,7 @@ final class AppModel: ObservableObject {
     private let hotkey = HotkeyMonitor()
     private let recorder = MicrophoneRecorder()
     private let transcriber: WhisperTranscriber
+    private let inserter = TextInserter()
     private let dictation: DictationController
     private var observers: [NSObjectProtocol] = []
     private var accessibilityTimer: Timer?
@@ -29,7 +31,10 @@ final class AppModel: ObservableObject {
                                         isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown)
         transcriber.onLoaded = { [weak self] error in self?.isTranscriberReady = error == nil }
         dictation.onStateChange = { [weak self] state in self?.dictationState = state }
-        dictation.onTranscript = { [weak self] text in self?.lastTranscript = text }
+        dictation.onTranscript = { [weak self] text in
+            self?.lastTranscript = text
+            self?.inserter.insert(text)
+        }
         recorder.onDeviceChange = { [weak self] in self?.dictation.cancel(reason: "Audiogerät gewechselt") }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
 
