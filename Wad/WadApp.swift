@@ -12,8 +12,10 @@ struct WadApp: App {
             Toggle("Diktieren", isOn: $model.isEnabled)
             Divider()
             if let transcript = model.lastTranscript {
-                Section("Letztes Diktat") {
-                    Text(transcript)
+                // Ein Untermenü statt einer langen Zeile: Das Hauptmenü bleibt schmal,
+                // macOS klappt die Liste zur Seite auf, an der Platz ist.
+                Menu("Letzte Diktate") {
+                    Text(Self.menuTitle(for: transcript))
                 }
                 Divider()
             }
@@ -41,6 +43,12 @@ struct WadApp: App {
         } label: {
             menuBarIcon
         }
+    }
+
+    /// Kürzt einen Text auf eine Menüzeile: einzeilig, höchstens 50 Zeichen.
+    private static func menuTitle(for text: String) -> String {
+        let line = text.split(whereSeparator: \.isNewline).joined(separator: " ")
+        return line.count > 50 ? line.prefix(49).trimmingCharacters(in: .whitespaces) + "…" : line
     }
 
     private var menuBarIcon: Image {
