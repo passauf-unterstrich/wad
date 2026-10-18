@@ -6,6 +6,7 @@ import XCTest
 
 final class DictationControllerTests: XCTestCase {
     private var microphone: FakeMicrophone!
+    private var transcriber: FakeTranscriber!
     private var keyIsDown = true
     private var clock = Date(timeIntervalSince1970: 0)
     private var controller: DictationController!
@@ -14,8 +15,10 @@ final class DictationControllerTests: XCTestCase {
         microphone = FakeMicrophone()
         keyIsDown = true
         clock = Date(timeIntervalSince1970: 0)
+        transcriber = FakeTranscriber()
         controller = DictationController(
             capture: microphone,
+            transcriber: transcriber,
             isKeyPhysicallyDown: { [unowned self] in keyIsDown },
             now: { [unowned self] in clock }
         )
@@ -26,6 +29,7 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(controller.state, .recording)
         XCTAssertTrue(microphone.isRunning)
 
+        clock += 1
         controller.keyReleased()
         XCTAssertEqual(controller.state, .idle)
         XCTAssertFalse(microphone.isRunning)
@@ -33,6 +37,7 @@ final class DictationControllerTests: XCTestCase {
 
     func testLostReleaseEventIsCaughtBySafetyCheck() {
         controller.keyPressed()
+        clock += 1
         keyIsDown = false            // Taste ist oben, das Loslassen-Ereignis kam aber nie an.
         controller.checkSafeguards()
         XCTAssertEqual(controller.state, .idle)
@@ -75,8 +80,27 @@ final class DictationControllerTests: XCTestCase {
         var states: [DictationController.State] = []
         controller.onStateChange = { states.append($0) }
         controller.keyPressed()
+        clock += 1
         controller.keyReleased()
         XCTAssertEqual(states, [.recording, .processing, .idle])
+    }
+
+    func testTranscriptIsDeliveredAndAudioWiped() {
+        var transcript: String?
+        controller.onTranscript = { transcript = $0 }
+        controller.keyPressed()
+        clock += 1
+        controller.keyReleased()
+        XCTAssertEqual(transcript, "Hallo Wad")
+        XCTAssertEqual(transcriber.receivedAudio?.count, 0, "Nach der Umwandlung ist das Audio gelöscht")
+    }
+
+    func testShortTapIsDiscardedWithoutTranscription() {
+        controller.keyPressed()
+        clock += DictationController.minDuration / 2
+        controller.keyReleased()
+        XCTAssertEqual(controller.state, .idle)
+        XCTAssertNil(transcriber.receivedAudio)
     }
 
     func testAudioBufferNeverExceedsCapacity() {
@@ -105,6 +129,18 @@ private final class FakeMicrophone: AudioCapture {
 
     func stop() -> AudioBuffer {
         isRunning = false
-        return AudioBuffer(maxDuration: 1)
+        let buffer = AudioBuffer(maxDuration: 1)
+        [Float](repeating: 0.1, count: 100).withUnsafeBufferPointer { buffer.append($0) }
+        return buffer
+    }
+}
+
+/// Antwortet sofort, damit die Tests ohne Warten auskommen.
+private final class FakeTranscriber: Transcriber {
+    private(set) var receivedAudio: AudioBuffer?
+
+    func transcribe(_ audio: AudioBuffer, completion: @escaping (Result<String, Error>) -> Void) {
+        receivedAudio = audio
+        completion(.success("Hallo Wad"))
     }
 }

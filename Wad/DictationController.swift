@@ -1,7 +1,7 @@
 // DictationController.swift
 // Der Zustandsautomat einer Aufnahme: bereit → nimmt auf → verarbeitet → bereit.
-// Die einzige Stelle, die das Mikrofon starten darf, und der Sitz aller Absicherungen
-// gegen eine weiterlaufende Aufnahme (SPEC 2.2).
+// Die einzige Stelle, die das Mikrofon starten darf, der Sitz aller Absicherungen gegen eine
+// weiterlaufende Aufnahme (SPEC 2.2) und die Stelle, an der die Aufnahme nach der Umwandlung gelöscht wird.
 
 import Foundation
 
@@ -19,6 +19,8 @@ final class DictationController {
 
     /// Harte Obergrenze einer Aufnahme. Bewusst eine feste Konstante, keine Einstellung.
     static let maxDuration: TimeInterval = 10 * 60
+    /// Kürzere Tipper gelten als versehentlich: nichts wird umgewandelt, nichts eingefügt.
+    static let minDuration: TimeInterval = 0.3
     /// Takt der Gegenprüfung, ob die Taste wirklich noch gehalten wird: fünfmal pro Sekunde.
     static let safetyCheckInterval: TimeInterval = 0.2
 
@@ -26,8 +28,11 @@ final class DictationController {
         didSet { if state != oldValue { onStateChange?(state) } }
     }
     var onStateChange: ((State) -> Void)?
+    /// Meldet den fertigen Text eines Diktats.
+    var onTranscript: ((String) -> Void)?
 
     private let capture: AudioCapture
+    private let transcriber: Transcriber
     private let isKeyPhysicallyDown: () -> Bool
     private let now: () -> Date
     private var startedAt: Date?
@@ -36,8 +41,10 @@ final class DictationController {
     /// - Parameters:
     ///   - isKeyPhysicallyDown: fragt direkt beim System nach, ob die Taste gerade unten ist.
     ///   - now: Uhr, in Tests ersetzbar, damit niemand zehn Minuten warten muss.
-    init(capture: AudioCapture, isKeyPhysicallyDown: @escaping () -> Bool, now: @escaping () -> Date = Date.init) {
+    init(capture: AudioCapture, transcriber: Transcriber,
+         isKeyPhysicallyDown: @escaping () -> Bool, now: @escaping () -> Date = Date.init) {
         self.capture = capture
+        self.transcriber = transcriber
         self.isKeyPhysicallyDown = isKeyPhysicallyDown
         self.now = now
     }
@@ -78,13 +85,29 @@ final class DictationController {
     }
 
     private func finish(reason: String) {
-        guard state == .recording else { return }
+        guard state == .recording, let startedAt else { return }
+        let duration = now().timeIntervalSince(startedAt)
         let audio = stopMicrophone()
         log.notice("Aufnahme beendet: \(reason, privacy: .public)")
+        guard duration >= Self.minDuration else {
+            audio.wipe()
+            state = .idle
+            return
+        }
         state = .processing
-        // Ab Etappe 3 geht `audio` hier an die Spracherkennung. Bis dahin wird es sofort gelöscht.
-        audio.wipe()
-        state = .idle
+        transcriber.transcribe(audio) { [weak self] result in
+            audio.wipe()
+            guard let self else { return }
+            switch result {
+            case .success(let text) where !text.isEmpty:
+                onTranscript?(text)
+            case .success:
+                break
+            case .failure(let error):
+                log.error("Umwandlung fehlgeschlagen: \(error.localizedDescription, privacy: .public)")
+            }
+            state = .idle
+        }
     }
 
     private func stopMicrophone() -> AudioBuffer {

@@ -37,6 +37,13 @@ final class AudioBuffer {
         count += n
     }
 
+    /// Gibt den aufgenommenen Teil zum Lesen frei, ohne ihn zu kopieren.
+    func withSamples<T>(_ body: (UnsafeBufferPointer<Float>) -> T) -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return body(UnsafeBufferPointer(start: storage, count: count))
+    }
+
     /// Überschreibt alle Samples mit Nullen. `memset_s` darf der Compiler im Gegensatz zu einer
     /// normalen Schleife nicht wegoptimieren. Grenze: Kopien, die Apples Audio-System intern
     /// kurzzeitig hält, liegen außerhalb von Wads Reichweite.

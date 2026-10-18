@@ -21,6 +21,10 @@
 		A10000000000000000000029 /* AudioBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000009 /* AudioBuffer.swift */; };
 		A1000000000000000000002A /* DictationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000A /* DictationController.swift */; };
 		A1000000000000000000002B /* DictationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000D /* DictationControllerTests.swift */; };
+		B10000000000000000001001 /* Transcriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* Transcriber.swift */; };
+		B10000000000000000001002 /* Transcriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* Transcriber.swift */; };
+		B10000000000000000001003 /* WhisperTranscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* WhisperTranscriber.swift */; };
+		B10000000000000000001004 /* ggml-large-v3-turbo-q5_0.bin in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* ggml-large-v3-turbo-q5_0.bin */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +42,10 @@
 		A1000000000000000000000C /* SystemEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemEvents.swift; sourceTree = "<group>"; };
 		A1000000000000000000000D /* DictationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationControllerTests.swift; sourceTree = "<group>"; };
 		A1000000000000000000000E /* WadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000000000000000000001 /* Transcriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transcriber.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* WhisperTranscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperTranscriber.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* Wad-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Wad-Bridging-Header.h"; sourceTree = "<group>"; };
+		B10000000000000000000004 /* ggml-large-v3-turbo-q5_0.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ggml-large-v3-turbo-q5_0.bin"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,12 +65,24 @@
 		};
 /* End PBXFrameworksBuildPhase section */
 
+/* Begin PBXResourcesBuildPhase section */
+		B10000000000000000003001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000001004 /* ggml-large-v3-turbo-q5_0.bin in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXGroup section */
 		A10000000000000000000031 = {
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000032 /* Wad */,
 				A10000000000000000000034 /* WadTests */,
+				B10000000000000000002001 /* Models */,
 				A10000000000000000000033 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -80,6 +100,9 @@
 				A1000000000000000000000A /* DictationController.swift */,
 				A1000000000000000000000B /* MicrophoneRecorder.swift */,
 				A1000000000000000000000C /* SystemEvents.swift */,
+				B10000000000000000000001 /* Transcriber.swift */,
+				B10000000000000000000002 /* WhisperTranscriber.swift */,
+				B10000000000000000000003 /* Wad-Bridging-Header.h */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -102,6 +125,14 @@
 			path = WadTests;
 			sourceTree = "<group>";
 		};
+		B10000000000000000002001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000004 /* ggml-large-v3-turbo-q5_0.bin */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -111,6 +142,7 @@
 			buildPhases = (
 				A10000000000000000000022 /* Sources */,
 				A10000000000000000000021 /* Frameworks */,
+				B10000000000000000003001 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -181,6 +213,8 @@
 				A1000000000000000000001A /* DictationController.swift in Sources */,
 				A1000000000000000000001B /* MicrophoneRecorder.swift in Sources */,
 				A1000000000000000000001C /* SystemEvents.swift in Sources */,
+				B10000000000000000001001 /* Transcriber.swift in Sources */,
+				B10000000000000000001003 /* WhisperTranscriber.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,6 +225,7 @@
 				A10000000000000000000028 /* Log.swift in Sources */,
 				A10000000000000000000029 /* AudioBuffer.swift in Sources */,
 				A1000000000000000000002A /* DictationController.swift in Sources */,
+				B10000000000000000001002 /* Transcriber.swift in Sources */,
 				A1000000000000000000002B /* DictationControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -248,6 +283,27 @@
 				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/Vendor/whisper.cpp/include",
+					"$(PROJECT_DIR)/Vendor/whisper.cpp/ggml/include",
+				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/Vendor/whisper-build/lib";
+				OTHER_LDFLAGS = (
+					"-lwhisper",
+					"-lggml",
+					"-lggml-base",
+					"-lggml-cpu",
+					"-lggml-metal",
+					"-lggml-blas",
+					"-lc++",
+					"-framework",
+					Accelerate,
+					"-framework",
+					Metal,
+					"-framework",
+					MetalKit,
+				);
+				SWIFT_OBJC_BRIDGING_HEADER = "Wad/Wad-Bridging-Header.h";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Wad/Info.plist;
 				MARKETING_VERSION = 0.1;
@@ -277,6 +333,27 @@
 				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/Vendor/whisper.cpp/include",
+					"$(PROJECT_DIR)/Vendor/whisper.cpp/ggml/include",
+				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/Vendor/whisper-build/lib";
+				OTHER_LDFLAGS = (
+					"-lwhisper",
+					"-lggml",
+					"-lggml-base",
+					"-lggml-cpu",
+					"-lggml-metal",
+					"-lggml-blas",
+					"-lc++",
+					"-framework",
+					Accelerate,
+					"-framework",
+					Metal,
+					"-framework",
+					MetalKit,
+				);
+				SWIFT_OBJC_BRIDGING_HEADER = "Wad/Wad-Bridging-Header.h";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Wad/Info.plist;
 				MARKETING_VERSION = 0.1;

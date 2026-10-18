@@ -11,6 +11,16 @@ struct WadApp: App {
         MenuBarExtra {
             Toggle("Diktieren", isOn: $model.isEnabled)
             Divider()
+            if let transcript = model.lastTranscript {
+                Section("Letztes Diktat") {
+                    Text(transcript)
+                }
+                Divider()
+            }
+            if model.isTranscriberReady == false {
+                Text("Spracherkennung nicht verfügbar")
+                Divider()
+            }
             if !model.hasMicrophone {
                 Button("Mikrofon erlauben …") {
                     Permissions.openMicrophoneSettings()

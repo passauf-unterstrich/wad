@@ -1,5 +1,5 @@
 // AppModel.swift
-// Verbindet Wads Teile: Taste, Aufnahme-Automat, Berechtigungen und Systemereignisse.
+// Verbindet Wads Teile: Taste, Aufnahme-Automat, Spracherkennung, Berechtigungen und Systemereignisse.
 // Menü und Symbol lesen ihren Zustand nur von hier.
 
 import SwiftUI
@@ -11,16 +11,25 @@ final class AppModel: ObservableObject {
     @Published private(set) var dictationState = DictationController.State.idle
     @Published private(set) var hasMicrophone = Permissions.hasMicrophone
     @Published private(set) var hasAccessibility = Permissions.hasAccessibility
+    /// Ob das Sprachmodell bereitsteht. `nil`, solange es noch lädt.
+    @Published private(set) var isTranscriberReady: Bool?
+    /// Text des letzten Diktats, nur im Arbeitsspeicher. Ab Etappe 6 wird daraus der Verlauf.
+    @Published private(set) var lastTranscript: String?
 
     private let hotkey = HotkeyMonitor()
     private let recorder = MicrophoneRecorder()
+    private let transcriber: WhisperTranscriber
     private let dictation: DictationController
     private var observers: [NSObjectProtocol] = []
     private var accessibilityTimer: Timer?
 
     init() {
-        dictation = DictationController(capture: recorder, isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown)
+        transcriber = WhisperTranscriber()
+        dictation = DictationController(capture: recorder, transcriber: transcriber,
+                                        isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown)
+        transcriber.onLoaded = { [weak self] error in self?.isTranscriberReady = error == nil }
         dictation.onStateChange = { [weak self] state in self?.dictationState = state }
+        dictation.onTranscript = { [weak self] text in self?.lastTranscript = text }
         recorder.onDeviceChange = { [weak self] in self?.dictation.cancel(reason: "Audiogerät gewechselt") }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
 
@@ -29,6 +38,12 @@ final class AppModel: ObservableObject {
         }
         observers.append(Permissions.observeAccessibilityChanges { [weak self] in
             self?.refreshAccessibility()
+        })
+        observers.append(NotificationCenter.default.addObserver(
+            forName: NSApplication.willTerminateNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.dictation.cancel(reason: "Wad wird beendet")
+            self?.transcriber.shutdown()
         })
 
         log.notice("Start, Mikrofon: \(self.hasMicrophone, privacy: .public), Bedienungshilfen: \(self.hasAccessibility, privacy: .public)")

@@ -6,3 +6,9 @@ xcuserdata/
 
 # macOS-Ordnerdaten
 .DS_Store
+
+# Sprachmodell: zu groß für Git, wird mit Scripts/download-model.sh geholt
+Models/*.bin
+
+# Übersetztes whisper.cpp: wird mit Scripts/build-whisper.sh erzeugt
+Vendor/whisper-build/
