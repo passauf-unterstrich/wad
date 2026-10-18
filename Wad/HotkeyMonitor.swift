@@ -37,6 +37,8 @@ final class HotkeyMonitor {
     }
 
     private func handle(_ event: NSEvent) {
+        // Ereignisse, die Wad selbst ausgelöst hat (das Cmd+V beim Einfügen), zählen nie als Tastendruck.
+        guard event.cgEvent?.getIntegerValueField(.eventSourceUnixProcessID) != Int64(getpid()) else { return }
         guard let isPressed = Self.rightOptionState(in: event) else { return }
         onChange?(isPressed)
     }

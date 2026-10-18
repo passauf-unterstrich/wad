@@ -57,6 +57,7 @@ final class DictationController {
     private var safetyTimer: Timer?
     private var nextLiveCheck = 0
     private var isLiveCheckPending = false
+    private var keyUpChecks = 0
 
     /// - Parameters:
     ///   - isKeyPhysicallyDown: fragt direkt beim System nach, ob die Taste gerade unten ist.
@@ -91,6 +92,7 @@ final class DictationController {
         session = DictationSession(audio: audio, transcriber: transcriber)
         nextLiveCheck = ChunkPlanner.minChunk
         startedAt = now()
+        keyUpChecks = 0
         state = .recording
         startSafetyTimer()
     }
@@ -112,7 +114,11 @@ final class DictationController {
     /// Die Gegenprüfung. Läuft während der Aufnahme im Takt, in Tests wird sie direkt aufgerufen.
     func checkSafeguards() {
         guard state == .recording, let startedAt else { return }
-        if !isKeyPhysicallyDown() {
+        // Erst wenn die Taste zweimal hintereinander oben ist, gilt das Loslassen als verpasst.
+        // So beendet ein kurzer Aussetzer (etwa während Wad einfügt) nie ein laufendes Diktat,
+        // und eine hängende Aufnahme endet trotzdem nach spätestens 0,4 Sekunden.
+        keyUpChecks = isKeyPhysicallyDown() ? 0 : keyUpChecks + 1
+        if keyUpChecks >= 2 {
             finish(reason: "Loslassen verpasst, Gegenprüfung")
         } else if now().timeIntervalSince(startedAt) >= Self.maxDuration {
             finish(reason: "Zeitlimit erreicht")

@@ -54,6 +54,8 @@ final class DictationControllerTests: XCTestCase {
         clock += 1
         keyIsDown = false            // Taste ist oben, das Loslassen-Ereignis kam aber nie an.
         controller.checkSafeguards()
+        XCTAssertEqual(controller.state, .recording, "Ein einzelner Aussetzer beendet noch nichts")
+        controller.checkSafeguards()
         XCTAssertEqual(controller.state, .idle)
         XCTAssertFalse(microphone.isRunning)
     }
@@ -69,6 +71,17 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(controller.state, .idle)
         XCTAssertFalse(microphone.isRunning)
         XCTAssertEqual(notices.count, 1, "Der Nutzer erfährt, warum die Aufnahme endete")
+    }
+
+    func testBriefGlitchDuringPasteDoesNotEndDictation() {
+        controller.keyPressed()
+        keyIsDown = false
+        controller.checkSafeguards()
+        keyIsDown = true
+        controller.checkSafeguards()
+        keyIsDown = false
+        controller.checkSafeguards()
+        XCTAssertEqual(controller.state, .recording, "Nur zwei Aussetzer direkt hintereinander zählen")
     }
 
     func testCancelStopsMicrophoneAndInsertsNothing() {
