@@ -12,7 +12,7 @@ final class MicrophoneRecorder: AudioCapture {
 
         var errorDescription: String? {
             switch self {
-            case .noMicrophone: "Kein Mikrofon verfügbar"
+            case .noMicrophone: "Kein Mikrofon gefunden"
             case .unsupportedFormat: "Audioformat des Mikrofons wird nicht unterstützt"
             }
         }

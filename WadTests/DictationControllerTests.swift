@@ -13,6 +13,7 @@ final class DictationControllerTests: XCTestCase {
     private var controller: DictationController!
     private var inserted: [String] = []
     private var finished: [String] = []
+    private var notices: [String] = []
 
     override func setUp() {
         microphone = FakeMicrophone()
@@ -21,6 +22,7 @@ final class DictationControllerTests: XCTestCase {
         clock = Date(timeIntervalSince1970: 0)
         inserted = []
         finished = []
+        notices = []
         controller = DictationController(
             capture: microphone,
             transcriber: transcriber,
@@ -31,6 +33,7 @@ final class DictationControllerTests: XCTestCase {
         )
         controller.onText = { [unowned self] in inserted.append($0) }
         controller.onDictationFinished = { [unowned self] in finished.append($0) }
+        controller.onNotice = { [unowned self] in notices.append($0) }
     }
 
     // MARK: Absicherungen
@@ -65,6 +68,7 @@ final class DictationControllerTests: XCTestCase {
         controller.checkSafeguards()
         XCTAssertEqual(controller.state, .idle)
         XCTAssertFalse(microphone.isRunning)
+        XCTAssertEqual(notices.count, 1, "Der Nutzer erfährt, warum die Aufnahme endete")
     }
 
     func testCancelStopsMicrophoneAndInsertsNothing() {
@@ -88,6 +92,7 @@ final class DictationControllerTests: XCTestCase {
         controller.keyPressed()
         XCTAssertEqual(controller.state, .idle)
         XCTAssertFalse(microphone.isRunning)
+        XCTAssertEqual(notices.count, 1, "Statt still zu versagen, gibt es einen Hinweis")
     }
 
     // MARK: Umwandlung

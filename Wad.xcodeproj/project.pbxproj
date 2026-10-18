@@ -40,6 +40,7 @@
 		E10000000000000000002001 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* History.swift */; };
 		E10000000000000000002002 /* ClipboardWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000002 /* ClipboardWatcher.swift */; };
 		E10000000000000000002003 /* HistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* HistoryTests.swift */; };
+		F10000000000000000001001 /* WadMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* WadMain.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,6 +72,7 @@
 		E10000000000000000000001 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
 		E10000000000000000000002 /* ClipboardWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardWatcher.swift; sourceTree = "<group>"; };
 		E10000000000000000000003 /* HistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryTests.swift; sourceTree = "<group>"; };
+		F10000000000000000000001 /* WadMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WadMain.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +118,7 @@
 		A10000000000000000000032 /* Wad */ = {
 			isa = PBXGroup;
 			children = (
+				F10000000000000000000001 /* WadMain.swift */,
 				A10000000000000000000001 /* WadApp.swift */,
 				A10000000000000000000004 /* AppModel.swift */,
 				A10000000000000000000005 /* HotkeyMonitor.swift */,
@@ -239,6 +242,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F10000000000000000001001 /* WadMain.swift in Sources */,
 				A10000000000000000000011 /* WadApp.swift in Sources */,
 				A10000000000000000000017 /* MenuBarIcon.swift in Sources */,
 				A10000000000000000000014 /* AppModel.swift in Sources */,

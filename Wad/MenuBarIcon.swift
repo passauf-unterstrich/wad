@@ -1,12 +1,20 @@
 // MenuBarIcon.swift
-// Zeichnet Wads Menüleisten-Symbole: Studio-Mikrofon mit KI-Funkeln (an), dasselbe
-// durchgestrichen (aus) und den roten Aufnahme-Punkt. Alles als Vektor, scharf auf jedem Bildschirm.
+// Zeichnet Wads Menüleisten-Symbole (SPEC 1.2): Studio-Mikrofon mit KI-Funkeln (an), dasselbe
+// durchgestrichen (aus), mit drei Punkten (verarbeitet), mit Ausrufezeichen (Hinweis) und den
+// roten Aufnahme-Punkt. Alles als Vektor, scharf auf jedem Bildschirm.
 
 import AppKit
 
 enum MenuBarIcon {
-    static let enabled = template(slashed: false, description: "Wad")
-    static let disabled = template(slashed: true, description: "Wad, Diktieren aus")
+    static let enabled = template(.sparkle, description: "Wad")
+    static let disabled = template(.slashed, description: "Wad, Diktieren aus")
+    static let processing = template(.dots, description: "Wad wandelt um")
+    static let notice = template(.exclamation, description: "Wad hat einen Hinweis")
+
+    /// Was neben bzw. über dem Mikrofon steht. Das Mikrofon selbst bleibt immer gleich.
+    private enum Accent {
+        case sparkle, slashed, dots, exclamation
+    }
 
     /// Roter Punkt, auf derselben Fläche und genau dort zentriert, wo das Mikrofon steht,
     /// damit beim Drücken nichts springt. Ausdrücklich farbig, also kein „Template“.
@@ -32,7 +40,7 @@ enum MenuBarIcon {
     private static let lineWidth: CGFloat = 1.4
 
     /// Template-Bilder färbt macOS selbst passend zur Menüleiste weiß oder schwarz.
-    private static func template(slashed: Bool, description: String) -> NSImage {
+    private static func template(_ accent: Accent, description: String) -> NSImage {
         let image = NSImage(size: canvas, flipped: true) { _ in
             // Gezeichnet wird auf einem 18-pt-Raster (y nach unten), verkleinert auf 90 %,
             // damit Höhe und Linienstärke zu Apples eigenen Symbolen passen.
@@ -42,8 +50,12 @@ enum MenuBarIcon {
             context.translateBy(x: -9, y: -9)
             NSColor.black.set()
             drawMicrophone()
-            drawSparkle(center: NSPoint(x: 16.7, y: 3.2), radius: 3)
-            if slashed { drawSlash() }
+            switch accent {
+            case .sparkle: drawSparkle(center: accentCenter, radius: 3)
+            case .slashed: drawSparkle(center: accentCenter, radius: 3); drawSlash()
+            case .dots: drawDots()
+            case .exclamation: drawExclamation()
+            }
             return true
         }
         image.isTemplate = true
@@ -93,6 +105,31 @@ enum MenuBarIcon {
         }
         star.close()
         star.fill()
+    }
+
+    /// Wo der Stern sitzt; die anderen Zeichen nehmen denselben Platz ein.
+    private static let accentCenter = NSPoint(x: 16.7, y: 3.2)
+
+    /// Drei Punkte untereinander an der Stelle des Sterns: „Moment, ich arbeite“.
+    private static func drawDots() {
+        for dy: CGFloat in [-2.4, 0, 2.4] {
+            let r: CGFloat = 0.85
+            NSBezierPath(ovalIn: NSRect(x: accentCenter.x - r, y: accentCenter.y + 1 + dy - r,
+                                        width: 2 * r, height: 2 * r)).fill()
+        }
+    }
+
+    /// Ausrufezeichen an der Stelle des Sterns: „Schau ins Menü“.
+    private static func drawExclamation() {
+        let bar = NSBezierPath()
+        bar.move(to: NSPoint(x: accentCenter.x, y: accentCenter.y - 2.6))
+        bar.line(to: NSPoint(x: accentCenter.x, y: accentCenter.y + 1.6))
+        bar.lineWidth = lineWidth + 0.2
+        bar.lineCapStyle = .round
+        bar.stroke()
+        let r: CGFloat = 0.95
+        NSBezierPath(ovalIn: NSRect(x: accentCenter.x - r, y: accentCenter.y + 4.1 - r,
+                                    width: 2 * r, height: 2 * r)).fill()
     }
 
     /// Diagonaler Strich mit ausgestanzter Lücke drumherum, wie bei Apples „.slash“-Symbolen.

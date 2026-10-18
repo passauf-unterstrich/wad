@@ -42,6 +42,8 @@ final class DictationController {
     var onText: ((String) -> Void)?
     /// Der vollständige Text, sobald ein Diktat fertig ist.
     var onDictationFinished: ((String) -> Void)?
+    /// Ein kurzer, verständlicher Hinweis, wenn etwas nicht wie erwartet lief.
+    var onNotice: ((String) -> Void)?
 
     private let capture: AudioCapture
     private let transcriber: Transcriber
@@ -83,6 +85,7 @@ final class DictationController {
             }
         } catch {
             log.error("Mikrofon ließ sich nicht starten: \(error.localizedDescription, privacy: .public)")
+            onNotice?(error.localizedDescription)
             return
         }
         session = DictationSession(audio: audio, transcriber: transcriber)
@@ -113,6 +116,7 @@ final class DictationController {
             finish(reason: "Loslassen verpasst, Gegenprüfung")
         } else if now().timeIntervalSince(startedAt) >= Self.maxDuration {
             finish(reason: "Zeitlimit erreicht")
+            onNotice?("Aufnahme nach 10 Minuten automatisch beendet")
         }
     }
 }

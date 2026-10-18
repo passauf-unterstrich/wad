@@ -16,6 +16,8 @@ final class AppModel: ObservableObject {
     @Published private(set) var hasAccessibility = Permissions.hasAccessibility
     /// Ob das Sprachmodell bereitsteht. `nil`, solange es noch lädt.
     @Published private(set) var isTranscriberReady: Bool?
+    /// Kurzer Hinweis oben im Menü, wenn etwas schiefging. Verschwindet nach einigen Sekunden.
+    @Published private(set) var notice: String?
     /// Die beiden Verläufe, nur im Arbeitsspeicher (SPEC 2.4).
     @Published private(set) var dictations = History()
     @Published private(set) var clipboard = History()
@@ -30,6 +32,7 @@ final class AppModel: ObservableObject {
     private let worker: DispatchQueue
     private var observers: [NSObjectProtocol] = []
     private var accessibilityTimer: Timer?
+    private var noticeTimer: Timer?
 
     init() {
         transcriber = WhisperTranscriber()
@@ -43,11 +46,19 @@ final class AppModel: ObservableObject {
         dictation.onDictationFinished = { [weak self] text in self?.dictations.add(text) }
         clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
         clipboardWatcher.start()
-        worker.async { [transcriber] in
+        worker.async { [weak self, transcriber] in
             let ready = (try? transcriber.load()) != nil
-            DispatchQueue.main.async { [weak self] in self?.isTranscriberReady = ready }
+            DispatchQueue.main.async {
+                self?.isTranscriberReady = ready
+                if !ready { log.error("Spracherkennung nicht verfügbar") }
+            }
         }
-        recorder.onDeviceChange = { [weak self] in self?.dictation.cancel(reason: "Audiogerät gewechselt") }
+        dictation.onNotice = { [weak self] text in self?.show(notice: text) }
+        recorder.onDeviceChange = { [weak self] in
+            guard self?.dictationState == .recording else { return }
+            self?.dictation.cancel(reason: "Audiogerät gewechselt")
+            self?.show(notice: "Aufnahme beendet: Mikrofon wurde gewechselt")
+        }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
 
         observers = SystemEvents.observeInterruptions { [weak self] reason in
@@ -68,6 +79,15 @@ final class AppModel: ObservableObject {
         log.notice("Start, Mikrofon: \(self.hasMicrophone, privacy: .public), Bedienungshilfen: \(self.hasAccessibility, privacy: .public)")
         if hasAccessibility { hotkey.start() } else { waitForAccessibility() }
         askForMissingPermissions()
+    }
+
+    /// Zeigt einen Hinweis oben im Menü und als Ausrufezeichen am Symbol, für acht Sekunden.
+    private func show(notice text: String) {
+        notice = text
+        noticeTimer?.invalidate()
+        noticeTimer = Timer.scheduledTimer(withTimeInterval: 8, repeats: false) { [weak self] _ in
+            self?.notice = nil
+        }
     }
 
     /// Legt einen Eintrag aus einem Verlauf wieder in die Zwischenablage.
@@ -101,7 +121,16 @@ final class AppModel: ObservableObject {
         guard isEnabled else { return }
         // Das Mikrofon-Recht kann jederzeit in den Systemeinstellungen entzogen werden.
         hasMicrophone = Permissions.hasMicrophone
-        guard hasMicrophone else { return }
+        guard hasMicrophone else {
+            show(notice: "Wad darf das Mikrofon nicht benutzen")
+            return
+        }
+        // Lädt das Modell noch, darf trotzdem diktiert werden: Die Umwandlung wartet einfach dahinter.
+        guard isTranscriberReady != false else {
+            show(notice: "Spracherkennung nicht verfügbar")
+            return
+        }
+        notice = nil
         dictation.keyPressed()
     }
 

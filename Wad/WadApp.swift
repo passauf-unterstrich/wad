@@ -1,14 +1,17 @@
 // WadApp.swift
-// Einstiegspunkt von Wad: legt das Symbol in der Menüleiste an und beschreibt das Menü darunter.
+// Wads Oberfläche: das Symbol in der Menüleiste und das Menü darunter. Gestartet wird sie von WadMain.
 
 import SwiftUI
 
-@main
 struct WadApp: App {
     @StateObject private var model = AppModel()
 
     var body: some Scene {
         MenuBarExtra {
+            if let notice = model.notice {
+                Text(notice)
+                Divider()
+            }
             Toggle("Diktieren", isOn: $model.isEnabled)
             Picker("Modus", selection: $model.mode) {
                 Text("Live").tag(DictationController.Mode.live)
@@ -73,7 +76,13 @@ struct WadApp: App {
     }
 
     private var menuBarIcon: Image {
-        if model.dictationState == .recording { return Image(nsImage: MenuBarIcon.recording) }
-        return Image(nsImage: model.isEnabled ? MenuBarIcon.enabled : MenuBarIcon.disabled)
+        let icon: NSImage
+        switch model.dictationState {
+        case .recording: icon = MenuBarIcon.recording
+        case .processing: icon = MenuBarIcon.processing
+        case .idle where model.notice != nil: icon = MenuBarIcon.notice
+        case .idle: icon = model.isEnabled ? MenuBarIcon.enabled : MenuBarIcon.disabled
+        }
+        return Image(nsImage: icon)
     }
 }
