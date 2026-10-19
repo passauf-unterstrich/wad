@@ -11,13 +11,16 @@ final class DictationSession {
     var isCancelled = false
 
     private let transcriber: Transcriber
+    /// Richtige Schreibweisen aus der Vokabelliste, die das Modell vorab als Hinweis bekommt.
+    private let vocabularyHint: String?
     private var offset = 0
     private var language: String?
     private var texts: [String] = []
 
-    init(audio: AudioBuffer, transcriber: Transcriber) {
+    init(audio: AudioBuffer, transcriber: Transcriber, vocabularyHint: String? = nil) {
         self.audio = audio
         self.transcriber = transcriber
+        self.vocabularyHint = vocabularyHint
     }
 
     /// Der ganze Text des Diktats, Stücke mit Leerzeichen verbunden.
@@ -56,7 +59,8 @@ final class DictationSession {
         guard ChunkPlanner.containsSpeech(speechInChunk) else { return nil }
 
         let chunk = UnsafeBufferPointer(rebasing: open[0..<cut])
-        guard let result = try? transcriber.transcribe(chunk, language: language, prompt: texts.last),
+        let prompt = [vocabularyHint, texts.last].compactMap { $0 }.joined(separator: " ")
+        guard let result = try? transcriber.transcribe(chunk, language: language, prompt: prompt.isEmpty ? nil : prompt),
               !result.text.isEmpty else { return nil }
 
         language = language ?? result.language

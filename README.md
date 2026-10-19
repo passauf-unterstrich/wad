@@ -24,6 +24,8 @@ Der Name spielt auf den Film „Der Diktator“ und das Land Wadiya an.
 - **Live** (voreingestellt): Schon während du sprichst, fügt Wad an jeder Sprechpause das Gesagte ein.
 - **Am Ende einfügen**: Der ganze Text kommt erst nach dem Loslassen. Umschalten unter *Modus* im Menü.
 - **Kleinschreibung**: schreibt jedes Diktat komplett klein. Wad merkt sich diesen Schalter auch nach einem Neustart.
+- **Vokabeln**: Ein Wort falsch erkannt? Markieren und **⌃⌥W** drücken (Ctrl+Option+W). Im Fenster die richtige Schreibweise eintragen und wählen, ob Wad sie sich *nur bis zum Neustart* oder *immer* merkt. Wad ersetzt das Falsche künftig und gibt dem Modell die richtigen Schreibweisen als Hinweis mit. Die Liste ist die Textdatei `Vokabeln.txt` (Menü *Vokabeln → Vokabelliste öffnen*), eine Zeile pro Eintrag: `Begriff` oder `Falsch -> Richtig`. *Vorlage für deine KI kopieren* liefert einen Auftrag, mit dem ChatGPT oder Claude dir eine passende Liste erstellt.
+- **Sprachen**: Wad erkennt die Sprache jedes Diktats selbst, einstellen musst du nichts.
 - Kurzes Antippen der Taste löst nichts aus.
 - **Letzte Diktate** und **Zwischenablage-Verlauf** im Menü zeigen jeweils die letzten 20 Einträge. Ein Klick legt den Text wieder in die Zwischenablage.
 
@@ -38,7 +40,7 @@ Die Zwischenablage nutzt Wad nur für einen Augenblick zum Einfügen und stellt 
 **Was Wad wo speichert:**
 - **Audio:** nur im Arbeitsspeicher. Es wird nie eine Audiodatei geschrieben, auch keine vorübergehende. Jedes Stück wird direkt nach der Umwandlung mit Nullen überschrieben.
 - **Verläufe** (letzte 20 Diktate, letzte 20 kopierte Texte): nur im Arbeitsspeicher. Nach dem Beenden von Wad oder einem Neustart des Mac sind sie leer. Passwörter aus Passwort-Managern landen nie im Verlauf.
-- **Auf der Festplatte:** nur, ob *Kleinschreibung* an oder aus ist, als einzelner Ja/Nein-Wert in den macOS-Einstellungen. Es gibt keinen Ort mit Diktaten, Aufnahmen oder Zwischenablage-Inhalten.
+- **Auf der Festplatte:** nur, ob *Kleinschreibung* an oder aus ist (ein Ja/Nein-Wert in den macOS-Einstellungen), und die Vokabeln, die du *immer* merken lässt, in `~/Library/Application Support/Wad/Vokabeln.txt`. Es gibt keinen Ort mit Diktaten, Aufnahmen oder Zwischenablage-Inhalten.
 
 **Zwei ehrliche Grenzen:**
 - Wird der Arbeitsspeicher knapp, lagert macOS selten genutzte Teile vorübergehend verschlüsselt auf die Festplatte aus. Diese Auslagerung wird beim Neustart verworfen und ist für Programme und den Finder nicht lesbar.

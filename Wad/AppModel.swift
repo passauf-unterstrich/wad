@@ -33,6 +33,9 @@ final class AppModel: ObservableObject {
     private let transcriber: WhisperTranscriber
     private let inserter = TextInserter()
     private let clipboardWatcher = ClipboardWatcher()
+    private let vocabulary = VocabularyStore()
+    private let correctionPanel = CorrectionPanel()
+    private var correctionShortcut: GlobalShortcut?
     private let dictation: DictationController
     /// Die eine Warteschlange für alles, was die Spracherkennung tut: laden, prüfen, umwandeln.
     private let worker: DispatchQueue
@@ -48,6 +51,7 @@ final class AppModel: ObservableObject {
                                         isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown,
                                         background: { worker.async(execute: $0) })
         dictation.onStateChange = { [weak self] state in self?.dictationState = state }
+        dictation.vocabularyHint = { [weak self] in self?.vocabulary.vocabulary.hint }
         dictation.onText = { [weak self] text in
             guard let self else { return }
             inserter.insert(styled(text))
@@ -72,6 +76,7 @@ final class AppModel: ObservableObject {
             self?.show(notice: "Aufnahme beendet: Mikrofon wurde gewechselt")
         }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
+        correctionShortcut = GlobalShortcut { [weak self] in self?.openCorrection() }
 
         observers = SystemEvents.observeInterruptions { [weak self] reason in
             self?.dictation.cancel(reason: reason)
@@ -93,9 +98,42 @@ final class AppModel: ObservableObject {
         askForMissingPermissions()
     }
 
+    /// Erst die Vokabeln, dann die Kleinschreibung: So gewinnt die Kleinschreibung immer.
     private func styled(_ text: String) -> String {
-        isLowercase ? text.lowercased(with: .current) : text
+        let corrected = vocabulary.vocabulary.apply(to: text)
+        return isLowercase ? corrected.lowercased(with: .current) : corrected
     }
+
+    /// Öffnet das Korrektur-Fenster mit dem markierten Text der vorderen App.
+    func openCorrection() {
+        correctionPanel.show(wrong: SelectedText.current() ?? "") { [weak self] entry, permanently in
+            self?.vocabulary.add(entry, permanently: permanently)
+        }
+    }
+
+    func openVocabularyFile() {
+        vocabulary.createFileIfNeeded()
+        NSWorkspace.shared.open(vocabulary.fileURL)
+    }
+
+    /// Legt einen fertigen Auftrag für ChatGPT, Claude & Co. in die Zwischenablage.
+    func copyVocabularyPrompt() {
+        copyToClipboard(Self.vocabularyPrompt)
+        show(notice: "Vorlage kopiert, jetzt in deine KI einfügen")
+    }
+
+    private static let vocabularyPrompt = """
+    Ich diktiere mit der App Wad. Sie erkennt Fachbegriffe und Namen besser, wenn sie eine \
+    Vokabelliste hat. Erstelle mir bitte eine Liste mit den 40 wichtigsten Begriffen, die ich \
+    beim Diktieren brauche.
+
+    Über mich: [hier kurz beschreiben, z. B. Beruf, Hobbys, Namen von Familie und Freunden]
+
+    Regeln für die Liste:
+    - eine Zeile pro Begriff, genau in der richtigen Schreibweise
+    - keine Nummerierung, keine Erklärungen, keine Überschrift
+    - wird ein Begriff beim Diktieren oft falsch geschrieben, die Zeile so: Falsch -> Richtig
+    """
 
     /// Zeigt einen Hinweis oben im Menü und als Ausrufezeichen am Symbol, für acht Sekunden.
     private func show(notice text: String) {

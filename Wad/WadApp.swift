@@ -18,6 +18,12 @@ struct WadApp: App {
                 Text("Am Ende einfügen").tag(DictationController.Mode.atEnd)
             }
             Toggle("Kleinschreibung", isOn: $model.isLowercase)
+            Menu("Vokabeln") {
+                Button("Korrigieren …", action: model.openCorrection)
+                    .keyboardShortcut("w", modifiers: [.control, .option])
+                Button("Vokabelliste öffnen", action: model.openVocabularyFile)
+                Button("Vorlage für deine KI kopieren", action: model.copyVocabularyPrompt)
+            }
             Divider()
             // Untermenüs statt langer Zeilen: Das Hauptmenü bleibt schmal,
             // macOS klappt die Listen zur Seite auf, an der Platz ist.

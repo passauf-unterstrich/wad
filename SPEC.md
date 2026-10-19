@@ -49,6 +49,7 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 1. **Diktieren an / aus** (Schalter). Ist es aus, reagiert Wad nicht auf die Taste.
 2. **Modus:** *Live (Standard)* oder *Am Ende einfügen*.
 2a. **Kleinschreibung** (Schalter, Ergänzung vom 18.10.2026 auf Linus' Wunsch): schreibt jedes Diktat komplett klein. Wad merkt sich diesen Schalter über einen Neustart hinweg, als einzigen Ja/Nein-Wert in den macOS-Einstellungen, nie als Text.
+2b. **Vokabeln ▸** (Ergänzung vom 19.10.2026 auf Linus' Wunsch): *Korrigieren …* (⌃⌥W, liest das markierte Wort über die Bedienungshilfen), *Vokabelliste öffnen*, *Vorlage für deine KI kopieren*. Einträge gelten nur bis zum Neustart oder dauerhaft in `~/Library/Application Support/Wad/Vokabeln.txt`. Wad ersetzt falsche Schreibweisen als ganze Wörter und gibt dem Modell höchstens 40 richtige Schreibweisen als Hinweis. Kleinschreibung wirkt danach und gewinnt immer.
 3. **Letzte Diktate ▸** bis zu 20 Einträge, neuester oben. Klick kopiert den Text in die Zwischenablage. Darunter: *Diktate löschen*.
 4. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
 5. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.

@@ -41,6 +41,14 @@
 		E10000000000000000002002 /* ClipboardWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000002 /* ClipboardWatcher.swift */; };
 		E10000000000000000002003 /* HistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* HistoryTests.swift */; };
 		F10000000000000000001001 /* WadMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* WadMain.swift */; };
+		A20000000000000000001001 /* Vocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* Vocabulary.swift */; };
+		A20000000000000000001002 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* VocabularyStore.swift */; };
+		A20000000000000000001003 /* GlobalShortcut.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* GlobalShortcut.swift */; };
+		A20000000000000000001004 /* SelectedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* SelectedText.swift */; };
+		A20000000000000000001005 /* CorrectionPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* CorrectionPanel.swift */; };
+		A20000000000000000002001 /* Vocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* Vocabulary.swift */; };
+		A20000000000000000002002 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* VocabularyStore.swift */; };
+		A20000000000000000002006 /* VocabularyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* VocabularyTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +81,12 @@
 		E10000000000000000000002 /* ClipboardWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardWatcher.swift; sourceTree = "<group>"; };
 		E10000000000000000000003 /* HistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryTests.swift; sourceTree = "<group>"; };
 		F10000000000000000000001 /* WadMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WadMain.swift; sourceTree = "<group>"; };
+		A20000000000000000000001 /* Vocabulary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vocabulary.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* VocabularyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyStore.swift; sourceTree = "<group>"; };
+		A20000000000000000000003 /* GlobalShortcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcut.swift; sourceTree = "<group>"; };
+		A20000000000000000000004 /* SelectedText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedText.swift; sourceTree = "<group>"; };
+		A20000000000000000000005 /* CorrectionPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionPanel.swift; sourceTree = "<group>"; };
+		A20000000000000000000006 /* VocabularyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +151,11 @@
 				D10000000000000000000002 /* DictationSession.swift */,
 				E10000000000000000000001 /* History.swift */,
 				E10000000000000000000002 /* ClipboardWatcher.swift */,
+				A20000000000000000000001 /* Vocabulary.swift */,
+				A20000000000000000000002 /* VocabularyStore.swift */,
+				A20000000000000000000003 /* GlobalShortcut.swift */,
+				A20000000000000000000004 /* SelectedText.swift */,
+				A20000000000000000000005 /* CorrectionPanel.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -158,6 +177,7 @@
 				D10000000000000000000004 /* ChunkPlannerTests.swift */,
 				D10000000000000000000003 /* TestDoubles.swift */,
 				E10000000000000000000003 /* HistoryTests.swift */,
+				A20000000000000000000006 /* VocabularyTests.swift */,
 				C10000000000000000000002 /* TextInserterTests.swift */,
 			);
 			path = WadTests;
@@ -260,6 +280,11 @@
 				D10000000000000000001002 /* DictationSession.swift in Sources */,
 				E10000000000000000001001 /* History.swift in Sources */,
 				E10000000000000000001002 /* ClipboardWatcher.swift in Sources */,
+				A20000000000000000001001 /* Vocabulary.swift in Sources */,
+				A20000000000000000001002 /* VocabularyStore.swift in Sources */,
+				A20000000000000000001003 /* GlobalShortcut.swift in Sources */,
+				A20000000000000000001004 /* SelectedText.swift in Sources */,
+				A20000000000000000001005 /* CorrectionPanel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,6 +306,9 @@
 				E10000000000000000002001 /* History.swift in Sources */,
 				E10000000000000000002002 /* ClipboardWatcher.swift in Sources */,
 				E10000000000000000002003 /* HistoryTests.swift in Sources */,
+				A20000000000000000002001 /* Vocabulary.swift in Sources */,
+				A20000000000000000002002 /* VocabularyStore.swift in Sources */,
+				A20000000000000000002006 /* VocabularyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

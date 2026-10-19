@@ -34,6 +34,8 @@ final class DictationController {
     static let safetyCheckInterval: TimeInterval = 0.2
 
     var mode = Mode.live
+    /// Liefert zu Beginn jedes Diktats den Vokabel-Hinweis fürs Modell.
+    var vocabularyHint: () -> String? = { nil }
     private(set) var state: State = .idle {
         didSet { if state != oldValue { onStateChange?(state) } }
     }
@@ -89,7 +91,7 @@ final class DictationController {
             onNotice?(error.localizedDescription)
             return
         }
-        session = DictationSession(audio: audio, transcriber: transcriber)
+        session = DictationSession(audio: audio, transcriber: transcriber, vocabularyHint: vocabularyHint())
         nextLiveCheck = ChunkPlanner.minChunk
         startedAt = now()
         keyUpChecks = 0
