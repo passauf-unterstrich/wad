@@ -71,6 +71,7 @@ private struct ShortcutsView: View {
         stopRecording()
         recording = action
         message = nil
+        manager.isRecordingShortcut = true
         // Lokal heißt: nur Tasten, die in diesem Fenster gedrückt werden, nie in anderen Apps.
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             handle(event, for: action)
@@ -79,7 +80,9 @@ private struct ShortcutsView: View {
     }
 
     private func handle(_ event: NSEvent, for action: WindowAction) {
-        defer { stopRecording() }
+        // Erst die Aufnahme beenden, damit die Kürzel wieder angemeldet sind und die Prüfung,
+        // ob macOS die neue Kombination hergibt, stimmt.
+        stopRecording()
         if event.keyCode == UInt16(kVK_Escape) { return }
         let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
         guard !flags.subtracting(.shift).isEmpty else {
@@ -100,5 +103,6 @@ private struct ShortcutsView: View {
         if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
         recording = nil
+        manager.isRecordingShortcut = false
     }
 }

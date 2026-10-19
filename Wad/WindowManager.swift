@@ -32,6 +32,13 @@ final class WindowManager {
     private let mover = WindowMover()
     private var registeredIDs: [UInt32] = []
 
+    /// Während im Fenster „Fenster-Kürzel“ eine neue Kombination aufgenommen wird, sind alle
+    /// Fenster-Kürzel abgemeldet. Sonst würde ein schon belegtes Kürzel das Fenster verschieben,
+    /// statt im Aufnahmefeld anzukommen.
+    var isRecordingShortcut = false {
+        didSet { registerAll() }
+    }
+
     var isEnabled: Bool {
         didSet {
             UserDefaults.standard.set(isEnabled, forKey: Self.enabledKey)
@@ -83,7 +90,7 @@ final class WindowManager {
         registeredIDs.forEach(hotKeys.unregister)
         registeredIDs.removeAll()
         registeredActions.removeAll()
-        guard isEnabled else { return }
+        guard isEnabled, !isRecordingShortcut else { return }
         for (action, combo) in shortcuts {
             let id = hotKeys.register(combo) { [weak self] in
                 self?.willPerform?()
