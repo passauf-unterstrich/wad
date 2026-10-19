@@ -19,9 +19,9 @@ struct WadApp: App {
             }
             Toggle("Kleinschreibung", isOn: $model.isLowercase)
             Menu("Vokabeln") {
-                Button("Korrigieren …", action: model.openCorrection)
+                Button("Wort korrigieren …", action: model.openCorrection)
                     .keyboardShortcut("w", modifiers: [.control, .option])
-                Button("Vokabelliste öffnen", action: model.openVocabularyFile)
+                Button("Vokabelliste im Finder zeigen", action: model.revealVocabularyFile)
                 Button("Vorlage für deine KI kopieren", action: model.copyVocabularyPrompt)
             }
             Divider()

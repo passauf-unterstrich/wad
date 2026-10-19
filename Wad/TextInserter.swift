@@ -30,7 +30,7 @@ final class TextInserter {
     func insert(_ text: String) {
         // Folgen zwei Stücke kurz aufeinander, liegt noch Wads eigener Text in der Zwischenablage.
         // Dann bleibt die ursprüngliche Sicherung gültig, statt den Diktat-Text zu sichern.
-        let saved = pending?.saved ?? snapshot()
+        let saved = pending?.saved ?? Self.snapshot(of: pasteboard)
         pending?.restore.cancel()
 
         let item = NSPasteboardItem()
@@ -54,7 +54,7 @@ final class TextInserter {
     }
 
     /// Kopiert jeden Eintrag in jedem Format, also auch Bilder, Dateien und formatierten Text.
-    private func snapshot() -> [NSPasteboardItem] {
+    static func snapshot(of pasteboard: NSPasteboard) -> [NSPasteboardItem] {
         (pasteboard.pasteboardItems ?? []).map { item in
             let copy = NSPasteboardItem()
             for type in item.types {
@@ -69,10 +69,14 @@ final class TextInserter {
     /// Eine eigene, private Ereignisquelle sorgt dafür, dass das System danach nicht glaubt, die
     /// Option-Taste sei losgelassen worden. Sonst beendete das Einfügen eines Live-Stücks die Aufnahme.
     static func postCommandV() {
+        postCommand(key: 9)   // Taste V (Apple: kVK_ANSI_V), auf deutscher Tastatur an derselben Stelle
+    }
+
+    /// Drückt Cmd plus eine Taste, mit denselben Vorkehrungen wie Cmd+V.
+    static func postCommand(key: CGKeyCode) {
         let source = CGEventSource(stateID: .privateState)
-        let vKey: CGKeyCode = 9   // Taste V (Apple: kVK_ANSI_V), auf deutscher Tastatur an derselben Stelle
         for isDown in [true, false] {
-            let event = CGEvent(keyboardEventSource: source, virtualKey: vKey, keyDown: isDown)
+            let event = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: isDown)
             event?.flags = .maskCommand
             event?.post(tap: .cgSessionEventTap)
         }

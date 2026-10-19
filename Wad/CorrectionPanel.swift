@@ -48,12 +48,12 @@ struct CorrectionView: View {
             Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
                 GridRow {
                     Text("Erkannt:").gridColumnAlignment(.trailing)
-                    TextField("", text: $wrong, prompt: Text("z. B. Watt"))
+                    TextField("", text: $wrong)
                         .focused($focusedField, equals: .wrong)
                 }
                 GridRow {
                     Text("Richtig:")
-                    TextField("", text: $right, prompt: Text("z. B. Wad"))
+                    TextField("", text: $right)
                         .focused($focusedField, equals: .right)
                 }
             }

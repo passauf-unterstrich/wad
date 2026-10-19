@@ -106,14 +106,17 @@ final class AppModel: ObservableObject {
 
     /// Öffnet das Korrektur-Fenster mit dem markierten Text der vorderen App.
     func openCorrection() {
-        correctionPanel.show(wrong: SelectedText.current() ?? "") { [weak self] entry, permanently in
+        let selection = SelectedText.current()
+        clipboardWatcher.skipCurrentChange()   // Wads kurze Kopie gehört nicht in den Verlauf
+        correctionPanel.show(wrong: selection ?? "") { [weak self] entry, permanently in
             self?.vocabulary.add(entry, permanently: permanently)
         }
     }
 
-    func openVocabularyFile() {
+    /// Zeigt die Vokabelliste im Finder, markiert, damit man sie sofort öffnen oder weitergeben kann.
+    func revealVocabularyFile() {
         vocabulary.createFileIfNeeded()
-        NSWorkspace.shared.open(vocabulary.fileURL)
+        NSWorkspace.shared.activateFileViewerSelecting([vocabulary.fileURL])
     }
 
     /// Legt einen fertigen Auftrag für ChatGPT, Claude & Co. in die Zwischenablage.

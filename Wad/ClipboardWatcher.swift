@@ -38,6 +38,11 @@ final class ClipboardWatcher {
         }
     }
 
+    /// Übergeht den jetzigen Stand der Zwischenablage, etwa nachdem Wad sie kurz selbst benutzt hat.
+    func skipCurrentChange() {
+        lastChange = pasteboard.changeCount
+    }
+
     /// Vergleicht den Änderungszähler und liest nur bei einer Änderung den Inhalt.
     func check() {
         guard pasteboard.changeCount != lastChange else { return }
