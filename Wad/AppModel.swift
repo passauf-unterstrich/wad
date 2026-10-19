@@ -2,6 +2,8 @@
 // Verbindet Wads Teile: Taste, Aufnahme-Automat, Spracherkennung, Einfügen, Berechtigungen
 // und Systemereignisse. Menü und Symbol lesen ihren Zustand nur von hier.
 
+import Carbon.HIToolbox
+import ServiceManagement
 import SwiftUI
 
 final class AppModel: ObservableObject {
@@ -17,6 +19,14 @@ final class AppModel: ObservableObject {
         didSet { UserDefaults.standard.set(isLowercase, forKey: Self.lowercaseKey) }
     }
     private static let lowercaseKey = "Kleinschreibung"
+    /// Fenstermanager an oder aus. Gemerkt wird das vom Fenstermanager selbst.
+    @Published var isWindowManagerEnabled = false {
+        didSet { windowManager.isEnabled = isWindowManagerEnabled }
+    }
+    /// Startet Wad bei der Anmeldung, über Apples eigene Anmeldeobjekte (Systemeinstellungen → Allgemein).
+    @Published var launchesAtLogin = SMAppService.mainApp.status == .enabled {
+        didSet { updateLoginItem() }
+    }
     @Published private(set) var dictationState = DictationController.State.idle
     @Published private(set) var hasMicrophone = Permissions.hasMicrophone
     @Published private(set) var hasAccessibility = Permissions.hasAccessibility
@@ -35,7 +45,9 @@ final class AppModel: ObservableObject {
     private let clipboardWatcher = ClipboardWatcher()
     private let vocabulary = VocabularyStore()
     private let correctionPanel = CorrectionPanel()
-    private var correctionShortcut: GlobalShortcut?
+    private let hotKeys = HotKeyCenter()
+    let windowManager: WindowManager
+    private let shortcutsPanel = ShortcutsPanel()
     private let dictation: DictationController
     /// Die eine Warteschlange für alles, was die Spracherkennung tut: laden, prüfen, umwandeln.
     private let worker: DispatchQueue
@@ -45,6 +57,7 @@ final class AppModel: ObservableObject {
 
     init() {
         transcriber = WhisperTranscriber()
+        windowManager = WindowManager(hotKeys: hotKeys)
         let worker = DispatchQueue(label: "com.linushundt.Wad.transcription", qos: .userInitiated)
         self.worker = worker
         dictation = DictationController(capture: recorder, transcriber: transcriber,
@@ -76,7 +89,13 @@ final class AppModel: ObservableObject {
             self?.show(notice: "Aufnahme beendet: Mikrofon wurde gewechselt")
         }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
-        correctionShortcut = GlobalShortcut { [weak self] in self?.openCorrection() }
+        hotKeys.register(KeyCombo(keyCode: UInt32(kVK_ANSI_W), modifiers: UInt32(controlKey | optionKey))) { [weak self] in
+            self?.openCorrection()
+        }
+        isWindowManagerEnabled = windowManager.isEnabled
+        // ⌥⇧-Kürzel lösen auch mit der rechten Option-Taste aus. Eine dabei gestartete Aufnahme
+        // ist ein Versehen und wird verworfen, ohne etwas einzufügen (SPEC 1.8).
+        windowManager.willPerform = { [weak self] in self?.dictation.cancel(reason: "Fenster-Kürzel") }
 
         observers = SystemEvents.observeInterruptions { [weak self] reason in
             self?.dictation.cancel(reason: reason)
@@ -111,6 +130,32 @@ final class AppModel: ObservableObject {
         correctionPanel.show(wrong: selection ?? "") { [weak self] entry, permanently in
             self?.vocabulary.add(entry, permanently: permanently)
         }
+    }
+
+    func openShortcutsPanel() {
+        shortcutsPanel.show(manager: windowManager)
+    }
+
+    /// Meldet Wad bei macOS als Anmeldeobjekt an oder ab. macOS startet Wad dann selbst nach der
+    /// Anmeldung, genau einmal, wie jede andere App in dieser Liste. Kein eigener Hilfsprozess.
+    private func updateLoginItem() {
+        let service = SMAppService.mainApp
+        do {
+            if launchesAtLogin, service.status != .enabled {
+                try service.register()
+            } else if !launchesAtLogin, service.status == .enabled {
+                try service.unregister()
+            }
+        } catch {
+            log.error("Anmeldeobjekt: \(error.localizedDescription, privacy: .public)")
+            show(notice: "Start bei Anmeldung ließ sich nicht ändern")
+        }
+        if service.status == .requiresApproval {
+            show(notice: "Bitte Wad in den Anmeldeobjekten erlauben")
+            SMAppService.openSystemSettingsLoginItems()
+        }
+        let enabled = service.status == .enabled
+        if launchesAtLogin != enabled { launchesAtLogin = enabled }
     }
 
     /// Zeigt die Vokabelliste im Finder, markiert, damit man sie sofort öffnen oder weitergeben kann.

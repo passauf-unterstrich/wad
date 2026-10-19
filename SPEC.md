@@ -52,8 +52,10 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 2b. **Vokabeln ▸** (Ergänzung vom 19.10.2026 auf Linus' Wunsch): *Korrigieren …* (⌃⌥W, liest das markierte Wort über die Bedienungshilfen), *Vokabelliste öffnen*, *Vorlage für deine KI kopieren*. Einträge gelten nur bis zum Neustart oder dauerhaft in `~/Library/Application Support/Wad/Vokabeln.txt`. Wad ersetzt falsche Schreibweisen als ganze Wörter und gibt dem Modell höchstens 40 richtige Schreibweisen als Hinweis. Kleinschreibung wirkt danach und gewinnt immer.
 3. **Letzte Diktate ▸** bis zu 20 Einträge, neuester oben. Klick kopiert den Text in die Zwischenablage. Darunter: *Diktate löschen*.
 4. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
-5. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.
-6. **Beenden.**
+5. **Fenstermanager an / aus** (Schalter, ab Etappe 9). Ist er aus, sind seine Kürzel nicht registriert. Darunter: *Fenster-Kürzel …* (siehe 1.8).
+6. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.
+6a. **Bei Anmeldung starten** (Schalter, Ergänzung vom 19.10.2026 auf Linus' Wunsch): meldet Wad über Apples Anmeldeobjekte an (`SMAppService`). macOS startet Wad dann nach der Anmeldung genau einmal, wie jede andere App in dieser Liste; Wad hat dafür keinen eigenen Hilfsprozess.
+7. **Beenden.**
 
 ### 1.4 Modi
 - **Live (Standard):** Während man spricht, wird die Aufnahme an natürlichen Sprechpausen in Stücke geteilt. Jedes fertige Stück wird sofort umgewandelt und eingefügt, während man weiterspricht. Ziel: mindestens so gut wie Linus' alte Version, also keine abgeschnittenen Wörter, keine doppelten Wörter an den Übergängen, saubere Leerzeichen zwischen den Stücken.
@@ -72,7 +74,17 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 - Speicherort: **nur im Arbeitsspeicher.** Solange Wad läuft, sind beide Verläufe jederzeit im Menü abrufbar. Nach dem Beenden von Wad oder einem Neustart des Mac sind sie immer leer (siehe 2.4).
 
 ### 1.7 Bewusst nicht in Version 1
-Unterstützung für Intel-Macs, frei wählbare Taste, Verläufe über einen Neustart hinweg, Autostart beim Anmelden, automatische Updates, Einstellungsfenster, Wörterbuch, Textnachbearbeitung durch KI, Bilder im Zwischenablage-Verlauf, Statistiken. Alles kann später kommen, aber nicht jetzt.
+Unterstützung für Intel-Macs, frei wählbare Taste, Verläufe über einen Neustart hinweg, automatische Updates, großes Einstellungsfenster (Ausnahme: das kleine Fenster für die Fenster-Kürzel, 1.8), Wörterbuch, Textnachbearbeitung durch KI, Bilder im Zwischenablage-Verlauf, Statistiken. Alles kann später kommen, aber nicht jetzt.
+
+### 1.8 Fenstermanager (Etappe 9)
+Ein schlanker Fenstermanager im Stil von Spectacle, als eigener, abgeschotteter Baustein. Er teilt sich mit dem Diktieren nur die Menüleiste, nichts sonst.
+- **Aktionen:** Vollbild (maximieren, nicht das macOS-Vollbild mit eigenem Schreibtisch), Links, Rechts, Oben, Unten, die vier Viertel und Zentrieren (ohne Größenänderung).
+- **Durchschalten:** Wird dasselbe Kürzel mehrmals gedrückt, wechselt die Breite (bei Links/Rechts) bzw. die Höhe (bei Oben/Unten) zwischen ½, ⅔ und ⅓.
+- **Fenster-Kürzel …** öffnet ein kleines Fenster mit einer Liste der Aktionen. Klick auf eine Zeile, gewünschte Kombination drücken, fertig. Belegte oder vom System reservierte Kombinationen werden freundlich abgelehnt. Die Kürzel werden in den Einstellungen von Wad gemerkt.
+- **Standard-Kürzel (Entscheidung Linus, 19.10.2026):** ⌘⇧F Vollbild, ⌘⇧ + Pfeiltasten für Links, Rechts, Oben, Unten, ⌥⇧ + Pfeiltasten für die Viertel (← oben links, ↑ oben rechts, → unten rechts, ↓ unten links, also im Uhrzeigersinn). Zentrieren: ⌃⌥C (festgelegt beim Bau, weil ⌘⇧C in vielen Apps belegt ist). Linus weiß, dass Text markieren mit ⌘⇧/⌥⇧ + Pfeiltasten in allen Apps nicht mehr geht, solange der Fenstermanager an ist; dafür gibt es den Schalter.
+- **Option-Taste:** Die ⌥⇧-Kürzel lösen auch mit der rechten Option-Taste aus. Wird dabei schon eine Aufnahme gestartet, verwirft Wad diese Aufnahme sofort, ohne etwas einzufügen.
+- **Vorausschauend:** Fenster bleiben innerhalb von Menüleiste und Dock und auf dem Bildschirm, auf dem sie gerade sind. Apps mit Mindestgröße bekommen, was sie zulassen, ohne Flackern. Fenster im macOS-Vollbild und Fenster, die sich nicht verschieben lassen, werden in Ruhe gelassen.
+- **Berechtigung:** keine neue. Fenster werden über die Bedienungshilfen verschoben, die Wad schon hat.
 
 ---
 
@@ -84,6 +96,7 @@ Diese Regeln sind nicht verhandelbar. Jede Etappe muss sie einhalten.
 - Wad beobachtet **ausschließlich Änderungen der Sondertasten** (macOS-Ereignistyp `flagsChanged`). Normale Tastenanschläge (`keyDown`/`keyUp`) werden technisch nie abonniert, Wad sieht also nie, welche Buchstaben getippt werden.
 - Ausgewertet wird davon nur die **rechte Option-Taste** (Tastencode 61). Alles andere wird sofort verworfen, nichts davon wird gespeichert oder protokolliert.
 - Das Erkennen von Cmd+C für den Zwischenablage-Verlauf geschieht **nicht** über die Tastatur, sondern indem Wad den Änderungszähler der Zwischenablage beobachtet.
+- Feste Tastenkürzel (⌃⌥W für Vokabeln, die Fenster-Kürzel aus 1.8) werden einzeln beim System angemeldet (`RegisterEventHotKey`). macOS meldet Wad dann nur genau diese Kombinationen, Wad sieht weiterhin keine anderen Tastenanschläge. Deshalb kann ein Kürzel nicht zwischen linker und rechter Option-Taste unterscheiden.
 
 ### 2.2 Mikrofon: nur solange die Taste gedrückt ist
 - Das Mikrofon wird beim Drücken gestartet und beim Loslassen **vollständig gestoppt** (Audio-Engine aus, nicht nur pausiert). Der orange Mikrofon-Punkt von macOS muss sofort verschwinden. Das ist die sichtbare Kontrolle durch das Betriebssystem selbst.
@@ -123,7 +136,7 @@ Diese Regeln sind nicht verhandelbar. Jede Etappe muss sie einhalten.
 ### 2.7 Berechtigungen
 Wad braucht genau zwei Berechtigungen und fragt sie beim ersten Start mit einer kurzen Erklärung ab:
 - **Mikrofon** – für die Aufnahme.
-- **Bedienungshilfen** – um die Option-Taste zu erkennen und Cmd+V auszulösen.
+- **Bedienungshilfen** – um die Option-Taste zu erkennen, Cmd+V auszulösen und (Etappe 9) Fenster zu verschieben.
 
 Mehr nicht. Wad ist eine eigene, signierte App, sodass nie dem Terminal oder Python Rechte gegeben werden müssen.
 
@@ -167,6 +180,7 @@ Jede Etappe endet mit etwas, das Linus selbst ausprobieren kann. Erst nach seine
 | 6 | **Verläufe** | Letzte 20 Diktate und letzte 20 kopierte Texte im Menü, Löschen-Funktionen, Passwort-Filter. | 25 Mal kopieren, nur 20 bleiben. Löschen leert sofort. |
 | 7 | **Robustheit** | Alle Fälle aus dem Designprinzip „vorausschauend“ (Teil 0, Punkt 7), Intel-Hinweis, Ruhezustand und Sperre, Feinschliff am Symbol, Tests. | Mac während der Aufnahme sperren: Aufnahme endet. Mikrofon während der Aufnahme wechseln. |
 | 8 | **Verteilung** | Signierte App als DMG, README (inklusive „Wo liegen die Daten?“), Lizenz GPL-3.0, Download auf Linus' Website mit Zugangscode. | Ein Freund installiert Wad nach Anleitung und kann diktieren. |
+| 9 | **Fenstermanager** | Schalter im Menü, die Aktionen aus 1.8 mit Durchschalten, kleines Fenster für die Kürzel. Eigene Datei, kein Eingriff in Aufnahme oder Einfügen. | Mit jedem Kürzel ein Fenster verschieben, Links dreimal drücken (½, ⅔, ⅓), auf einem zweiten Bildschirm testen, Schalter aus: Kürzel tun nichts mehr und Text markieren geht normal. |
 
 ### Zur Verteilung (Etappe 8)
 - **Apple Developer Program:** Bis einschließlich Etappe 7 wird ohne gearbeitet. Linus signiert Wad für sich selbst mit seiner kostenlosen Apple-ID. Ob er das Programm (99 $ pro Jahr) für Etappe 8 holt, entscheidet er dann. Etappe 8 beschreibt beide Wege:

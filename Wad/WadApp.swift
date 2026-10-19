@@ -34,6 +34,9 @@ struct WadApp: App {
                         empty: "Noch nichts kopiert", clear: "Verlauf löschen",
                         onClear: model.clearClipboardHistory)
             Divider()
+            Toggle("Fenstermanager", isOn: $model.isWindowManagerEnabled)
+            Button("Fenster-Kürzel …", action: model.openShortcutsPanel)
+            Divider()
             if model.isTranscriberReady == false {
                 Text("Spracherkennung nicht verfügbar")
                 Divider()
@@ -51,6 +54,7 @@ struct WadApp: App {
             if !model.hasMicrophone || !model.hasAccessibility {
                 Divider()
             }
+            Toggle("Bei Anmeldung starten", isOn: $model.launchesAtLogin)
             Button("Wad beenden") {
                 NSApplication.shared.terminate(nil)
             }

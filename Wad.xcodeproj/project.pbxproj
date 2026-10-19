@@ -49,6 +49,12 @@
 		A20000000000000000002001 /* Vocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* Vocabulary.swift */; };
 		A20000000000000000002002 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* VocabularyStore.swift */; };
 		A20000000000000000002006 /* VocabularyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* VocabularyTests.swift */; };
+		A30000000000000000001001 /* WindowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000001 /* WindowLayout.swift */; };
+		A30000000000000000001002 /* WindowMover.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000002 /* WindowMover.swift */; };
+		A30000000000000000001003 /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000003 /* WindowManager.swift */; };
+		A30000000000000000001004 /* ShortcutsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000004 /* ShortcutsPanel.swift */; };
+		A30000000000000000002001 /* WindowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000001 /* WindowLayout.swift */; };
+		A30000000000000000002005 /* WindowLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000005 /* WindowLayoutTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -87,6 +93,11 @@
 		A20000000000000000000004 /* SelectedText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedText.swift; sourceTree = "<group>"; };
 		A20000000000000000000005 /* CorrectionPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionPanel.swift; sourceTree = "<group>"; };
 		A20000000000000000000006 /* VocabularyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyTests.swift; sourceTree = "<group>"; };
+		A30000000000000000000001 /* WindowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowLayout.swift; sourceTree = "<group>"; };
+		A30000000000000000000002 /* WindowMover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowMover.swift; sourceTree = "<group>"; };
+		A30000000000000000000003 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
+		A30000000000000000000004 /* ShortcutsPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsPanel.swift; sourceTree = "<group>"; };
+		A30000000000000000000005 /* WindowLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowLayoutTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +167,10 @@
 				A20000000000000000000003 /* GlobalShortcut.swift */,
 				A20000000000000000000004 /* SelectedText.swift */,
 				A20000000000000000000005 /* CorrectionPanel.swift */,
+				A30000000000000000000001 /* WindowLayout.swift */,
+				A30000000000000000000002 /* WindowMover.swift */,
+				A30000000000000000000003 /* WindowManager.swift */,
+				A30000000000000000000004 /* ShortcutsPanel.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -178,6 +193,7 @@
 				D10000000000000000000003 /* TestDoubles.swift */,
 				E10000000000000000000003 /* HistoryTests.swift */,
 				A20000000000000000000006 /* VocabularyTests.swift */,
+				A30000000000000000000005 /* WindowLayoutTests.swift */,
 				C10000000000000000000002 /* TextInserterTests.swift */,
 			);
 			path = WadTests;
@@ -285,6 +301,10 @@
 				A20000000000000000001003 /* GlobalShortcut.swift in Sources */,
 				A20000000000000000001004 /* SelectedText.swift in Sources */,
 				A20000000000000000001005 /* CorrectionPanel.swift in Sources */,
+				A30000000000000000001001 /* WindowLayout.swift in Sources */,
+				A30000000000000000001002 /* WindowMover.swift in Sources */,
+				A30000000000000000001003 /* WindowManager.swift in Sources */,
+				A30000000000000000001004 /* ShortcutsPanel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,6 +329,8 @@
 				A20000000000000000002001 /* Vocabulary.swift in Sources */,
 				A20000000000000000002002 /* VocabularyStore.swift in Sources */,
 				A20000000000000000002006 /* VocabularyTests.swift in Sources */,
+				A30000000000000000002001 /* WindowLayout.swift in Sources */,
+				A30000000000000000002005 /* WindowLayoutTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
