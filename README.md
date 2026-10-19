@@ -57,7 +57,7 @@ Die Zwischenablage nutzt Wad nur für einen Augenblick zum Einfügen und stellt 
 Voraussetzungen: Xcode und CMake (`brew install cmake`).
 
 ```bash
-git clone --recurse-submodules https://github.com/<benutzername>/wad.git
+git clone --recurse-submodules https://github.com/passauf-unterstrich/wad.git
 cd wad
 ./Scripts/download-model.sh      # Sprachmodelle laden, Prüfsummen kontrollieren
 ./Scripts/build-whisper.sh       # whisper.cpp übersetzen
