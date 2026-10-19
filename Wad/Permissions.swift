@@ -17,7 +17,12 @@ enum Permissions {
     }
 
     static func openMicrophoneSettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
+        // Hat der Nutzer noch nie entschieden, steht Wad gar nicht in der Liste: dann erst fragen.
+        guard AVCaptureDevice.authorizationStatus(for: .audio) != .notDetermined else {
+            AVCaptureDevice.requestAccess(for: .audio) { _ in }
+            return
+        }
+        let url = URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Microphone")!
         NSWorkspace.shared.open(url)
     }
 
@@ -30,7 +35,9 @@ enum Permissions {
     }
 
     static func openAccessibilitySettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
+        // Die Anfrage trägt Wad in die Liste ein, sonst gäbe es dort nichts einzuschalten.
+        requestAccessibility()
+        let url = URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility")!
         NSWorkspace.shared.open(url)
     }
 
