@@ -93,6 +93,7 @@ final class AppModel: ObservableObject {
             self?.openCorrection()
         }
         isWindowManagerEnabled = windowManager.isEnabled
+        enableLoginItemOnFirstLaunch()
         // ⌥⇧-Kürzel lösen auch mit der rechten Option-Taste aus. Eine dabei gestartete Aufnahme
         // ist ein Versehen und wird verworfen, ohne etwas einzufügen (SPEC 1.8).
         windowManager.willPerform = { [weak self] in self?.dictation.cancel(reason: "Fenster-Kürzel") }
@@ -134,6 +135,17 @@ final class AppModel: ObservableObject {
 
     func openShortcutsPanel() {
         shortcutsPanel.show(manager: windowManager)
+    }
+
+    /// Standard: Wad startet bei der Anmeldung (Linus' Entscheidung vom 19.10.2026). Eingerichtet wird
+    /// das genau einmal, und nur, wenn Wad im Programme-Ordner liegt. Aus der DMG oder einem
+    /// Testordner heraus würde macOS sich sonst den falschen Ort merken. Wer es abschaltet, bleibt dabei.
+    private func enableLoginItemOnFirstLaunch() {
+        let key = "Anmeldeobjekt eingerichtet"
+        guard !UserDefaults.standard.bool(forKey: key),
+              Bundle.main.bundlePath.hasPrefix("/Applications/") else { return }
+        UserDefaults.standard.set(true, forKey: key)
+        launchesAtLogin = true
     }
 
     /// Meldet Wad bei macOS als Anmeldeobjekt an oder ab. macOS startet Wad dann selbst nach der

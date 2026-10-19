@@ -54,7 +54,7 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 4. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
 5. **Fenstermanager an / aus** (Schalter, ab Etappe 9, standardmäßig an). Ist er aus, sind seine Kürzel nicht registriert. Darunter: *Fenster-Kürzel …* (siehe 1.8).
 6. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.
-6a. **Bei Anmeldung starten** (Schalter, Ergänzung vom 19.10.2026 auf Linus' Wunsch): meldet Wad über Apples Anmeldeobjekte an (`SMAppService`). macOS startet Wad dann nach der Anmeldung genau einmal, wie jede andere App in dieser Liste; Wad hat dafür keinen eigenen Hilfsprozess.
+6a. **Bei Anmeldung starten** (Schalter, Ergänzung vom 19.10.2026 auf Linus' Wunsch, standardmäßig an, sobald Wad im Programme-Ordner liegt): meldet Wad über Apples Anmeldeobjekte an (`SMAppService`). macOS startet Wad dann nach der Anmeldung genau einmal, wie jede andere App in dieser Liste; Wad hat dafür keinen eigenen Hilfsprozess.
 7. **Beenden.**
 
 ### 1.4 Modi
