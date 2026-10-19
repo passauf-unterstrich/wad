@@ -41,7 +41,8 @@ final class WindowManager {
 
     init(hotKeys: HotKeyCenter) {
         self.hotKeys = hotKeys
-        isEnabled = UserDefaults.standard.bool(forKey: Self.enabledKey)
+        // Standard: an (Linus' Entscheidung vom 19.10.2026). Wer ihn ausschaltet, dem merkt Wad das.
+        isEnabled = UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool ?? true
         let saved = UserDefaults.standard.data(forKey: Self.shortcutsKey)
             .flatMap { try? JSONDecoder().decode([WindowAction: KeyCombo].self, from: $0) }
         shortcuts = saved ?? Self.defaultShortcuts

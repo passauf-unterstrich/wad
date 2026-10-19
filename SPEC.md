@@ -52,7 +52,7 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 2b. **Vokabeln ▸** (Ergänzung vom 19.10.2026 auf Linus' Wunsch): *Korrigieren …* (⌃⌥W, liest das markierte Wort über die Bedienungshilfen), *Vokabelliste öffnen*, *Vorlage für deine KI kopieren*. Einträge gelten nur bis zum Neustart oder dauerhaft in `~/Library/Application Support/Wad/Vokabeln.txt`. Wad ersetzt falsche Schreibweisen als ganze Wörter und gibt dem Modell höchstens 40 richtige Schreibweisen als Hinweis. Kleinschreibung wirkt danach und gewinnt immer.
 3. **Letzte Diktate ▸** bis zu 20 Einträge, neuester oben. Klick kopiert den Text in die Zwischenablage. Darunter: *Diktate löschen*.
 4. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
-5. **Fenstermanager an / aus** (Schalter, ab Etappe 9). Ist er aus, sind seine Kürzel nicht registriert. Darunter: *Fenster-Kürzel …* (siehe 1.8).
+5. **Fenstermanager an / aus** (Schalter, ab Etappe 9, standardmäßig an). Ist er aus, sind seine Kürzel nicht registriert. Darunter: *Fenster-Kürzel …* (siehe 1.8).
 6. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.
 6a. **Bei Anmeldung starten** (Schalter, Ergänzung vom 19.10.2026 auf Linus' Wunsch): meldet Wad über Apples Anmeldeobjekte an (`SMAppService`). macOS startet Wad dann nach der Anmeldung genau einmal, wie jede andere App in dieser Liste; Wad hat dafür keinen eigenen Hilfsprozess.
 7. **Beenden.**
