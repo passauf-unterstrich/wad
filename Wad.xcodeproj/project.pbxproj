@@ -55,6 +55,7 @@
 		A30000000000000000001004 /* ShortcutsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000004 /* ShortcutsPanel.swift */; };
 		A30000000000000000002001 /* WindowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000001 /* WindowLayout.swift */; };
 		A30000000000000000002005 /* WindowLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000005 /* WindowLayoutTests.swift */; };
+		A40000000000000000001001 /* OldVersionCleanup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* OldVersionCleanup.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -98,6 +99,7 @@
 		A30000000000000000000003 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
 		A30000000000000000000004 /* ShortcutsPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsPanel.swift; sourceTree = "<group>"; };
 		A30000000000000000000005 /* WindowLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowLayoutTests.swift; sourceTree = "<group>"; };
+		A40000000000000000000001 /* OldVersionCleanup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldVersionCleanup.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +173,7 @@
 				A30000000000000000000002 /* WindowMover.swift */,
 				A30000000000000000000003 /* WindowManager.swift */,
 				A30000000000000000000004 /* ShortcutsPanel.swift */,
+				A40000000000000000000001 /* OldVersionCleanup.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -305,6 +308,7 @@
 				A30000000000000000001002 /* WindowMover.swift in Sources */,
 				A30000000000000000001003 /* WindowManager.swift in Sources */,
 				A30000000000000000001004 /* ShortcutsPanel.swift in Sources */,
+				A40000000000000000001001 /* OldVersionCleanup.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -94,6 +94,8 @@ final class AppModel: ObservableObject {
         }
         isWindowManagerEnabled = windowManager.isEnabled
         enableLoginItemOnFirstLaunch()
+        // Erst nach dem Start, damit die Menüleiste schon steht, wenn ein Dialog erscheint.
+        DispatchQueue.main.async { OldVersionCleanup.runIfNeeded() }
         // ⌥⇧-Kürzel lösen auch mit der rechten Option-Taste aus. Eine dabei gestartete Aufnahme
         // ist ein Versehen und wird verworfen, ohne etwas einzufügen (SPEC 1.8).
         windowManager.willPerform = { [weak self] in self?.dictation.cancel(reason: "Fenster-Kürzel") }
