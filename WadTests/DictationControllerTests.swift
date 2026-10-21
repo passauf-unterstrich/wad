@@ -36,7 +36,37 @@ final class DictationControllerTests: XCTestCase {
         controller.onNotice = { [unowned self] in notices.append($0) }
     }
 
+    /// Lässt die Taste los, so wie es das System danach auch selbst sieht.
+    private func release() {
+        keyIsDown = false
+        controller.keyReleased()
+    }
+
     // MARK: Absicherungen
+
+    func testFalseReleaseWhileKeyIsStillDownIsIgnored() {
+        controller.keyPressed()
+        clock += 1
+        controller.keyReleased()          // keyIsDown bleibt true: ein falsches Signal eines anderen Programms
+        XCTAssertEqual(controller.state, .recording, "Solange die Taste unten ist, wird aufgenommen")
+        XCTAssertTrue(microphone.isRunning)
+    }
+
+    func testUnexpectedStopKeepsWhatWasSaidAndTellsTheUser() {
+        controller.keyPressed()
+        microphone.deliver(seconds: 3, speech: true)
+        clock += 3
+        controller.stopUnexpectedly(reason: "kein Mikrofon mehr verfügbar")
+        XCTAssertEqual(inserted, ["Stück 1"], "Das Gesagte geht nicht verloren")
+        XCTAssertEqual(notices.count, 1)
+        XCTAssertFalse(microphone.isRunning)
+    }
+
+    func testInterruptionTellsTheUser() {
+        controller.keyPressed()
+        controller.cancel(reason: "Bildschirmsperre", notify: true)
+        XCTAssertEqual(notices.count, 1)
+    }
 
     func testPressAndReleaseStartsAndStopsMicrophone() {
         controller.keyPressed()
@@ -44,7 +74,7 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertTrue(microphone.isRunning)
 
         clock += 1
-        controller.keyReleased()
+        release()
         XCTAssertEqual(controller.state, .idle)
         XCTAssertFalse(microphone.isRunning)
     }
@@ -108,13 +138,70 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(notices.count, 1, "Statt still zu versagen, gibt es einen Hinweis")
     }
 
+    // MARK: Freies Diktieren
+
+    func testHandsFreeKeepsRecordingWithoutKey() {
+        keyIsDown = false
+        controller.startHandsFree()
+        clock += 60
+        controller.checkSafeguards()
+        controller.checkSafeguards()
+        XCTAssertEqual(controller.state, .recording, "Beim freien Diktieren zählt die Taste nicht")
+    }
+
+    func testKeyPressStopsHandsFree() {
+        controller.startHandsFree()
+        microphone.deliver(seconds: 3, speech: true)
+        clock += 3
+        controller.keyPressed()
+        XCTAssertEqual(controller.state, .idle)
+        XCTAssertEqual(inserted, ["Stück 1"])
+        release()
+        XCTAssertEqual(microphone.startCount, 1, "Der Druck zum Stoppen startet keine neue Aufnahme")
+    }
+
+    func testHandsFreeEndsAtItsLimitAndInserts() {
+        controller.handsFreeLimit = 2 * 60
+        controller.startHandsFree()
+        microphone.deliver(seconds: 3, speech: true)
+        clock += 2 * 60
+        controller.checkSafeguards()
+        XCTAssertEqual(controller.state, .idle)
+        XCTAssertEqual(inserted, ["Stück 1"])
+        XCTAssertEqual(notices.count, 1)
+    }
+
     // MARK: Umwandlung
+
+    func testNewRecordingStartsWhileStillProcessing() {
+        var pending: [() -> Void] = []
+        controller = DictationController(
+            capture: microphone, transcriber: transcriber,
+            isKeyPhysicallyDown: { [unowned self] in keyIsDown },
+            now: { [unowned self] in clock },
+            background: { pending.append($0) }, main: { $0() })
+        controller.onText = { [unowned self] in inserted.append($0) }
+
+        controller.keyPressed()
+        microphone.deliver(seconds: 3, speech: true)
+        clock += 3
+        release()
+        XCTAssertEqual(controller.state, .processing)
+
+        keyIsDown = true
+        controller.keyPressed()
+        XCTAssertEqual(controller.state, .recording, "Wer weiterspricht, wird sofort wieder aufgenommen")
+
+        pending.forEach { $0() }
+        XCTAssertEqual(inserted, ["Stück 1"])
+        XCTAssertEqual(controller.state, .recording, "Die alte Umwandlung beendet die neue Aufnahme nicht")
+    }
 
     func testShortTapIsDiscardedWithoutTranscription() {
         controller.keyPressed()
         microphone.deliver(seconds: 0.1, speech: true)
         clock += DictationController.minDuration / 2
-        controller.keyReleased()
+        release()
         XCTAssertEqual(transcriber.chunkLengths, [])
         XCTAssertEqual(inserted, [])
     }
@@ -123,7 +210,7 @@ final class DictationControllerTests: XCTestCase {
         controller.keyPressed()
         microphone.deliver(seconds: 5, speech: false)
         clock += 5
-        controller.keyReleased()
+        release()
         XCTAssertEqual(transcriber.chunkLengths, [], "Stille geht nicht an das Modell, also keine Halluzinationen")
     }
 
@@ -136,7 +223,7 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(inserted, [], "Während der Aufnahme wird nichts eingefügt")
 
         clock += 18
-        controller.keyReleased()
+        release()
         XCTAssertEqual(inserted, ["Stück 1"])
         XCTAssertEqual(microphone.buffer?.count, 0, "Nach dem Diktat ist das Audio gelöscht")
     }
@@ -152,7 +239,7 @@ final class DictationControllerTests: XCTestCase {
 
         microphone.deliver(seconds: 4, speech: true)
         clock += 16
-        controller.keyReleased()
+        release()
         XCTAssertEqual(inserted, ["Stück 1", " Stück 2"], "Zweites Stück mit Leerzeichen angehängt")
         XCTAssertEqual(finished, ["Stück 1 Stück 2"])
     }
@@ -163,7 +250,7 @@ final class DictationControllerTests: XCTestCase {
         microphone.deliver(seconds: 1, speech: false)
         microphone.deliver(seconds: 4, speech: true)
         clock += 16
-        controller.keyReleased()
+        release()
         XCTAssertEqual(transcriber.languages, [nil, "de"], "Sprache wird einmal erkannt und beibehalten")
         XCTAssertEqual(transcriber.prompts, [nil, "Stück 1"], "Vorheriges Stück gibt Zusammenhang")
     }
@@ -174,7 +261,7 @@ final class DictationControllerTests: XCTestCase {
         microphone.deliver(seconds: 1, speech: false)
         microphone.deliver(seconds: 4, speech: true)
         clock += 16
-        controller.keyReleased()
+        release()
         XCTAssertEqual(transcriber.chunkLengths.reduce(0, +), Int(16 * AudioBuffer.sampleRate))
     }
 }

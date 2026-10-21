@@ -7,7 +7,12 @@ import AppKit
 
 final class TextInserter {
     /// So lange bekommt die Ziel-App Zeit, die Zwischenablage zu lesen, bevor Wad sie zurücksetzt.
-    static let restoreDelay: TimeInterval = 0.5
+    /// Großzügig gewählt: Auch schwere Apps unter Last fügen so nie den alten Inhalt ein.
+    static let restoreDelay: TimeInterval = 1.5
+
+    /// Meldet, dass Wad den alten Inhalt zurückgelegt hat. Der Zwischenablage-Verlauf übergeht
+    /// diese Änderung, sonst tauchte ein gelöschter Eintrag nach jedem Diktat wieder auf.
+    var onRestored: (() -> Void)?
 
     /// Kennzeichnung nach nspasteboard.org: Zwischenablage-Programme (und Wads eigener Verlauf)
     /// übergehen so markierte Einträge, der Diktat-Text taucht dort also nie auf.
@@ -48,6 +53,7 @@ final class TextInserter {
             guard pasteboard.changeCount == ownChange else { return }
             pasteboard.clearContents()
             if !saved.isEmpty { pasteboard.writeObjects(saved) }
+            onRestored?()
         }
         pending = (saved, restore)
         DispatchQueue.main.asyncAfter(deadline: .now() + restoreDelay, execute: restore)

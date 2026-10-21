@@ -34,6 +34,10 @@ final class DictationController {
     static let safetyCheckInterval: TimeInterval = 0.2
 
     var mode = Mode.live
+    /// Höchstdauer beim freien Diktieren über das Menü. Einstellbar, nie länger als `maxDuration`.
+    var handsFreeLimit: TimeInterval = 5 * 60
+    /// Läuft gerade eine frei gestartete Aufnahme, die nicht an der gehaltenen Taste hängt?
+    private(set) var isHandsFree = false
     /// Liefert zu Beginn jedes Diktats den Vokabel-Hinweis fürs Modell.
     var vocabularyHint: () -> String? = { nil }
     private(set) var state: State = .idle {
@@ -44,7 +48,7 @@ final class DictationController {
     var onText: ((String) -> Void)?
     /// Der vollständige Text, sobald ein Diktat fertig ist.
     var onDictationFinished: ((String) -> Void)?
-    /// Ein kurzer, verständlicher Hinweis, wenn etwas nicht wie erwartet lief.
+    /// Ein kurzer, verständlicher Hinweis, wenn eine Aufnahme anders endete als gewollt.
     var onNotice: ((String) -> Void)?
 
     private let capture: AudioCapture
@@ -80,7 +84,28 @@ final class DictationController {
     }
 
     func keyPressed() {
-        guard state == .idle else { return }
+        // Beim freien Diktieren beendet ein kurzer Druck auf die Taste die Aufnahme.
+        if isHandsFree {
+            finish(reason: "Freies Diktieren beendet")
+            return
+        }
+        startRecording(handsFree: false)
+    }
+
+    /// Freies Diktieren über das Menü: nimmt auf, bis „Aufnahme stoppen“, die Taste oder die Höchstdauer es beendet.
+    func startHandsFree() {
+        startRecording(handsFree: true)
+    }
+
+    func stopHandsFree() {
+        guard isHandsFree else { return }
+        finish(reason: "Freies Diktieren beendet")
+    }
+
+    /// Eine neue Aufnahme darf auch starten, während die vorige noch umgewandelt wird. Die
+    /// Warteschlange arbeitet der Reihe nach, also kommt der ältere Text immer zuerst an.
+    private func startRecording(handsFree: Bool) {
+        guard state != .recording else { return }
         let audio: AudioBuffer
         do {
             audio = try capture.start { [weak self] in
@@ -95,17 +120,36 @@ final class DictationController {
         nextLiveCheck = ChunkPlanner.minChunk
         startedAt = now()
         keyUpChecks = 0
+        isHandsFree = handsFree
         state = .recording
         startSafetyTimer()
     }
 
+    /// Ein Loslassen zählt nur, wenn das System die Taste auch wirklich oben sieht. Andere Programme
+    /// können Sondertasten-Signale senden; ein solches falsches „losgelassen“ beendet nichts mehr.
+    /// War es echt, beendet spätestens die Gegenprüfung die Aufnahme kurz danach.
     func keyReleased() {
+        guard !isHandsFree, state == .recording else { return }
+        guard !isKeyPhysicallyDown() else {
+            log.notice("Loslassen gemeldet, Taste aber noch unten: Aufnahme läuft weiter")
+            return
+        }
         finish(reason: "Taste losgelassen")
     }
 
+    /// Beendet die Aufnahme, obwohl der Nutzer weiterreden wollte, etwa weil das Mikrofon wegfiel.
+    /// Das bis dahin Gesagte wird trotzdem eingefügt, und der Nutzer erfährt, warum es endete.
+    func stopUnexpectedly(reason: String) {
+        guard state == .recording else { return }
+        finish(reason: reason)
+        onNotice?("Aufnahme gestoppt: \(reason)")
+    }
+
     /// Bricht ein laufendes Diktat ab und verwirft es, etwa bei Ruhezustand oder Bildschirmsperre.
-    func cancel(reason: String) {
+    /// Mit `notify` erfährt der Nutzer davon; still bleibt es nur, wenn er es selbst ausgelöst hat.
+    func cancel(reason: String, notify: Bool = false) {
         guard state == .recording, let session else { return }
+        if notify { onNotice?("Aufnahme abgebrochen: \(reason)") }
         session.isCancelled = true
         stopMicrophone()
         background { session.discard() }
@@ -119,12 +163,14 @@ final class DictationController {
         // Erst wenn die Taste zweimal hintereinander oben ist, gilt das Loslassen als verpasst.
         // So beendet ein kurzer Aussetzer (etwa während Wad einfügt) nie ein laufendes Diktat,
         // und eine hängende Aufnahme endet trotzdem nach spätestens 0,4 Sekunden.
-        keyUpChecks = isKeyPhysicallyDown() ? 0 : keyUpChecks + 1
+        // Beim freien Diktieren hängt nichts an der Taste, dort zählt nur die Höchstdauer.
+        keyUpChecks = isHandsFree || isKeyPhysicallyDown() ? 0 : keyUpChecks + 1
+        let limit = isHandsFree ? min(handsFreeLimit, Self.maxDuration) : Self.maxDuration
         if keyUpChecks >= 2 {
             finish(reason: "Loslassen verpasst, Gegenprüfung")
-        } else if now().timeIntervalSince(startedAt) >= Self.maxDuration {
+        } else if now().timeIntervalSince(startedAt) >= limit {
             finish(reason: "Zeitlimit erreicht")
-            onNotice?("Aufnahme nach 10 Minuten automatisch beendet")
+            onNotice?("Aufnahme nach \(Int(limit / 60)) Minuten automatisch beendet, Text ist eingefügt")
         }
     }
 }
@@ -164,7 +210,8 @@ private extension DictationController {
             self?.main {
                 if let text, !session.isCancelled { self?.onText?(text) }
                 if !fullText.isEmpty { self?.onDictationFinished?(fullText) }
-                self?.state = .idle
+                // Läuft inzwischen schon die nächste Aufnahme, bleibt es bei „nimmt auf“.
+                if self?.state == .processing { self?.state = .idle }
             }
         }
     }
@@ -173,6 +220,7 @@ private extension DictationController {
         safetyTimer?.invalidate()
         safetyTimer = nil
         startedAt = nil
+        isHandsFree = false
         session = nil
         capture.stop()
     }

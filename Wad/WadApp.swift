@@ -18,6 +18,14 @@ struct WadApp: App {
                 Text("Am Ende einfügen").tag(DictationController.Mode.atEnd)
             }
             Toggle("Kleinschreibung", isOn: $model.isLowercase)
+            // Freies Diktieren: läuft ohne gehaltene Taste, bis man es stoppt oder die Höchstdauer erreicht ist.
+            Button(model.isHandsFreeRecording ? "Aufnahme stoppen" : "Aufnahme starten", action: model.toggleHandsFree)
+                .disabled(!model.isEnabled || (model.dictationState == .recording && !model.isHandsFreeRecording))
+            Picker("Höchstdauer freies Diktieren", selection: $model.handsFreeMinutes) {
+                Text("2 Minuten").tag(2)
+                Text("5 Minuten").tag(5)
+                Text("10 Minuten").tag(10)
+            }
             Menu("Vokabeln") {
                 Button("Wort korrigieren …", action: model.openCorrection)
                     .keyboardShortcut("w", modifiers: [.control, .option])

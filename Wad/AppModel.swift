@@ -27,7 +27,16 @@ final class AppModel: ObservableObject {
     @Published var launchesAtLogin = SMAppService.mainApp.status == .enabled {
         didSet { updateLoginItem() }
     }
+    /// Höchstdauer fürs freie Diktieren in Minuten, gemerkt wie die anderen Schalter.
+    @Published var handsFreeMinutes = UserDefaults.standard.object(forKey: AppModel.handsFreeKey) as? Int ?? 5 {
+        didSet {
+            UserDefaults.standard.set(handsFreeMinutes, forKey: Self.handsFreeKey)
+            dictation.handsFreeLimit = TimeInterval(handsFreeMinutes * 60)
+        }
+    }
+    private static let handsFreeKey = "Höchstdauer freies Diktieren"
     @Published private(set) var dictationState = DictationController.State.idle
+    @Published private(set) var isHandsFreeRecording = false
     @Published private(set) var hasMicrophone = Permissions.hasMicrophone
     @Published private(set) var hasAccessibility = Permissions.hasAccessibility
     /// Ob das Sprachmodell bereitsteht. `nil`, solange es noch lädt.
@@ -54,6 +63,8 @@ final class AppModel: ObservableObject {
     private var observers: [NSObjectProtocol] = []
     private var accessibilityTimer: Timer?
     private var noticeTimer: Timer?
+    /// Hält Bildschirm und Mac wach, solange aufgenommen wird (siehe `keepAwake`).
+    private var awakeActivity: NSObjectProtocol?
 
     init() {
         transcriber = WhisperTranscriber()
@@ -63,7 +74,13 @@ final class AppModel: ObservableObject {
         dictation = DictationController(capture: recorder, transcriber: transcriber,
                                         isKeyPhysicallyDown: HotkeyMonitor.isRightOptionDown,
                                         background: { worker.async(execute: $0) })
-        dictation.onStateChange = { [weak self] state in self?.dictationState = state }
+        dictation.onStateChange = { [weak self] state in
+            guard let self else { return }
+            dictationState = state
+            isHandsFreeRecording = state == .recording && dictation.isHandsFree
+            keepAwake(state == .recording)
+        }
+        dictation.handsFreeLimit = TimeInterval(handsFreeMinutes * 60)
         dictation.vocabularyHint = { [weak self] in self?.vocabulary.vocabulary.hint }
         dictation.onText = { [weak self] text in
             guard let self else { return }
@@ -82,12 +99,15 @@ final class AppModel: ObservableObject {
                 if !ready { log.error("Spracherkennung nicht verfügbar") }
             }
         }
-        dictation.onNotice = { [weak self] text in self?.show(notice: text) }
-        recorder.onDeviceChange = { [weak self] in
-            guard self?.dictationState == .recording else { return }
-            self?.dictation.cancel(reason: "Audiogerät gewechselt")
-            self?.show(notice: "Aufnahme beendet: Mikrofon wurde gewechselt")
+        // Endet eine Aufnahme anders als gewollt, soll man es auch hören, nicht nur sehen.
+        dictation.onNotice = { [weak self] text in
+            self?.show(notice: text)
+            NSSound(named: "Basso")?.play()
         }
+        recorder.onMicrophoneLost = { [weak self] in
+            self?.dictation.stopUnexpectedly(reason: "kein Mikrofon mehr verfügbar")
+        }
+        inserter.onRestored = { [weak self] in self?.clipboardWatcher.skipCurrentChange() }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
         hotKeys.register(KeyCombo(keyCode: UInt32(kVK_ANSI_W), modifiers: UInt32(controlKey | optionKey))) { [weak self] in
             self?.openCorrection()
@@ -101,7 +121,7 @@ final class AppModel: ObservableObject {
         windowManager.willPerform = { [weak self] in self?.dictation.cancel(reason: "Fenster-Kürzel") }
 
         observers = SystemEvents.observeInterruptions { [weak self] reason in
-            self?.dictation.cancel(reason: reason)
+            self?.dictation.cancel(reason: reason, notify: true)
         }
         observers.append(Permissions.observeAccessibilityChanges { [weak self] in
             self?.refreshAccessibility()
@@ -234,20 +254,49 @@ final class AppModel: ObservableObject {
             dictation.keyReleased()
             return
         }
-        guard isEnabled else { return }
+        // Ein Druck beendet freies Diktieren immer, auch wenn sonst gerade nichts starten dürfte.
+        guard isHandsFreeRecording || canStartRecording() else { return }
+        dictation.keyPressed()
+    }
+
+    /// Menü: freies Diktieren starten oder beenden.
+    func toggleHandsFree() {
+        if isHandsFreeRecording {
+            dictation.stopHandsFree()
+        } else if canStartRecording() {
+            dictation.startHandsFree()
+        }
+    }
+
+    /// Prüft alles, was vor einer Aufnahme stimmen muss, und sagt sonst klar, was fehlt.
+    private func canStartRecording() -> Bool {
+        guard isEnabled else { return false }
         // Das Mikrofon-Recht kann jederzeit in den Systemeinstellungen entzogen werden.
         hasMicrophone = Permissions.hasMicrophone
         guard hasMicrophone else {
             show(notice: "Wad darf das Mikrofon nicht benutzen")
-            return
+            return false
         }
         // Lädt das Modell noch, darf trotzdem diktiert werden: Die Umwandlung wartet einfach dahinter.
         guard isTranscriberReady != false else {
             show(notice: "Spracherkennung nicht verfügbar")
-            return
+            return false
         }
         notice = nil
-        dictation.keyPressed()
+        return true
+    }
+
+    /// Hält während einer Aufnahme Bildschirm und Mac wach. Wer nur spricht und eine Sondertaste hält,
+    /// tippt und klickt nicht. Ohne diese Anmeldung ging der Bildschirm bei langen Diktaten nach der
+    /// eingestellten Ruhezeit aus, und das hat die Aufnahme abgebrochen.
+    private func keepAwake(_ awake: Bool) {
+        if awake, awakeActivity == nil {
+            awakeActivity = ProcessInfo.processInfo.beginActivity(
+                options: [.idleDisplaySleepDisabled, .userInitiated], reason: "Wad nimmt ein Diktat auf")
+        } else if !awake, let activity = awakeActivity {
+            ProcessInfo.processInfo.endActivity(activity)
+            awakeActivity = nil
+        }
     }
 
     /// Solange die Freigabe fehlt, prüft Wad jede Sekunde nach, weil macOS eine neue Freigabe
