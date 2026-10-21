@@ -56,16 +56,20 @@ final class DictationControllerTests: XCTestCase {
         controller.keyPressed()
         microphone.deliver(seconds: 3, speech: true)
         clock += 3
-        controller.stopUnexpectedly(reason: "kein Mikrofon mehr verfügbar")
+        controller.stopUnexpectedly(reason: "weil kein Mikrofon mehr verfügbar ist")
         XCTAssertEqual(inserted, ["Stück 1"], "Das Gesagte geht nicht verloren")
         XCTAssertEqual(notices.count, 1)
         XCTAssertFalse(microphone.isRunning)
     }
 
-    func testInterruptionTellsTheUser() {
+    func testLockKeepsTheDictationWithoutPastingIt() {
         controller.keyPressed()
-        controller.cancel(reason: "Bildschirmsperre", notify: true)
-        XCTAssertEqual(notices.count, 1)
+        microphone.deliver(seconds: 3, speech: true)
+        clock += 3
+        controller.stopUnexpectedly(reason: "weil der Bildschirm gesperrt wurde", insert: false)
+        XCTAssertEqual(inserted, [], "Auf dem Sperrbildschirm wird nichts eingefügt")
+        XCTAssertEqual(finished, ["Stück 1"], "Das Diktat landet trotzdem unter „Letzte Diktate“")
+        XCTAssertEqual(notices, ["Aufnahme gestoppt, weil der Bildschirm gesperrt wurde. Der Text liegt unter „Letzte Diktate“."])
     }
 
     func testPressAndReleaseStartsAndStopsMicrophone() {

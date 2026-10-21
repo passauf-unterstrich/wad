@@ -105,7 +105,7 @@ final class AppModel: ObservableObject {
             NSSound(named: "Basso")?.play()
         }
         recorder.onMicrophoneLost = { [weak self] in
-            self?.dictation.stopUnexpectedly(reason: "kein Mikrofon mehr verfügbar")
+            self?.dictation.stopUnexpectedly(reason: "weil kein Mikrofon mehr verfügbar ist")
         }
         inserter.onRestored = { [weak self] in self?.clipboardWatcher.skipCurrentChange() }
         hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
@@ -121,7 +121,7 @@ final class AppModel: ObservableObject {
         windowManager.willPerform = { [weak self] in self?.dictation.cancel(reason: "Fenster-Kürzel") }
 
         observers = SystemEvents.observeInterruptions { [weak self] reason in
-            self?.dictation.cancel(reason: reason, notify: true)
+            self?.dictation.stopUnexpectedly(reason: reason, insert: false)
         }
         observers.append(Permissions.observeAccessibilityChanges { [weak self] in
             self?.refreshAccessibility()
@@ -321,7 +321,7 @@ final class AppModel: ObservableObject {
             Permissions.relaunch()
         } else {
             hotkey.stop()
-            dictation.cancel(reason: "Bedienungshilfen entzogen")
+            dictation.stopUnexpectedly(reason: "weil die Bedienungshilfen-Freigabe entzogen wurde", insert: false)
             waitForAccessibility()
         }
     }

@@ -22,7 +22,7 @@ Der Name spielt auf den Film „Der Diktator“ und das Land Wadiya an.
 
 - **Rechte Option-Taste halten und sprechen.** Das Symbol wird zum roten Punkt, und macOS zeigt oben rechts das orange Mikrofon. Beim Loslassen verschwinden beide sofort. Solange du die Taste hältst, bleibt der Bildschirm an.
 - **Freies Diktieren:** Im Menü *Aufnahme starten* wählen und ohne Taste sprechen. Beenden mit *Aufnahme stoppen* oder einmal kurz der rechten Option-Taste. Nach der *Höchstdauer* (2, 5 oder 10 Minuten, Standard 5) stoppt Wad von selbst und fügt ein.
-- **Endet eine Aufnahme ungewollt**, etwa weil der Mac gesperrt wird oder das Mikrofon wegfällt, zeigt Wad oben im Menü den Grund und spielt einen kurzen Ton.
+- **Endet eine Aufnahme ungewollt**, etwa weil der Mac gesperrt wird oder das Mikrofon wegfällt, geht nichts verloren: Wad fügt das Gesagte ein oder legt es, auf dem Sperrbildschirm, unter *Letzte Diktate* ab. Oben im Menü steht der Grund, und ein kurzer Ton weist darauf hin.
 - **Live** (voreingestellt): Schon während du sprichst, fügt Wad an jeder Sprechpause das Gesagte ein.
 - **Am Ende einfügen**: Der ganze Text kommt erst nach dem Loslassen. Umschalten unter *Modus* im Menü.
 - **Kleinschreibung**: schreibt jedes Diktat komplett klein. Wad merkt sich diesen Schalter auch nach einem Neustart.

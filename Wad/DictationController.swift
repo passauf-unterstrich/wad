@@ -137,19 +137,23 @@ final class DictationController {
         finish(reason: "Taste losgelassen")
     }
 
-    /// Beendet die Aufnahme, obwohl der Nutzer weiterreden wollte, etwa weil das Mikrofon wegfiel.
-    /// Das bis dahin Gesagte wird trotzdem eingefügt, und der Nutzer erfährt, warum es endete.
-    func stopUnexpectedly(reason: String) {
-        guard state == .recording else { return }
+    /// Beendet die Aufnahme, obwohl der Nutzer weiterreden wollte, etwa weil das Mikrofon wegfiel
+    /// oder der Bildschirm gesperrt wurde. Nichts Gesagtes geht verloren: Mit `insert` wird der Rest
+    /// eingefügt. Ohne, etwa auf dem Sperrbildschirm, wo Einfügen nichts Gutes bewirkt, landet das
+    /// ganze Diktat nur unter „Letzte Diktate“. Der Nutzer erfährt in jedem Fall, warum es endete.
+    /// - Parameter reason: Satzteil, z. B. „weil der Bildschirm gesperrt wurde“.
+    func stopUnexpectedly(reason: String, insert: Bool = true) {
+        guard state == .recording, let session else { return }
+        if !insert { session.isCancelled = true }
         finish(reason: reason)
-        onNotice?("Aufnahme gestoppt: \(reason)")
+        onNotice?(insert ? "Aufnahme gestoppt, \(reason)"
+                         : "Aufnahme gestoppt, \(reason). Der Text liegt unter „Letzte Diktate“.")
     }
 
-    /// Bricht ein laufendes Diktat ab und verwirft es, etwa bei Ruhezustand oder Bildschirmsperre.
-    /// Mit `notify` erfährt der Nutzer davon; still bleibt es nur, wenn er es selbst ausgelöst hat.
-    func cancel(reason: String, notify: Bool = false) {
+    /// Bricht ein laufendes Diktat ab und verwirft es. Nur für Fälle, die der Nutzer selbst
+    /// ausgelöst hat: Diktieren ausgeschaltet, Fenster-Kürzel, Wad beendet.
+    func cancel(reason: String) {
         guard state == .recording, let session else { return }
-        if notify { onNotice?("Aufnahme abgebrochen: \(reason)") }
         session.isCancelled = true
         stopMicrophone()
         background { session.discard() }
