@@ -21,6 +21,12 @@ final class WindowManager {
         .center: KeyCombo(keyCode: UInt32(kVK_ANSI_C), modifiers: UInt32(controlKey | optionKey)),
     ]
 
+    /// Grundkürzel, ohne die man am Mac nicht arbeiten kann. Auch Wads eigenes Einfügen braucht ⌘V.
+    static let reservedCombos: Set<KeyCombo> = Set(
+        [kVK_ANSI_C, kVK_ANSI_V, kVK_ANSI_X, kVK_ANSI_Z, kVK_ANSI_A, kVK_ANSI_S, kVK_ANSI_Q, kVK_ANSI_W, kVK_Tab]
+            .map { KeyCombo.command($0) }
+    )
+
     private static let enabledKey = "Fenstermanager"
     private static let shortcutsKey = "Fenster-Kürzel"
 
@@ -58,6 +64,9 @@ final class WindowManager {
 
     /// Belegt eine Aktion neu. Rückgabe ist ein verständlicher Grund, falls es nicht geht.
     func setShortcut(_ combo: KeyCombo, for action: WindowAction) -> String? {
+        if Self.reservedCombos.contains(combo) {
+            return "\(combo.displayName) brauchen Mac und Apps selbst, zum Beispiel zum Kopieren und Einfügen. Bitte eine andere Kombination."
+        }
         if let other = shortcuts.first(where: { $0.value == combo && $0.key != action })?.key {
             return "\(combo.displayName) ist schon für „\(other.title)“ vergeben."
         }

@@ -33,14 +33,28 @@ enum OldVersionCleanup {
         NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).forEach { $0.terminate() }
         pythonPIDs.forEach { kill($0, SIGTERM) }
         if let app { disableLoginItem(of: app) }
-        if hasFolder { try? FileManager.default.trashItem(at: installFolder, resultingItemURL: nil) }
+        var trashed = true
+        if hasFolder {
+            do {
+                try FileManager.default.trashItem(at: installFolder, resultingItemURL: nil)
+            } catch {
+                trashed = false
+                log.error("Alter Ordner nicht in den Papierkorb: \(error.localizedDescription, privacy: .public)")
+            }
+        }
         removeCommandLinks()
 
-        UserDefaults.standard.set(true, forKey: doneKey)
-        log.notice("Alte Version aufgeräumt")
         let done = NSAlert()
-        done.messageText = "Die alte Diktier-App ist aufgeräumt"
-        done.informativeText = "Ab jetzt hört nur noch Wad auf die rechte Option-Taste. Die alten Dateien liegen im Papierkorb. Leere ihn, dann sind auch die alten Diktat-Verläufe endgültig gelöscht."
+        if trashed {
+            // Erst nach echtem Erfolg nie wieder fragen. Klappt es nicht, fragt Wad beim nächsten Start erneut.
+            UserDefaults.standard.set(true, forKey: doneKey)
+            log.notice("Alte Version aufgeräumt")
+            done.messageText = "Die alte Diktier-App ist aufgeräumt"
+            done.informativeText = "Ab jetzt hört nur noch Wad auf die rechte Option-Taste. Die alten Dateien liegen im Papierkorb. Leere ihn, dann sind auch die alten Diktat-Verläufe endgültig gelöscht."
+        } else {
+            done.messageText = "Der alte Ordner ließ sich nicht verschieben"
+            done.informativeText = "Die alte App ist beendet und startet nicht mehr von selbst. Den Ordner „linus_apps/Wispr“ auf dem Schreibtisch kannst du selbst in den Papierkorb legen. Wad fragt beim nächsten Start noch einmal."
+        }
         done.runModal()
     }
 
@@ -54,11 +68,12 @@ enum OldVersionCleanup {
         return alert.runModal() == .alertFirstButtonReturn
     }
 
-    /// Prozesse, die diktieren.py ausführen, also die Terminal-Variante. Nur die des eigenen Benutzers.
+    /// Prozesse, die diktieren.py aus einem Ordner der alten App ausführen, also die Terminal-Variante.
+    /// Nur die des eigenen Benutzers. Ein fremdes Programm, das zufällig auch so heißt, bleibt unberührt.
     private static func runningOldScripts() -> [pid_t] {
         let pgrep = Process()
         pgrep.executableURL = URL(fileURLWithPath: "/usr/bin/pgrep")
-        pgrep.arguments = ["-U", String(getuid()), "-f", "diktieren\\.py"]
+        pgrep.arguments = ["-U", String(getuid()), "-f", "(linus_apps/Wispr|Diktierfunktion|Selbstgebaut)[^ ]*/diktieren\\.py"]
         let output = Pipe()
         pgrep.standardOutput = output
         guard (try? pgrep.run()) != nil else { return [] }

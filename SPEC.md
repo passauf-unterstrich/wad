@@ -54,6 +54,7 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 4. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
 5. **Fenstermanager an / aus** (Schalter, ab Etappe 9, standardmäßig an). Ist er aus, sind seine Kürzel nicht registriert. Darunter: *Fenster-Kürzel …* (siehe 1.8).
 6. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.
+2c. **Aufnahme starten / stoppen** und **Höchstdauer freies Diktieren ▸** (Ergänzung vom 21.10.2026 auf Linus' Wunsch): freies Diktieren ohne gehaltene Taste. Stopp über das Menü oder einen kurzen Druck auf die rechte Option-Taste. Höchstdauer 2, 5 oder 10 Minuten (Standard 5), danach stoppt Wad, fügt ein und meldet es. Alle Absicherungen aus 2.2 außer der Tasten-Gegenprüfung gelten weiter; die harte Grenze von 10 Minuten bleibt.
 6a. **Bei Anmeldung starten** (Schalter, Ergänzung vom 19.10.2026 auf Linus' Wunsch, standardmäßig an, sobald Wad im Programme-Ordner liegt): meldet Wad über Apples Anmeldeobjekte an (`SMAppService`). macOS startet Wad dann nach der Anmeldung genau einmal, wie jede andere App in dieser Liste; Wad hat dafür keinen eigenen Hilfsprozess.
 7. **Beenden.**
 
@@ -102,6 +103,7 @@ Diese Regeln sind nicht verhandelbar. Jede Etappe muss sie einhalten.
 - Das Mikrofon wird beim Drücken gestartet und beim Loslassen **vollständig gestoppt** (Audio-Engine aus, nicht nur pausiert). Der orange Mikrofon-Punkt von macOS muss sofort verschwinden. Das ist die sichtbare Kontrolle durch das Betriebssystem selbst.
 - Mehrfache Absicherung gegen „Aufnahme läuft weiter“:
   1. **Gegenprüfung:** Während der Aufnahme fragt Wad mehrmals pro Sekunde direkt beim System nach, ob die Taste wirklich noch gedrückt ist. Ist sie es nicht, wird sofort gestoppt, auch wenn das Loslassen-Ereignis verloren ging.
+  1a. **Kein falsches Ende (1.0.2):** Ein „losgelassen“ zählt nur, wenn das System die Taste auch oben sieht. Ändert sich das Audiogerät, läuft die Aufnahme auf dem neuen weiter. Während der Aufnahme bleibt der Bildschirm an. Endet eine Aufnahme ungewollt, wird das Gesagte eingefügt (außer bei Sperre, Ruhezustand und Benutzerwechsel) und eine Meldung mit Ton erscheint.
   2. **Zeitlimit:** Eine Aufnahme endet hart nach spätestens 10 Minuten. Dieses Limit ist eine feste Konstante im Code, keine Einstellung.
   3. **Systemereignisse:** Ruhezustand, Bildschirmsperre, Benutzerwechsel, Ausschalten der App oder Entzug einer Berechtigung beenden die Aufnahme sofort.
   4. **Ein Zustand, eine Stelle:** Der Aufnahmezustand wird von genau einer Komponente verwaltet (Zustandsautomat: *bereit → nimmt auf → verarbeitet → bereit*). Es gibt keinen zweiten Weg, das Mikrofon zu starten.

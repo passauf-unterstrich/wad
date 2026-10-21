@@ -12,15 +12,17 @@ Der Name spielt auf den Film „Der Diktator“ und das Land Wadiya an.
 
 ## Installieren
 
-1. `Wad.dmg` öffnen und **Wad** in den Ordner **Programme** ziehen.
+1. Die heruntergeladene Datei `Wad-<Version>.dmg` öffnen und **Wad** in den Ordner **Programme** ziehen. Startest du Wad versehentlich direkt aus diesem Fenster, bietet es an, sich selbst dorthin zu bewegen.
 2. Wad aus dem Ordner Programme starten. In der Menüleiste erscheint ein Mikrofon mit Stern.
 3. Wad fragt nach zwei Berechtigungen, beide sind nötig:
    - **Mikrofon**, um dich zu hören, solange du die Taste hältst.
-   - **Bedienungshilfen**, um die rechte Option-Taste zu erkennen und den Text einzufügen. Klicke im Dialog auf *Systemeinstellungen öffnen* und schalte Wad ein. Wad startet sich danach einmal selbst neu.
+   - **Bedienungshilfen** (in neueren macOS-Versionen „Gerätesteuerung und Datenzugriff“), um die rechte Option-Taste zu erkennen, den Text einzufügen und Fenster zu verschieben. Klicke im Dialog auf *Systemeinstellungen öffnen* und schalte Wad ein. Wad startet sich danach einmal selbst neu.
 
 ## Benutzen
 
-- **Rechte Option-Taste halten und sprechen.** Das Symbol wird zum roten Punkt, und macOS zeigt oben rechts den orangen Mikrofon-Punkt. Beim Loslassen verschwinden beide sofort.
+- **Rechte Option-Taste halten und sprechen.** Das Symbol wird zum roten Punkt, und macOS zeigt oben rechts das orange Mikrofon. Beim Loslassen verschwinden beide sofort. Solange du die Taste hältst, bleibt der Bildschirm an.
+- **Freies Diktieren:** Im Menü *Aufnahme starten* wählen und ohne Taste sprechen. Beenden mit *Aufnahme stoppen* oder einmal kurz der rechten Option-Taste. Nach der *Höchstdauer* (2, 5 oder 10 Minuten, Standard 5) stoppt Wad von selbst und fügt ein.
+- **Endet eine Aufnahme ungewollt**, etwa weil der Mac gesperrt wird oder das Mikrofon wegfällt, zeigt Wad oben im Menü den Grund und spielt einen kurzen Ton.
 - **Live** (voreingestellt): Schon während du sprichst, fügt Wad an jeder Sprechpause das Gesagte ein.
 - **Am Ende einfügen**: Der ganze Text kommt erst nach dem Loslassen. Umschalten unter *Modus* im Menü.
 - **Kleinschreibung**: schreibt jedes Diktat komplett klein. Wad merkt sich diesen Schalter auch nach einem Neustart.
@@ -28,6 +30,12 @@ Der Name spielt auf den Film „Der Diktator“ und das Land Wadiya an.
 - **Sprachen**: Wad erkennt die Sprache jedes Diktats selbst, einstellen musst du nichts.
 - Kurzes Antippen der Taste löst nichts aus.
 - **Letzte Diktate** und **Zwischenablage-Verlauf** im Menü zeigen jeweils die letzten 20 Einträge. Ein Klick legt den Text wieder in die Zwischenablage.
+- **Fenstermanager** (ab Werk an): Mit Tastenkürzeln schiebst du das vordere Fenster an eine feste Stelle.
+  - **⌘⇧F** Vollbild, **⌘⇧ + Pfeiltaste** linke, rechte, obere oder untere Hälfte. Drückst du dasselbe Kürzel noch einmal, wechselt die Breite zwischen ½, ⅔ und ⅓.
+  - **⌥⇧ + Pfeiltaste** Viertel: ← oben links, ↑ oben rechts, → unten rechts, ↓ unten links.
+  - **⌃⌥C** zentriert das Fenster.
+  - **Gut zu wissen:** Dieselben Kürzel benutzt macOS normalerweise zum Markieren von Text (⌘⇧ + Pfeil bis zum Zeilen- oder Textende, ⌥⇧ + Pfeil wortweise). Solange der Fenstermanager an ist, bewegen sie stattdessen das Fenster. Wenn du so markierst, belege die Kürzel unter *Fenster-Kürzel …* im Menü um, oder schalte *Fenstermanager* im Menü aus.
+- **Bei Anmeldung starten** (ab Werk an, sobald Wad im Ordner Programme liegt): Wad startet nach dem Anmelden von selbst. Abschalten im Menü oder unter Systemeinstellungen → Allgemein → Anmeldeobjekte.
 
 Die Zwischenablage nutzt Wad nur für einen Augenblick zum Einfügen und stellt danach wieder her, was vorher drin war, auch Bilder und Dateien.
 
@@ -40,7 +48,7 @@ Die Zwischenablage nutzt Wad nur für einen Augenblick zum Einfügen und stellt 
 **Was Wad wo speichert:**
 - **Audio:** nur im Arbeitsspeicher. Es wird nie eine Audiodatei geschrieben, auch keine vorübergehende. Jedes Stück wird direkt nach der Umwandlung mit Nullen überschrieben.
 - **Verläufe** (letzte 20 Diktate, letzte 20 kopierte Texte): nur im Arbeitsspeicher. Nach dem Beenden von Wad oder einem Neustart des Mac sind sie leer. Passwörter aus Passwort-Managern landen nie im Verlauf.
-- **Auf der Festplatte:** nur, ob *Kleinschreibung* an oder aus ist (ein Ja/Nein-Wert in den macOS-Einstellungen), und die Vokabeln, die du *immer* merken lässt, in `~/Library/Application Support/Wad/Vokabeln.txt`. Es gibt keinen Ort mit Diktaten, Aufnahmen oder Zwischenablage-Inhalten.
+- **Auf der Festplatte:** nur Wads Einstellungen in den macOS-Einstellungen (Kleinschreibung, Fenstermanager an oder aus, eigene Fenster-Kürzel, Höchstdauer fürs freie Diktieren und zwei interne Merker: ob der Start bei Anmeldung eingerichtet und ob nach der alten App gesucht wurde) sowie die Vokabeln, die du *immer* merken lässt, in `~/Library/Application Support/Wad/Vokabeln.txt`. Es gibt keinen Ort mit Diktaten, Aufnahmen oder Zwischenablage-Inhalten.
 
 **Zwei ehrliche Grenzen:**
 - Wird der Arbeitsspeicher knapp, lagert macOS selten genutzte Teile vorübergehend verschlüsselt auf die Festplatte aus. Diese Auslagerung wird beim Neustart verworfen und ist für Programme und den Finder nicht lesbar.

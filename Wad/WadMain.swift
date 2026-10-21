@@ -11,6 +11,7 @@ enum WadMain {
         #if arch(x86_64)
         showIntelNotice()
         #else
+        if MoveToApplications.offerIfNeeded() { return }
         WadApp.main()
         #endif
     }

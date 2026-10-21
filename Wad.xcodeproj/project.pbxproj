@@ -57,6 +57,7 @@
 		A30000000000000000002005 /* WindowLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000005 /* WindowLayoutTests.swift */; };
 		A40000000000000000001001 /* OldVersionCleanup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* OldVersionCleanup.swift */; };
 		A60000000000000000001001 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000001 /* AppIcon.icns */; };
+		A70000000000000000001001 /* MoveToApplications.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000001 /* MoveToApplications.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -103,6 +104,7 @@
 		A40000000000000000000001 /* OldVersionCleanup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldVersionCleanup.swift; sourceTree = "<group>"; };
 		A50000000000000000000001 /* Wad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Wad.entitlements; sourceTree = "<group>"; };
 		A60000000000000000000001 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		A70000000000000000000001 /* MoveToApplications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveToApplications.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +182,7 @@
 				A40000000000000000000001 /* OldVersionCleanup.swift */,
 				A50000000000000000000001 /* Wad.entitlements */,
 				A60000000000000000000001 /* AppIcon.icns */,
+				A70000000000000000000001 /* MoveToApplications.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -315,6 +318,7 @@
 				A30000000000000000001003 /* WindowManager.swift in Sources */,
 				A30000000000000000001004 /* ShortcutsPanel.swift in Sources */,
 				A40000000000000000001001 /* OldVersionCleanup.swift in Sources */,
+				A70000000000000000001001 /* MoveToApplications.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -388,7 +392,7 @@
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_IDENTITY = 93EE9ECD6D6EF45CBD773A60D266ABE6D80F351B;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = WW659WX8GA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				CODE_SIGN_ENTITLEMENTS = Wad/Wad.entitlements;
@@ -421,7 +425,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Wad/Wad-Bridging-Header.h";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Wad/Info.plist;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.linushundt.Wad.debug;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
@@ -439,7 +443,7 @@
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_IDENTITY = 93EE9ECD6D6EF45CBD773A60D266ABE6D80F351B;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = WW659WX8GA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				CODE_SIGN_ENTITLEMENTS = Wad/Wad.entitlements;
@@ -472,7 +476,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Wad/Wad-Bridging-Header.h";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Wad/Info.plist;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.linushundt.Wad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
