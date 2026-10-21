@@ -147,11 +147,23 @@ final class AppModel: ObservableObject {
     }
 
     /// Öffnet das Korrektur-Fenster mit dem markierten Text der vorderen App.
+    /// Nach dem Speichern ersetzt Wad auch gleich das markierte falsche Wort im Text, aber nur diese
+    /// eine Stelle. Dafür geht der Fokus zurück an die App, in der markiert war, und Wad fügt die
+    /// richtige Schreibweise über die Markierung ein, wie ein Diktat, mit Rückgabe der Zwischenablage.
     func openCorrection() {
         let selection = SelectedText.current()
+        let sourceApp = NSWorkspace.shared.frontmostApplication
         clipboardWatcher.skipCurrentChange()   // Wads kurze Kopie gehört nicht in den Verlauf
         correctionPanel.show(wrong: selection ?? "") { [weak self] entry, permanently in
-            self?.vocabulary.add(entry, permanently: permanently)
+            guard let self else { return }
+            vocabulary.add(entry, permanently: permanently)
+            guard selection != nil, let sourceApp, sourceApp != .current else { return }
+            sourceApp.activate()
+            // Kurz warten, bis die App wieder vorne ist und ihre Markierung zurück hat.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+                guard let self, NSWorkspace.shared.frontmostApplication == sourceApp else { return }
+                inserter.insert(isLowercase ? entry.right.lowercased(with: .current) : entry.right)
+            }
         }
     }
 
