@@ -190,3 +190,6 @@ Jede Etappe endet mit etwas, das Linus selbst ausprobieren kann. Erst nach seine
   - **Ohne Programm:** Wad wird mit einem festen, selbst erstellten Zertifikat signiert, damit die Rechte bei Updates nicht jedes Mal verloren gehen (vermutlich eine Ursache der Probleme mit der alten Version). Freunde müssen Wad beim ersten Öffnen einmalig unter *Systemeinstellungen → Datenschutz & Sicherheit → Trotzdem öffnen* freigeben. Die README erklärt das Schritt für Schritt mit Bildern.
 - **Lizenz: GPL-3.0.** Wer Wad weiterverbreitet oder verändert weitergibt, muss es ebenfalls offen und frei lassen. whisper.cpp (MIT) ist damit vereinbar.
 - Der Quellcode liegt öffentlich auf GitHub. Der Zugangscode auf der Website schützt nur den bequemen Download, nicht den Code selbst.
+
+### Geplant für 1.0.3
+- **Installations-DMG automatisch auswerfen.** Nach dem Installieren bleibt das Laufwerk „Wad“ in der Finder-Seitenleiste hängen. Startet Wad aus dem Programme-Ordner, wirft es dieses Laufwerk selbst aus. Ausgeworfen wird nur, was sicher das Wad-Installationsabbild ist: ein eingebundenes Disk-Image (kein echtes Laufwerk, kein Netzlaufwerk) unter `/Volumes`, das eine `Wad.app` mit derselben Bundle-ID enthält. Alles andere bleibt unberührt. Klappt das Auswerfen nicht (etwa weil ein Finder-Fenster darauf geöffnet ist), passiert nichts weiter, keine Fehlermeldung.
