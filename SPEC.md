@@ -92,6 +92,15 @@ Ein schlanker Fenstermanager im Stil von Spectacle, als eigener, abgeschotteter 
 - **Vorausschauend:** Fenster bleiben innerhalb von Menüleiste und Dock und auf dem Bildschirm, auf dem sie gerade sind. Apps mit Mindestgröße bekommen, was sie zulassen, ohne Flackern. Fenster im macOS-Vollbild und Fenster, die sich nicht verschieben lassen, werden in Ruhe gelassen.
 - **Berechtigung:** keine neue. Fenster werden über die Bedienungshilfen verschoben, die Wad schon hat.
 
+### 1.9 Updates
+Wad lädt und installiert nie selbst etwas. Es sagt nur Bescheid, wenn es eine neue Version gibt.
+- **Was ist neu:** Startet eine neuere Version zum ersten Mal nach einem Update, zeigt ein kleines Fenster „Wad wurde auf 1.1.0 aktualisiert“ die Stichpunkte aus `WasIstNeu.md` (in der App enthalten) und einen Knopf „Fertig“. Bei einer frischen Installation kommt nichts. Wad merkt sich dafür die zuletzt gestartete Version. Version 1.0.x merkte sich keine; ein Update von dort erkennt Wad an Einstellungen, die nur 1.0.x angelegt haben kann. Im Menü: *Was ist neu …*
+- **Einmalige Frage:** Danach fragt Wad einmal in einem kleinen Fenster: „Soll Wad einmal am Tag nachsehen, ob es eine neue Version gibt? Dabei fragt Wad bei GitHub nur nach der neuesten Versionsnummer. Diktate, Vokabeln oder Daten über dich werden nie gesendet.“ Knöpfe *Ja, nachsehen* und *Nein danke*. Schließen ohne Antwort heißt Nein. Standard aus. Beide Fenster kommen nacheinander und nie über einer Berechtigungsfrage; fehlt eine Berechtigung, warten sie bis zum nächsten Start.
+- **Menü:** Schalter *Automatisch nach Updates suchen* und *Nach Updates suchen …* (geht auch bei ausgeschaltetem Schalter). Das Ergebnis steht 8 Sekunden oben im Menü: „Wad ist auf dem neuesten Stand.“ oder „Gerade keine Verbindung. Versuch es später noch einmal.“ Eine neue Version öffnet gleich ihr Fenster.
+- **Wann:** frühestens 60 Sekunden nach dem Start, danach höchstens einmal in 24 Stunden. Jeder Versuch zählt, auch ein fehlgeschlagener. Nie während einer Aufnahme, dann ein paar Minuten später. Fehler bei der automatischen Prüfung bleiben still.
+- **Neue Version gefunden:** einmal pro Version ein kleines Wad-Fenster (keine macOS-Mitteilung), das der App, in der man gerade schreibt, nicht den Fokus nimmt: „Wad 1.1.1 ist da“, die Beschreibung der Version als schlichter Text (kein HTML, Links nicht anklickbar), Knöpfe *Zum Download* (öffnet https://linushundt.com/wad/download/ im Browser), *Später* und *Diese Version überspringen*. Danach steht oben im Menü „Update verfügbar: 1.1.1 …“, ein Klick öffnet dasselbe Fenster. Überspringen entfernt die Zeile, bis eine noch neuere Version erscheint.
+- **Veröffentlichen:** Wad liest die neueste Version auf GitHub (Releases). Die Versionsnummer steht im Tag, etwa `v1.1.1`, die Beschreibung des Release erscheint im Fenster. Vorabversionen wie `1.2.0-beta` bietet Wad nie an.
+
 ### 1.10 Vorschau-Fenster
 Nur im Modus *Zwischenablage mit Vorschau*.
 - **Aussehen und Ort:** kleines Fenster im Apple-Stil, 360 Punkte breit, hängt mittig unter Wads Symbol (sonst oben rechts). Es liegt über allem, auf jedem Schreibtisch und über Vollbild-Apps, und nimmt der aktiven App nicht den Fokus.
@@ -99,7 +108,7 @@ Nur im Modus *Zwischenablage mit Vorschau*.
 - **Text:** Fertiger Text erscheint normal, vorläufiger Text grau. Etwa alle 1,5 Sekunden wandelt Wad den offenen Teil probeweise um; ist das Modell beschäftigt, wird dieser Durchgang übersprungen. In die Zwischenablage kommt nur der endgültige Text.
 - **Größe:** Der Textbereich ist mindestens drei bis vier Zeilen hoch und wächst bis etwa 13 Zeilen, danach scrollt er ans Ende.
 - **Nach dem Loslassen:** Das Fenster bleibt offen, der Text liegt automatisch in der Zwischenablage, der Knopf zeigt kurz „Kopiert ✓“.
-- **Bedienung:** oben links ein X, unten „In Zwischenablage kopieren“. Der Text lässt sich markieren, aber nicht bearbeiten. Ein neues Diktat ersetzt den Inhalt.
+- **Bedienung:** oben links ein X, unten „In Zwischenablage kopieren“. Während des Diktats lässt sich der Text nur markieren. Ist das Diktat fertig, kann man ihn im Fenster korrigieren (Klick hinein, Wad wird dabei nicht zur aktiven App). Der Knopf kopiert dann den korrigierten Text, jede Korrektur setzt „Kopiert ✓“ zurück. Unter „Letzte Diktate“ bleibt der ursprüngliche Text. Schließen oder ein neues Diktat verwirft die Korrekturen.
 - **Schließen:** bei anderem Modus, bei ausgeschaltetem Diktieren und wenn kein Text herauskam.
 - **Datenschutz:** keine Berechtigung nötig, der Text liegt nur im Arbeitsspeicher.
 
@@ -149,8 +158,11 @@ Diese Regeln sind nicht verhandelbar. Jede Etappe muss sie einhalten.
 - Ergebnis: Für den Nutzer sieht es so aus, als hätte Wad die Zwischenablage nie benutzt.
 - Gilt für die Modi *Während* und *Nach dem Diktat*. In den Zwischenablage-Modi soll der Text gerade bleiben.
 
-### 2.6 Kein Netzwerk
-- Wad enthält **keinen Netzwerkcode**: keine Analyse, keine Absturzberichte, keine Update-Prüfung, kein Nachladen von Modellen. Das ist im Code einfach überprüfbar und wird in der README zugesichert.
+### 2.6 Netzwerk: genau eine Anfrage
+- Der einzige Netzwerkcode steht in `UpdateChecker.swift` und läuft nur, wenn die Update-Prüfung an ist oder man im Menü *Nach Updates suchen …* wählt. Sonst gilt weiter: keine Analyse, keine Absturzberichte, kein Nachladen von Modellen.
+- Genau eine Anfrage: `GET https://api.github.com/repos/passauf-unterstrich/wad/releases/latest`. Nur HTTPS, ohne Cookies und ohne Zwischenspeicher (flüchtige Sitzung), 10 Sekunden Zeitlimit, Kennung „Wad/<Version>“. Die Antwort wird nach 256 KB abgebrochen, gelesen werden nur Versionsnummer und Beschreibung.
+- Gesendet wird nichts über Diktate, Vokabeln, Einstellungen oder den Nutzer. GitHub sieht, wie bei jedem Aufruf einer Website, die IP-Adresse und die Uhrzeit.
+- Wad lädt nie etwas herunter und installiert nichts. *Zum Download* öffnet nur die Seite im Browser.
 
 ### 2.7 Berechtigungen
 Wad braucht genau zwei Berechtigungen und fragt sie beim ersten Start mit einer kurzen Erklärung ab:
@@ -201,6 +213,7 @@ Jede Etappe endet mit etwas, das Linus selbst ausprobieren kann. Erst nach seine
 | 8 | **Verteilung** | Signierte App als DMG, README (inklusive „Wo liegen die Daten?“), Lizenz GPL-3.0, Download auf Linus' Website mit Zugangscode. | Ein Freund installiert Wad nach Anleitung und kann diktieren. |
 | 9 | **Fenstermanager** | Schalter im Menü, die Aktionen aus 1.8 mit Durchschalten, kleines Fenster für die Kürzel. Eigene Datei, kein Eingriff in Aufnahme oder Einfügen. | Mit jedem Kürzel ein Fenster verschieben, Links dreimal drücken (½, ⅔, ⅓), auf einem zweiten Bildschirm testen, Schalter aus: Kürzel tun nichts mehr und Text markieren geht normal. |
 | 10 | **Sprache und Einfügemodi** | Sprachwahl im Menü (Standard Deutsch, 1.5), vier Einfügemodi (1.4) und Vorschau-Fenster (1.10). Wahl bleibt über einen Neustart erhalten. | Deutscher Satz mit englischem Anfang bleibt Deutsch. Neustart behält die Wahl. Bild kopieren, Modus 3, Cmd+V gibt den Text. Vorschau in Safari, im Vollbild und auf einem zweiten Schreibtisch prüfen. |
+| 11 | **Updates** | „Was ist neu“ nach einem Update, einmalige Frage nach der Update-Prüfung, Menüpunkte, Hinweisfenster mit Überspringen (1.9). Genau eine Netzwerk-Anfrage (2.6). Vorschau nach dem Diktat korrigierbar (1.10). | Von 1.0.2 auf 1.1.0 aktualisieren: „Was ist neu“, dann die Frage. Frische Installation: nur die Frage. *Nach Updates suchen …* meldet „auf dem neuesten Stand“, ohne WLAN „keine Verbindung“. In der Vorschau nach dem Diktat ein Wort ändern und einfügen. |
 
 ### Zur Verteilung (Etappe 8)
 - **Apple Developer Program:** Bis einschließlich Etappe 7 wird ohne gearbeitet. Linus signiert Wad für sich selbst mit seiner kostenlosen Apple-ID. Ob er das Programm (99 $ pro Jahr) für Etappe 8 holt, entscheidet er dann. Etappe 8 beschreibt beide Wege:

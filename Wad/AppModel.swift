@@ -84,6 +84,12 @@ final class AppModel: ObservableObject {
     /// Die beiden Verläufe, nur im Arbeitsspeicher (SPEC 2.4).
     @Published private(set) var dictations = History()
     @Published private(set) var clipboard = History()
+    /// Automatisch nach Updates suchen (SPEC 1.9). Standard aus, Wad fragt einmal danach.
+    @Published var checksForUpdates = false {
+        didSet { updates.isEnabled = checksForUpdates }
+    }
+    /// Eine neuere Version, oben im Menü angeboten. Nicht gemerkt, die nächste Prüfung findet sie wieder.
+    @Published private(set) var availableUpdate: Release?
 
     private let hotkey = HotkeyMonitor()
     private let recorder = MicrophoneRecorder()
@@ -96,6 +102,14 @@ final class AppModel: ObservableObject {
     let windowManager: WindowManager
     private let shortcutsPanel = ShortcutsPanel()
     private let preview = PreviewPanel()
+    private let updates = UpdateChecker()
+    private let updateWindows = UpdateWindows()
+    /// Ob nach diesem Start „Was ist neu“ kommt. Entschieden ganz am Anfang, bevor Wad Einstellungen anlegt.
+    private let showsWhatsNew: Bool
+    private static let lastSeenKey = "Zuletzt gestartete Version"
+    /// Einstellungen, die nur eine frühere Version angelegt haben kann. Version 1.0.x merkte sich noch keine Versionsnummer.
+    private static let earlierVersionKeys = ["Alte Version geprüft", "Anmeldeobjekt eingerichtet",
+                                             "Kleinschreibung", "Höchstdauer freies Diktieren"]
     private let dictation: DictationController
     /// Die eine Warteschlange für alles, was die Spracherkennung tut: laden, prüfen, umwandeln.
     private let worker: DispatchQueue
@@ -109,6 +123,12 @@ final class AppModel: ObservableObject {
     private var deliveryMode = InsertMode.whileDictating
 
     init() {
+        let lastSeen = UserDefaults.standard.string(forKey: Self.lastSeenKey).flatMap(AppVersion.init)
+        let hadEarlierVersion = Self.earlierVersionKeys.contains { UserDefaults.standard.object(forKey: $0) != nil }
+        showsWhatsNew = UpdateRules.showsWhatsNew(current: UpdateChecker.current, lastSeen: lastSeen,
+                                                  hadEarlierVersion: hadEarlierVersion)
+        // Nach einem Update merkt Wad sich die Version erst, wenn „Was ist neu“ wirklich zu sehen war.
+        if !showsWhatsNew { UserDefaults.standard.set(UpdateChecker.current.description, forKey: Self.lastSeenKey) }
         transcriber = WhisperTranscriber()
         windowManager = WindowManager(hotKeys: hotKeys)
         let worker = DispatchQueue(label: "com.linushundt.Wad.transcription", qos: .userInitiated)
@@ -177,8 +197,20 @@ final class AppModel: ObservableObject {
         isWindowManagerEnabled = windowManager.isEnabled
         enableLoginItemOnFirstLaunch()
         // Erst nach dem Start, damit die Menüleiste schon steht, wenn ein Dialog erscheint.
-        DispatchQueue.main.async { OldVersionCleanup.runIfNeeded() }
+        // Die Update-Fenster erst danach, damit nie zwei Dialoge übereinander liegen.
+        DispatchQueue.main.async { [weak self] in
+            OldVersionCleanup.runIfNeeded()
+            self?.introduceUpdates()
+        }
         InstallerVolumeEject.runSoon()
+        checksForUpdates = updates.isEnabled
+        updates.isBusy = { [weak self] in self?.dictationState != .idle }
+        updates.onFound = { [weak self] release, announce in
+            guard let self else { return }
+            availableUpdate = release
+            if announce { showUpdate(activate: false) }
+        }
+        updates.start()
         // ⌥⇧-Kürzel lösen auch mit der rechten Option-Taste aus. Eine dabei gestartete Aufnahme
         // ist ein Versehen und wird verworfen, ohne etwas einzufügen (SPEC 1.8).
         windowManager.willPerform = { [weak self] in self?.dictation.cancel(reason: "Fenster-Kürzel") }
@@ -226,6 +258,53 @@ final class AppModel: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
                 guard let self, NSWorkspace.shared.frontmostApplication == sourceApp else { return }
                 inserter.insert(isLowercase ? entry.right.lowercased(with: .current) : entry.right)
+            }
+        }
+    }
+
+    /// Nacheinander und nie über einer Berechtigungsfrage: erst „Was ist neu“, dann einmal die Frage nach
+    /// der Update-Prüfung. Fehlt eine Berechtigung, fragt macOS gerade danach, dann wartet beides bis zum
+    /// nächsten Start (nach der Freigabe startet Wad ohnehin neu).
+    private func introduceUpdates() {
+        guard Permissions.hasMicrophone, Permissions.hasAccessibility else { return }
+        guard showsWhatsNew else { return askForUpdateConsent() }
+        UserDefaults.standard.set(UpdateChecker.current.description, forKey: Self.lastSeenKey)
+        updateWindows.showWhatsNew(title: "Wad wurde auf \(UpdateChecker.current) aktualisiert") { [weak self] in
+            self?.askForUpdateConsent()
+        }
+    }
+
+    private func askForUpdateConsent() {
+        guard !updates.hasAnswered else { return }
+        updateWindows.askForConsent { [weak self] yes in self?.checksForUpdates = yes }
+    }
+
+    /// Menü „Was ist neu …“.
+    func openWhatsNew() {
+        updateWindows.showWhatsNew(title: "Neu in Wad \(UpdateChecker.current)")
+    }
+
+    /// Der Hinweis auf die neue Version, aus dem Menü oder nach einer Prüfung.
+    func showUpdate(activate: Bool = true) {
+        guard let release = availableUpdate else { return }
+        updateWindows.showUpdate(release, activate: activate) { [weak self] in
+            self?.updates.skipped = release.version
+            self?.availableUpdate = nil
+        }
+    }
+
+    /// Menü „Nach Updates suchen …“. Das Ergebnis steht kurz oben im Menü, eine neue Version im eigenen Fenster.
+    func checkForUpdatesNow() {
+        updates.checkNow { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let release?):
+                availableUpdate = release
+                showUpdate()
+            case .success(nil):
+                show(notice: "Wad ist auf dem neuesten Stand.")
+            case .failure:
+                show(notice: "Gerade keine Verbindung. Versuch es später noch einmal.")
             }
         }
     }

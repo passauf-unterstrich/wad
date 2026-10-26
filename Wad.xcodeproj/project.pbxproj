@@ -59,6 +59,11 @@
 		A40000000000000000001001 /* OldVersionCleanup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* OldVersionCleanup.swift */; };
 		A60000000000000000001001 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000001 /* AppIcon.icns */; };
 		A70000000000000000001001 /* MoveToApplications.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000001 /* MoveToApplications.swift */; };
+		D0C0FFEE0000000000000101 /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000001 /* UpdateChecker.swift */; };
+		D0C0FFEE0000000000000102 /* UpdateWindows.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000002 /* UpdateWindows.swift */; };
+		D0C0FFEE0000000000000103 /* WasIstNeu.md in Resources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000003 /* WasIstNeu.md */; };
+		D0C0FFEE0000000000000201 /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000001 /* UpdateChecker.swift */; };
+		D0C0FFEE0000000000000204 /* UpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000004 /* UpdateTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -107,6 +112,10 @@
 		A50000000000000000000001 /* Wad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Wad.entitlements; sourceTree = "<group>"; };
 		A60000000000000000000001 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		A70000000000000000000001 /* MoveToApplications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveToApplications.swift; sourceTree = "<group>"; };
+		D0C0FFEE0000000000000001 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
+		D0C0FFEE0000000000000002 /* UpdateWindows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateWindows.swift; sourceTree = "<group>"; };
+		D0C0FFEE0000000000000003 /* WasIstNeu.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = WasIstNeu.md; sourceTree = "<group>"; };
+		D0C0FFEE0000000000000004 /* UpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +143,7 @@
 				B10000000000000000001004 /* ggml-large-v3-turbo-q5_0.bin in Resources */,
 				A60000000000000000001001 /* AppIcon.icns in Resources */,
 				D10000000000000000001005 /* ggml-silero-v6.2.0.bin in Resources */,
+				D0C0FFEE0000000000000103 /* WasIstNeu.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,6 +196,9 @@
 				A50000000000000000000001 /* Wad.entitlements */,
 				A60000000000000000000001 /* AppIcon.icns */,
 				A70000000000000000000001 /* MoveToApplications.swift */,
+				D0C0FFEE0000000000000001 /* UpdateChecker.swift */,
+				D0C0FFEE0000000000000002 /* UpdateWindows.swift */,
+				D0C0FFEE0000000000000003 /* WasIstNeu.md */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -210,6 +223,7 @@
 				A20000000000000000000006 /* VocabularyTests.swift */,
 				A30000000000000000000005 /* WindowLayoutTests.swift */,
 				C10000000000000000000002 /* TextInserterTests.swift */,
+				D0C0FFEE0000000000000004 /* UpdateTests.swift */,
 			);
 			path = WadTests;
 			sourceTree = "<group>";
@@ -323,6 +337,8 @@
 				B7E1A0C0FFEE000000000002 /* PreviewPanel.swift in Sources */,
 				A40000000000000000001001 /* OldVersionCleanup.swift in Sources */,
 				A70000000000000000001001 /* MoveToApplications.swift in Sources */,
+				D0C0FFEE0000000000000101 /* UpdateChecker.swift in Sources */,
+				D0C0FFEE0000000000000102 /* UpdateWindows.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,6 +365,8 @@
 				A20000000000000000002006 /* VocabularyTests.swift in Sources */,
 				A30000000000000000002001 /* WindowLayout.swift in Sources */,
 				A30000000000000000002005 /* WindowLayoutTests.swift in Sources */,
+				D0C0FFEE0000000000000201 /* UpdateChecker.swift in Sources */,
+				D0C0FFEE0000000000000204 /* UpdateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

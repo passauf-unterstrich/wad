@@ -3,6 +3,7 @@
 // fertigen Text normal, vorläufigen grau dahinter. Hängt unter Wads Symbol in der Menüleiste,
 // liegt über allem, auch über Apps im Vollbild, und nimmt der App, in der man gerade ist, nicht
 // den Fokus. Ein gewöhnliches eigenes Fenster, dafür braucht Wad keine Berechtigung.
+// Ist das Diktat fertig, lässt sich der Text darin noch korrigieren, bevor man ihn kopiert.
 
 import SwiftUI
 
@@ -170,19 +171,23 @@ private struct PreviewView: View {
             .buttonStyle(.plain)
             .help("Schließen")
 
-            ScrollViewReader { scroller in
-                ScrollView {
-                    text
-                        .textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .background(GeometryReader { Color.clear.preference(key: HeightKey.self, value: $0.size.height) })
-                        .id("Ende")
+            if isEditable {
+                editor
+            } else {
+                ScrollViewReader { scroller in
+                    ScrollView {
+                        text
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .background(GeometryReader { Color.clear.preference(key: HeightKey.self, value: $0.size.height) })
+                            .id("Ende")
+                    }
+                    .scrollIndicators(.never)
+                    .frame(height: min(max(textHeight, Self.minTextHeight), Self.maxTextHeight))
+                    .onPreferenceChange(HeightKey.self) { textHeight = $0 }
+                    .onChange(of: content.text + content.draft) { scroller.scrollTo("Ende", anchor: .bottom) }
                 }
-                .scrollIndicators(.never)
-                .frame(height: min(max(textHeight, Self.minTextHeight), Self.maxTextHeight))
-                .onPreferenceChange(HeightKey.self) { textHeight = $0 }
-                .onChange(of: content.text + content.draft) { scroller.scrollTo("Ende", anchor: .bottom) }
             }
 
             HStack {
@@ -198,6 +203,29 @@ private struct PreviewView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .background(GeometryReader { Color.clear.preference(key: SizeKey.self, value: $0.size) })
         .onPreferenceChange(SizeKey.self, perform: onResize)
+    }
+
+    /// Bearbeiten erst nach dem Diktat. Solange Wad noch schreibt, würde es die Korrekturen überschreiben.
+    private var isEditable: Bool { !content.isListening && !content.text.isEmpty }
+
+    /// Korrigierbarer Text, gleich groß wie die Vorschau. Gemessen wird an einem unsichtbaren Text,
+    /// weil das Eingabefeld seine Höhe nicht selbst meldet. Eine Korrektur macht „Kopiert ✓“ ungültig.
+    /// Unter „Letzte Diktate“ bleibt der ursprüngliche Text.
+    private var editor: some View {
+        TextEditor(text: Binding(get: { content.text }, set: { content.text = $0; content.isCopied = false }))
+            .font(.body)
+            .scrollContentBackground(.hidden)
+            .scrollIndicators(.never)
+            .padding(.horizontal, -5)       // das Eingabefeld rückt Text um 5 Punkte ein, die Vorschau nicht
+            .frame(height: min(max(textHeight, Self.minTextHeight), Self.maxTextHeight))
+            .background(alignment: .top) {
+                Text(content.text + " ")
+                    .padding(.horizontal, 5)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .hidden()
+                    .background(GeometryReader { Color.clear.preference(key: HeightKey.self, value: $0.size.height) })
+            }
+            .onPreferenceChange(HeightKey.self) { textHeight = $0 }
     }
 
     /// Fertiger Text normal, vorläufiger grau dahinter. Solange noch nichts da ist, ein leiser Hinweis.

@@ -12,6 +12,10 @@ struct WadApp: App {
                 Text(notice)
                 Divider()
             }
+            if let update = model.availableUpdate {
+                Button("Update verfügbar: \(update.version.description) …") { model.showUpdate() }
+                Divider()
+            }
             Toggle("Diktieren", isOn: $model.isEnabled)
             Picker("Sprache", selection: $model.language) {
                 ForEach(AppModel.languages, id: \.code) { language in
@@ -72,6 +76,10 @@ struct WadApp: App {
             if !model.hasMicrophone || !model.hasAccessibility {
                 Divider()
             }
+            Toggle("Automatisch nach Updates suchen", isOn: $model.checksForUpdates)
+            Button("Nach Updates suchen …", action: model.checkForUpdatesNow)
+            Button("Was ist neu …", action: model.openWhatsNew)
+            Divider()
             Toggle("Bei Anmeldung starten", isOn: $model.launchesAtLogin)
             Button("Wad beenden") {
                 NSApplication.shared.terminate(nil)

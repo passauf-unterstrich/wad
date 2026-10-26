@@ -23,11 +23,10 @@ Der Name spielt auf den Film „Der Diktator“ und das Land Wadiya an.
 - **Rechte Option-Taste halten und sprechen.** Das Symbol wird zum roten Punkt, und macOS zeigt oben rechts das orange Mikrofon. Beim Loslassen verschwinden beide sofort. Solange du die Taste hältst, bleibt der Bildschirm an.
 - **Freies Diktieren:** Im Menü *Aufnahme starten* wählen und ohne Taste sprechen. Beenden mit *Aufnahme stoppen* oder einmal kurz der rechten Option-Taste. Nach der *Höchstdauer* (2, 5 oder 10 Minuten, Standard 5) stoppt Wad von selbst und fügt ein.
 - **Endet eine Aufnahme ungewollt**, etwa weil der Mac gesperrt wird oder das Mikrofon wegfällt, geht nichts verloren: Wad fügt das Gesagte ein oder legt es, auf dem Sperrbildschirm, unter *Letzte Diktate* ab. Oben im Menü steht der Grund, und ein kurzer Ton weist darauf hin.
-- **Live** (voreingestellt): Schon während du sprichst, fügt Wad an jeder Sprechpause das Gesagte ein.
-- **Am Ende einfügen**: Der ganze Text kommt erst nach dem Loslassen. Umschalten unter *Modus* im Menü.
+- **Einfügen** (im Menü): *Während des Diktats* (voreingestellt) fügt Wad schon an jeder Sprechpause das Gesagte ein. *Nach dem Diktat* kommt der ganze Text erst nach dem Loslassen. *Nur in die Zwischenablage* legt den Text dort ab, eingefügt wird nichts. *Zwischenablage mit Vorschau* zeigt dazu ein kleines Fenster, in dem du live mitliest und den Text nach dem Diktat noch korrigieren kannst, bevor du ihn kopierst.
 - **Kleinschreibung**: schreibt jedes Diktat komplett klein. Wad merkt sich diesen Schalter auch nach einem Neustart.
 - **Vokabeln**: Ein Wort falsch erkannt? Markieren und **⌃⌥W** drücken (Ctrl+Option+W). Im Fenster die richtige Schreibweise eintragen und wählen, ob Wad sie sich *nur bis zum Neustart* oder *immer* merkt. Das markierte Wort im Text ersetzt Wad dabei gleich mit, nur an dieser einen Stelle. Wad ersetzt das Falsche künftig und gibt dem Modell die richtigen Schreibweisen als Hinweis mit. Die Liste ist die Textdatei `Vokabeln.txt` (Menü *Vokabeln → Vokabelliste im Finder zeigen*), eine Zeile pro Eintrag: `Begriff` oder `Falsch -> Richtig`. *Vorlage für deine KI kopieren* liefert einen Auftrag, mit dem ChatGPT oder Claude dir eine passende Liste erstellt.
-- **Sprachen**: Wad erkennt die Sprache jedes Diktats selbst, einstellen musst du nichts.
+- **Sprache** (im Menü): Deutsch ist voreingestellt, dazu Englisch, Französisch und Spanisch. Mit *Sprachoffen* erkennt Wad die Sprache jedes Diktats selbst.
 - Kurzes Antippen der Taste löst nichts aus.
 - **Letzte Diktate** und **Zwischenablage-Verlauf** im Menü zeigen jeweils die letzten 20 Einträge. Ein Klick legt den Text wieder in die Zwischenablage.
 - **Fenstermanager** (ab Werk an): Mit Tastenkürzeln schiebst du das vordere Fenster an eine feste Stelle.
@@ -35,6 +34,7 @@ Der Name spielt auf den Film „Der Diktator“ und das Land Wadiya an.
   - **⌥⇧ + Pfeiltaste** Viertel: ← oben links, ↑ oben rechts, → unten rechts, ↓ unten links.
   - **⌃⌥C** zentriert das Fenster.
   - **Gut zu wissen:** Dieselben Kürzel benutzt macOS normalerweise zum Markieren von Text (⌘⇧ + Pfeil bis zum Zeilen- oder Textende, ⌥⇧ + Pfeil wortweise). Solange der Fenstermanager an ist, bewegen sie stattdessen das Fenster. Wenn du so markierst, belege die Kürzel unter *Fenster-Kürzel …* im Menü um, oder schalte *Fenstermanager* im Menü aus.
+- **Updates**: Auf Wunsch sieht Wad einmal am Tag nach, ob es eine neue Version gibt, und zeigt dann ein kleines Fenster mit *Zum Download* (öffnet https://linushundt.com/wad/download/ im Browser), *Später* und *Diese Version überspringen*. Wad lädt und installiert nie selbst etwas. Was sich geändert hat, steht unter *Was ist neu …* im Menü.
 - **Bei Anmeldung starten** (ab Werk an, sobald Wad im Ordner Programme liegt): Wad startet nach dem Anmelden von selbst. Abschalten im Menü oder unter Systemeinstellungen → Allgemein → Anmeldeobjekte.
 
 Die Zwischenablage nutzt Wad nur für einen Augenblick zum Einfügen und stellt danach wieder her, was vorher drin war, auch Bilder und Dateien.
@@ -48,7 +48,7 @@ Die Zwischenablage nutzt Wad nur für einen Augenblick zum Einfügen und stellt 
 **Was Wad wo speichert:**
 - **Audio:** nur im Arbeitsspeicher. Es wird nie eine Audiodatei geschrieben, auch keine vorübergehende. Jedes Stück wird direkt nach der Umwandlung mit Nullen überschrieben.
 - **Verläufe** (letzte 20 Diktate, letzte 20 kopierte Texte): nur im Arbeitsspeicher. Nach dem Beenden von Wad oder einem Neustart des Mac sind sie leer. Passwörter aus Passwort-Managern landen nie im Verlauf.
-- **Auf der Festplatte:** nur Wads Einstellungen in den macOS-Einstellungen (Kleinschreibung, Fenstermanager an oder aus, eigene Fenster-Kürzel, Höchstdauer fürs freie Diktieren und zwei interne Merker: ob der Start bei Anmeldung eingerichtet und ob nach der alten App gesucht wurde) sowie die Vokabeln, die du *immer* merken lässt, in `~/Library/Application Support/Wad/Vokabeln.txt`. Es gibt keinen Ort mit Diktaten, Aufnahmen oder Zwischenablage-Inhalten.
+- **Auf der Festplatte:** nur Wads Einstellungen in den macOS-Einstellungen (Sprache, Einfügen, Kleinschreibung, Fenstermanager an oder aus, eigene Fenster-Kürzel, Höchstdauer fürs freie Diktieren, Update-Prüfung an oder aus mit Zeitpunkt der letzten Prüfung und angekündigter oder übersprungener Version, und interne Merker: zuletzt gestartete Version, ob der Start bei Anmeldung eingerichtet und ob nach der alten App gesucht wurde) sowie die Vokabeln, die du *immer* merken lässt, in `~/Library/Application Support/Wad/Vokabeln.txt`. Es gibt keinen Ort mit Diktaten, Aufnahmen oder Zwischenablage-Inhalten.
 
 **Zwei ehrliche Grenzen:**
 - Wird der Arbeitsspeicher knapp, lagert macOS selten genutzte Teile vorübergehend verschlüsselt auf die Festplatte aus. Diese Auslagerung wird beim Neustart verworfen und ist für Programme und den Finder nicht lesbar.
@@ -56,7 +56,7 @@ Die Zwischenablage nutzt Wad nur für einen Augenblick zum Einfügen und stellt 
 
 ## Sicherheit
 
-- **Kein Netzwerk.** Wad enthält keinen Netzwerkcode: keine Analyse, keine Absturzberichte, keine Update-Prüfung. Das lässt sich im Quelltext prüfen.
+- **Netzwerk nur für Updates, und nur wenn du es willst.** Ist *Automatisch nach Updates suchen* an (Standard: aus, Wad fragt einmal), fragt Wad höchstens einmal am Tag bei GitHub nach der neuesten Versionsnummer, ebenso wenn du *Nach Updates suchen …* wählst. Dabei sieht GitHub, wie bei jeder Website, deine IP-Adresse und die Uhrzeit, dazu die Kennung „Wad/<Version>“. Diktate, Vokabeln, Einstellungen oder Daten über dich werden nie gesendet. Sonst gibt es keinen Netzwerkcode: keine Analyse, keine Absturzberichte. Abschalten: im Menü den Haken bei *Automatisch nach Updates suchen* entfernen. Der ganze Netzwerkcode steht in einer Datei, `Wad/UpdateChecker.swift`, und lässt sich dort prüfen.
 - **Nur die eine Taste.** Wad beobachtet ausschließlich Sondertasten wie Shift oder Option und wertet nur die rechte Option-Taste aus. Welche Buchstaben du tippst, sieht Wad technisch nie.
 - **Mikrofon nur beim Halten.** Fünf Absicherungen verhindern, dass eine Aufnahme weiterläuft: Wad fragt fünfmal pro Sekunde nach, ob die Taste wirklich noch gedrückt ist. Nach spätestens 10 Minuten endet jede Aufnahme. Ruhezustand, Bildschirmsperre und Benutzerwechsel beenden sie sofort. Ein einziger Zustandsautomat startet das Mikrofon. Und Wad ist ein einziges Programm ohne Hilfsprozesse.
 
