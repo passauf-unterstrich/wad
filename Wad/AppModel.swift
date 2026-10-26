@@ -84,7 +84,7 @@ final class AppModel: ObservableObject {
     /// Die beiden Verläufe, nur im Arbeitsspeicher (SPEC 2.4).
     @Published private(set) var dictations = History()
     @Published private(set) var clipboard = History()
-    /// Automatisch nach Updates suchen (SPEC 1.9). Standard an, Wad sagt einmal Bescheid.
+    /// Automatisch nach Updates suchen (SPEC 1.9). Standard aus, Wad weist einmal darauf hin.
     @Published var checksForUpdates = false {
         didSet { updates.isEnabled = checksForUpdates }
     }
@@ -212,8 +212,7 @@ final class AppModel: ObservableObject {
             availableUpdate = release
             if announce { showUpdate(activate: false) }
         }
-        // Die erste Prüfung erst, nachdem Wad einmal Bescheid gesagt hat (`introduceUpdates`).
-        if !updates.needsInfo { updates.start() }
+        updates.start()
         // ⌥⇧-Kürzel lösen auch mit der rechten Option-Taste aus. Eine dabei gestartete Aufnahme
         // ist ein Versehen und wird verworfen, ohne etwas einzufügen (SPEC 1.8).
         windowManager.willPerform = { [weak self] in self?.dictation.cancel(reason: "Fenster-Kürzel") }
@@ -265,8 +264,8 @@ final class AppModel: ObservableObject {
         }
     }
 
-    /// Nacheinander und nie über einer Berechtigungsfrage: erst „Was ist neu“, dann einmal der Hinweis auf
-    /// die Update-Prüfung. Fehlt eine Berechtigung, fragt macOS gerade danach, dann wartet beides bis zum
+    /// Nacheinander und nie über einer Berechtigungsfrage: erst „Was ist neu“, dann beim allerersten Mal
+    /// der Hinweis, dass man die Update-Prüfung einschalten kann. Fehlt eine Berechtigung, fragt macOS gerade danach, dann wartet beides bis zum
     /// nächsten Start (nach der Freigabe startet Wad ohnehin neu).
     private func introduceUpdates() {
         guard Permissions.hasMicrophone, Permissions.hasAccessibility else { return }
@@ -279,11 +278,10 @@ final class AppModel: ObservableObject {
 
     private func showUpdateInfo() {
         guard updates.needsInfo else { return }
-        updateWindows.showUpdateInfo { [weak self] turnOff in
+        updateWindows.showUpdateInfo { [weak self] turnOn in
             guard let self else { return }
             updates.needsInfo = false
-            if turnOff { checksForUpdates = false }
-            updates.start()
+            if turnOn { checksForUpdates = true }
         }
     }
 

@@ -1,6 +1,6 @@
 // UpdateWindows.swift
 // Die kleinen Fenster rund um Updates (SPEC 1.9): „Was ist neu“ nach einem Update, der einmalige Hinweis,
-// dass Wad nach neuen Versionen sieht, und der Hinweis auf eine neue Version. Immer nur eines zugleich.
+// dass man die Update-Prüfung einschalten kann, und der Hinweis auf eine neue Version. Immer nur eines zugleich.
 
 import SwiftUI
 
@@ -23,12 +23,13 @@ final class UpdateWindows {
         }
     }
 
-    /// Sagt einmal, dass Wad nach Updates sieht. Schließen ohne Antwort heißt: bleibt an.
-    func showUpdateInfo(onClose: @escaping (_ turnOff: Bool) -> Void) {
-        var turnOff = false
-        present(title: "Updates", activate: true, onClose: { onClose(turnOff) }) { close in
-            UpdateInfoView { off in
-                turnOff = off
+    /// Weist einmal darauf hin, dass man die Update-Prüfung einschalten kann. Eingeschaltet wird nur
+    /// mit dem Knopf, Schließen heißt: bleibt aus.
+    func showUpdateInfo(onClose: @escaping (_ turnOn: Bool) -> Void) {
+        var turnOn = false
+        present(title: "Updates", activate: true, onClose: { onClose(turnOn) }) { close in
+            UpdateInfoView { on in
+                turnOn = on
                 close()
             }
         }
@@ -108,17 +109,17 @@ private struct InfoView: View {
 }
 
 private struct UpdateInfoView: View {
-    let finish: (_ turnOff: Bool) -> Void
+    let finish: (_ turnOn: Bool) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Wad sieht einmal am Tag nach, ob es eine neue Version gibt.").font(.headline)
-            Text("Dabei fragt Wad bei GitHub nur nach der neuesten Versionsnummer. Diktate, Vokabeln oder Daten über dich werden nie gesendet. Abschalten kannst du das jederzeit im Menü.")
+            Text("Immer auf dem neuesten Stand?").font(.headline)
+            Text("Wad kann einmal am Tag nachsehen, ob es eine neue Version gibt. Das ist sinnvoll, damit du Verbesserungen und Fehlerbehebungen bekommst. Dabei fragt Wad bei GitHub nur nach der neuesten Versionsnummer. Diktate, Vokabeln oder Daten über dich werden nie gesendet. Du kannst das jederzeit im Menü ändern oder selbst über „Nach Updates suchen …“ nachsehen.")
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()
-                Button("Ausschalten") { finish(true) }
-                Button("Verstanden") { finish(false) }.keyboardShortcut(.defaultAction)
+                Button("Nicht jetzt") { finish(false) }.keyboardShortcut(.cancelAction)
+                Button("Einschalten") { finish(true) }.keyboardShortcut(.defaultAction)
             }
         }
         .padding(20)

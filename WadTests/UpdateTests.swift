@@ -68,11 +68,21 @@ final class UpdateTests: XCTestCase {
         XCTAssertFalse(UpdateRules.showsWhatsNew(current: v("1.1.0"), lastSeen: v("1.1.0"), hadEarlierVersion: true))
     }
 
-    // MARK: Standard an, einmaliger Hinweis
+    // MARK: Standard aus, einmaliger Hinweis
 
-    func testCheckingIsOnUnlessSwitchedOff() {
-        XCTAssertTrue(UpdateRules.isEnabled(stored: nil), "Ab Werk an")
+    func testCheckingIsOffUntilSwitchedOn() {
+        XCTAssertFalse(UpdateRules.isEnabled(stored: nil), "Ab Werk aus, nur mit Einwilligung")
         XCTAssertFalse(UpdateRules.isEnabled(stored: false))
+        XCTAssertTrue(UpdateRules.isEnabled(stored: true))
+    }
+
+    func testFreshInstallGetsTheQuestionOnceThenNeverAgain() {
+        XCTAssertTrue(UpdateRules.needsInfo(stored: nil, infoShown: false), "Frische Installation: einmal fragen")
+        // „Nicht jetzt“ speichert nichts als Einstellung, nur dass gefragt wurde.
+        XCTAssertFalse(UpdateRules.needsInfo(stored: nil, infoShown: true))
+        XCTAssertFalse(UpdateRules.isEnabled(stored: nil), "Und die Prüfung bleibt aus")
+        // „Einschalten“
+        XCTAssertFalse(UpdateRules.needsInfo(stored: true, infoShown: true))
         XCTAssertTrue(UpdateRules.isEnabled(stored: true))
     }
 

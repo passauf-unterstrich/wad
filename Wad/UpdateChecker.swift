@@ -60,11 +60,12 @@ enum UpdateRules {
         return current > lastSeen
     }
 
-    /// Die Update-Prüfung ist ab Werk an. Nur wer sie ausgeschaltet hat, hat einen gespeicherten Wert `false`.
-    static func isEnabled(stored: Bool?) -> Bool { stored ?? true }
+    /// Die Update-Prüfung ist ab Werk aus. Wad fragt erst, wenn der Nutzer sie selbst eingeschaltet hat
+    /// (Entscheidung Linus, 26.10.2026: nur mit ausdrücklicher Einwilligung).
+    static func isEnabled(stored: Bool?) -> Bool { stored ?? false }
 
-    /// Der einmalige Hinweis, dass Wad nachsieht. Wer schon einmal gewählt hat (auch in der früheren
-    /// Ja/Nein-Frage), bekommt ihn nicht mehr.
+    /// Der einmalige Hinweis, dass man die Prüfung einschalten kann. Wer schon einmal gewählt hat, auch
+    /// im Menü, bekommt ihn nicht mehr.
     static func needsInfo(stored: Bool?, infoShown: Bool) -> Bool { stored == nil && !infoShown }
 
     /// Macht aus der Beschreibung auf GitHub schlichten Text: keine Auszeichnungen, Links nur als Wort.
@@ -96,7 +97,7 @@ final class UpdateChecker {
     private static let startDelay: TimeInterval = 60
 
     private static let enabledKey = "Update-Prüfung"
-    private static let infoShownKey = "Update-Hinweis gezeigt"
+    private static let infoShownKey = "Update-Frage gezeigt"
     private static let lastCheckKey = "Letzte Update-Prüfung"
     private static let skippedKey = "Übersprungene Version"
     private static let announcedKey = "Angekündigte Version"
@@ -106,7 +107,7 @@ final class UpdateChecker {
     /// Läuft gerade eine Aufnahme, wartet die Prüfung ein paar Minuten.
     var isBusy: () -> Bool = { false }
 
-    /// Standard an. Einmal sagt Wad Bescheid (`needsInfo`), abschalten geht jederzeit im Menü.
+    /// Standard aus. Einmal weist Wad darauf hin (`needsInfo`), einschalten geht dort oder im Menü.
     var isEnabled: Bool {
         get { UpdateRules.isEnabled(stored: UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool) }
         set {
