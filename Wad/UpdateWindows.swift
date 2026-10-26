@@ -1,6 +1,6 @@
 // UpdateWindows.swift
-// Die kleinen Fenster rund um Updates (SPEC 1.9): „Was ist neu“ nach einem Update, die einmalige Frage,
-// ob Wad nach neuen Versionen sehen darf, und der Hinweis auf eine neue Version. Immer nur eines zugleich.
+// Die kleinen Fenster rund um Updates (SPEC 1.9): „Was ist neu“ nach einem Update, der einmalige Hinweis,
+// dass Wad nach neuen Versionen sieht, und der Hinweis auf eine neue Version. Immer nur eines zugleich.
 
 import SwiftUI
 
@@ -23,12 +23,12 @@ final class UpdateWindows {
         }
     }
 
-    /// Fragt einmal, ob Wad nach Updates sehen darf. Schließen ohne Antwort heißt Nein.
-    func askForConsent(onAnswer: @escaping (Bool) -> Void) {
-        var answer = false
-        present(title: "Updates", activate: true, onClose: { onAnswer(answer) }) { close in
-            ConsentView { yes in
-                answer = yes
+    /// Sagt einmal, dass Wad nach Updates sieht. Schließen ohne Antwort heißt: bleibt an.
+    func showUpdateInfo(onClose: @escaping (_ turnOff: Bool) -> Void) {
+        var turnOff = false
+        present(title: "Updates", activate: true, onClose: { onClose(turnOff) }) { close in
+            UpdateInfoView { off in
+                turnOff = off
                 close()
             }
         }
@@ -107,18 +107,18 @@ private struct InfoView: View {
     }
 }
 
-private struct ConsentView: View {
-    let answer: (Bool) -> Void
+private struct UpdateInfoView: View {
+    let finish: (_ turnOff: Bool) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Soll Wad einmal am Tag nachsehen, ob es eine neue Version gibt?").font(.headline)
-            Text("Dabei fragt Wad bei GitHub nur nach der neuesten Versionsnummer. Diktate, Vokabeln oder Daten über dich werden nie gesendet.")
+            Text("Wad sieht einmal am Tag nach, ob es eine neue Version gibt.").font(.headline)
+            Text("Dabei fragt Wad bei GitHub nur nach der neuesten Versionsnummer. Diktate, Vokabeln oder Daten über dich werden nie gesendet. Abschalten kannst du das jederzeit im Menü.")
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()
-                Button("Nein danke") { answer(false) }.keyboardShortcut(.cancelAction)
-                Button("Ja, nachsehen") { answer(true) }.keyboardShortcut(.defaultAction)
+                Button("Ausschalten") { finish(true) }
+                Button("Verstanden") { finish(false) }.keyboardShortcut(.defaultAction)
             }
         }
         .padding(20)

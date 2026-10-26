@@ -4,4 +4,4 @@
 - **Vorschau-Fenster:** zeigt live, was du sagst, und lässt dich den Text danach noch korrigieren.
 - **Wad merkt sich deine Einstellungen** jetzt auch nach einem Neustart.
 - **Aufgeräumt:** Das Installations-Laufwerk wird nach dem ersten Start automatisch ausgeworfen.
-- **Auf Wunsch:** Wad sieht einmal am Tag nach, ob es eine neue Version gibt.
+- **Updates:** Wad sieht einmal am Tag nach, ob es eine neue Version gibt. Abschalten kannst du das im Menü.

@@ -84,7 +84,7 @@ final class AppModel: ObservableObject {
     /// Die beiden Verläufe, nur im Arbeitsspeicher (SPEC 2.4).
     @Published private(set) var dictations = History()
     @Published private(set) var clipboard = History()
-    /// Automatisch nach Updates suchen (SPEC 1.9). Standard aus, Wad fragt einmal danach.
+    /// Automatisch nach Updates suchen (SPEC 1.9). Standard an, Wad sagt einmal Bescheid.
     @Published var checksForUpdates = false {
         didSet { updates.isEnabled = checksForUpdates }
     }
@@ -212,7 +212,8 @@ final class AppModel: ObservableObject {
             availableUpdate = release
             if announce { showUpdate(activate: false) }
         }
-        updates.start()
+        // Die erste Prüfung erst, nachdem Wad einmal Bescheid gesagt hat (`introduceUpdates`).
+        if !updates.needsInfo { updates.start() }
         // ⌥⇧-Kürzel lösen auch mit der rechten Option-Taste aus. Eine dabei gestartete Aufnahme
         // ist ein Versehen und wird verworfen, ohne etwas einzufügen (SPEC 1.8).
         windowManager.willPerform = { [weak self] in self?.dictation.cancel(reason: "Fenster-Kürzel") }
@@ -264,21 +265,26 @@ final class AppModel: ObservableObject {
         }
     }
 
-    /// Nacheinander und nie über einer Berechtigungsfrage: erst „Was ist neu“, dann einmal die Frage nach
-    /// der Update-Prüfung. Fehlt eine Berechtigung, fragt macOS gerade danach, dann wartet beides bis zum
+    /// Nacheinander und nie über einer Berechtigungsfrage: erst „Was ist neu“, dann einmal der Hinweis auf
+    /// die Update-Prüfung. Fehlt eine Berechtigung, fragt macOS gerade danach, dann wartet beides bis zum
     /// nächsten Start (nach der Freigabe startet Wad ohnehin neu).
     private func introduceUpdates() {
         guard Permissions.hasMicrophone, Permissions.hasAccessibility else { return }
-        guard showsWhatsNew else { return askForUpdateConsent() }
+        guard showsWhatsNew else { return showUpdateInfo() }
         UserDefaults.standard.set(UpdateChecker.current.description, forKey: Self.lastSeenKey)
         updateWindows.showWhatsNew(title: "Wad wurde auf \(UpdateChecker.current) aktualisiert") { [weak self] in
-            self?.askForUpdateConsent()
+            self?.showUpdateInfo()
         }
     }
 
-    private func askForUpdateConsent() {
-        guard !updates.hasAnswered else { return }
-        updateWindows.askForConsent { [weak self] yes in self?.checksForUpdates = yes }
+    private func showUpdateInfo() {
+        guard updates.needsInfo else { return }
+        updateWindows.showUpdateInfo { [weak self] turnOff in
+            guard let self else { return }
+            updates.needsInfo = false
+            if turnOff { checksForUpdates = false }
+            updates.start()
+        }
     }
 
     /// Menü „Was ist neu …“.
@@ -295,7 +301,8 @@ final class AppModel: ObservableObject {
         }
     }
 
-    /// Menü „Nach Updates suchen …“. Das Ergebnis steht kurz oben im Menü, eine neue Version im eigenen Fenster.
+    /// Menü „Nach Updates suchen …“. Man wartet gerade auf das Ergebnis, also kommt es sichtbar als
+    /// kleines Systemfenster, nicht nur als Zeile im geschlossenen Menü. Eine neue Version öffnet ihr Fenster.
     func checkForUpdatesNow() {
         updates.checkNow { [weak self] result in
             guard let self else { return }
@@ -304,11 +311,19 @@ final class AppModel: ObservableObject {
                 availableUpdate = release
                 showUpdate()
             case .success(nil):
-                show(notice: "Wad ist auf dem neuesten Stand.")
+                Self.tell("Keine Updates gefunden", "Wad \(UpdateChecker.current) ist die neueste Version.")
             case .failure:
-                show(notice: "Gerade keine Verbindung. Versuch es später noch einmal.")
+                Self.tell("Keine Verbindung", "Wad konnte gerade nicht nachsehen. Versuch es später noch einmal.")
             }
         }
+    }
+
+    private static func tell(_ title: String, _ text: String) {
+        let alert = NSAlert()
+        alert.messageText = title
+        alert.informativeText = text
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
     }
 
     func openShortcutsPanel() {

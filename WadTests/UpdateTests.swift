@@ -68,6 +68,21 @@ final class UpdateTests: XCTestCase {
         XCTAssertFalse(UpdateRules.showsWhatsNew(current: v("1.1.0"), lastSeen: v("1.1.0"), hadEarlierVersion: true))
     }
 
+    // MARK: Standard an, einmaliger Hinweis
+
+    func testCheckingIsOnUnlessSwitchedOff() {
+        XCTAssertTrue(UpdateRules.isEnabled(stored: nil), "Ab Werk an")
+        XCTAssertFalse(UpdateRules.isEnabled(stored: false))
+        XCTAssertTrue(UpdateRules.isEnabled(stored: true))
+    }
+
+    func testInfoComesOnceAndNotAfterAnEarlierChoice() {
+        XCTAssertTrue(UpdateRules.needsInfo(stored: nil, infoShown: false))
+        XCTAssertFalse(UpdateRules.needsInfo(stored: nil, infoShown: true), "Nur einmal")
+        XCTAssertFalse(UpdateRules.needsInfo(stored: false, infoShown: false), "Frühere Wahl bleibt")
+        XCTAssertFalse(UpdateRules.needsInfo(stored: true, infoShown: false))
+    }
+
     // MARK: Beschreibung von GitHub
 
     func testNotesBecomePlainText() {

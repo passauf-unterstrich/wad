@@ -60,6 +60,13 @@ enum UpdateRules {
         return current > lastSeen
     }
 
+    /// Die Update-Prüfung ist ab Werk an. Nur wer sie ausgeschaltet hat, hat einen gespeicherten Wert `false`.
+    static func isEnabled(stored: Bool?) -> Bool { stored ?? true }
+
+    /// Der einmalige Hinweis, dass Wad nachsieht. Wer schon einmal gewählt hat (auch in der früheren
+    /// Ja/Nein-Frage), bekommt ihn nicht mehr.
+    static func needsInfo(stored: Bool?, infoShown: Bool) -> Bool { stored == nil && !infoShown }
+
     /// Macht aus der Beschreibung auf GitHub schlichten Text: keine Auszeichnungen, Links nur als Wort.
     static func plainText(_ markdown: String) -> String {
         var text = markdown.replacingOccurrences(of: "\r\n", with: "\n")
@@ -89,6 +96,7 @@ final class UpdateChecker {
     private static let startDelay: TimeInterval = 60
 
     private static let enabledKey = "Update-Prüfung"
+    private static let infoShownKey = "Update-Hinweis gezeigt"
     private static let lastCheckKey = "Letzte Update-Prüfung"
     private static let skippedKey = "Übersprungene Version"
     private static let announcedKey = "Angekündigte Version"
@@ -98,15 +106,21 @@ final class UpdateChecker {
     /// Läuft gerade eine Aufnahme, wartet die Prüfung ein paar Minuten.
     var isBusy: () -> Bool = { false }
 
-    /// Standard aus. Wad fragt einmal danach (`hasAnswered`), bis dahin bleibt alles still.
+    /// Standard an. Einmal sagt Wad Bescheid (`needsInfo`), abschalten geht jederzeit im Menü.
     var isEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: Self.enabledKey) }
+        get { UpdateRules.isEnabled(stored: UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool) }
         set {
             UserDefaults.standard.set(newValue, forKey: Self.enabledKey)
             schedule()
         }
     }
-    var hasAnswered: Bool { UserDefaults.standard.object(forKey: Self.enabledKey) != nil }
+    var needsInfo: Bool {
+        get {
+            UpdateRules.needsInfo(stored: UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool,
+                                  infoShown: UserDefaults.standard.bool(forKey: Self.infoShownKey))
+        }
+        set { UserDefaults.standard.set(!newValue, forKey: Self.infoShownKey) }
+    }
     var skipped: AppVersion? {
         get { UserDefaults.standard.string(forKey: Self.skippedKey).flatMap(AppVersion.init) }
         set { UserDefaults.standard.set(newValue?.description, forKey: Self.skippedKey) }
