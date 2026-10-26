@@ -12,7 +12,7 @@ Der Name spielt auf den Film „Der Diktator“ und das Land Wadiya an.
 
 ## Installieren
 
-1. Die heruntergeladene Datei `Wad-<Version>.dmg` öffnen und **Wad** in den Ordner **Programme** ziehen. Startest du Wad versehentlich direkt aus diesem Fenster, bietet es an, sich selbst dorthin zu bewegen.
+1. Die heruntergeladene Datei `Wad-<Version>.dmg` öffnen und **Wad** in den Ordner **Programme** ziehen. Startest du Wad versehentlich direkt aus diesem Fenster, bietet es an, sich selbst dorthin zu bewegen. Nach dem ersten Start aus dem Programme-Ordner wirft Wad das Installations-Laufwerk selbst aus.
 2. Wad aus dem Ordner Programme starten. In der Menüleiste erscheint ein Mikrofon mit Stern.
 3. Wad fragt nach zwei Berechtigungen, beide sind nötig:
    - **Mikrofon**, um dich zu hören, solange du die Taste hältst.
