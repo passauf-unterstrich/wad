@@ -33,7 +33,7 @@ struct WadApp: App {
             }
             Toggle("Kleinschreibung", isOn: $model.isLowercase)
             // Freies Diktieren: läuft ohne gehaltene Taste, bis man es stoppt oder die Höchstdauer erreicht ist.
-            Button(model.isHandsFreeRecording ? "Aufnahme stoppen" : "Aufnahme starten", action: model.toggleHandsFree)
+            Button(model.isHandsFreeRecording ? "Aufnahme stoppen" : "Aufnahme starten (freies Diktieren)", action: model.toggleHandsFree)
                 .disabled(!model.isEnabled || (model.dictationState == .recording && !model.isHandsFreeRecording))
             Picker("Höchstdauer freies Diktieren", selection: $model.handsFreeMinutes) {
                 Text("2 Minuten").tag(2)

@@ -139,7 +139,9 @@ final class AppModel: ObservableObject {
         dictation.onStateChange = { [weak self] state in
             guard let self else { return }
             if state == .recording {
-                deliveryMode = insertMode
+                // Freies Diktieren immer mit Vorschau, ohne die Einstellung zu ändern (SPEC 1.3).
+                // `isHandsFree` steht schon fest, bevor der Zustand auf „Aufnahme“ wechselt.
+                deliveryMode = dictation.isHandsFree ? .clipboardPreview : insertMode
                 if deliveryMode == .clipboardPreview { preview.begin(dictation: dictation.dictationNumber) }
             }
             if state == .idle { preview.settle() }

@@ -136,8 +136,10 @@ final class DictationController {
         }
         session = DictationSession(audio: audio, transcriber: transcriber, language: language,
                                    vocabularyHint: vocabularyHint())
-        isLive = mode == .live
-        isDrafting = isLive && deliversDrafts
+        // Freies Diktieren läuft immer wie „Zwischenablage mit Vorschau“: live und mit grauem Entwurf,
+        // egal welcher Modus eingestellt ist. Die Einstellung selbst bleibt dabei unverändert.
+        isLive = handsFree || mode == .live
+        isDrafting = isLive && (deliversDrafts || handsFree)
         nextDraft = Int(Self.draftInterval * AudioBuffer.sampleRate)
         dictationNumber += 1
         nextLiveCheck = ChunkPlanner.minChunk

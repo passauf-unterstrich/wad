@@ -159,19 +159,44 @@ final class DictationControllerTests: XCTestCase {
         clock += 3
         controller.keyPressed()
         XCTAssertEqual(controller.state, .idle)
-        XCTAssertEqual(inserted, ["Stück 1"])
+        XCTAssertEqual(inserted, ["Stück 2"], "Stück 1 war der graue Entwurf, der nie eingefügt wird")
         release()
         XCTAssertEqual(microphone.startCount, 1, "Der Druck zum Stoppen startet keine neue Aufnahme")
     }
 
-    func testHandsFreeEndsAtItsLimitAndInserts() {
+    func testHandsFreeIsAlwaysLiveWithDraftsAndLeavesTheModeAlone() {
+        var drafts: [String] = []
+        controller.onDraft = { draft, _ in drafts.append(draft) }
+        controller.mode = .atEnd
+        controller.startHandsFree()
+        microphone.deliver(seconds: 2, speech: true)
+        XCTAssertFalse(drafts.isEmpty, "Freies Diktieren zeigt immer den grauen Entwurf")
+        microphone.deliver(seconds: 9, speech: true)
+        microphone.deliver(seconds: 1, speech: false)
+        XCTAssertEqual(inserted.count, 1, "Stücke kommen schon während des Diktats")
+        clock += 12
+        controller.stopHandsFree()
+
+        drafts = []
+        controller.keyPressed()
+        microphone.deliver(seconds: 11, speech: true)
+        microphone.deliver(seconds: 1, speech: false)
+        XCTAssertEqual(inserted.count, 1, "Mit gehaltener Taste gilt wieder „Nach dem Diktat“")
+        XCTAssertEqual(drafts, [])
+        clock += 12
+        release()
+        XCTAssertEqual(inserted.count, 2)
+        XCTAssertEqual(controller.mode, .atEnd)
+    }
+
+    func testHandsFreeEndsAtItsLimitAndDelivers() {
         controller.handsFreeLimit = 2 * 60
         controller.startHandsFree()
         microphone.deliver(seconds: 3, speech: true)
         clock += 2 * 60
         controller.checkSafeguards()
         XCTAssertEqual(controller.state, .idle)
-        XCTAssertEqual(inserted, ["Stück 1"])
+        XCTAssertEqual(inserted, ["Stück 2"], "Stück 1 war der graue Entwurf, der nie eingefügt wird")
         XCTAssertEqual(notices.count, 1)
     }
 

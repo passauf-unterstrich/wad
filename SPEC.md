@@ -55,7 +55,7 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 5. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
 6. **Fenstermanager an / aus** (Schalter, ab Etappe 9, standardmäßig an). Ist er aus, sind seine Kürzel nicht registriert. Darunter: *Fenster-Kürzel …* (siehe 1.8).
 7. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.
-3c. **Aufnahme starten / stoppen** und **Höchstdauer freies Diktieren ▸** (Ergänzung vom 21.10.2026 auf Linus' Wunsch): freies Diktieren ohne gehaltene Taste. Stopp über das Menü oder einen kurzen Druck auf die rechte Option-Taste. Höchstdauer 2, 5 oder 10 Minuten (Standard 5), danach stoppt Wad, fügt ein und meldet es. Alle Absicherungen aus 2.2 außer der Tasten-Gegenprüfung gelten weiter; die harte Grenze von 10 Minuten bleibt.
+3c. **Aufnahme starten (freies Diktieren) / Aufnahme stoppen** und **Höchstdauer freies Diktieren ▸** (Ergänzung vom 21.10.2026 auf Linus' Wunsch): freies Diktieren ohne gehaltene Taste. Stopp über das Menü oder einen kurzen Druck auf die rechte Option-Taste. Höchstdauer 2, 5 oder 10 Minuten (Standard 5), danach stoppt Wad und meldet es. Freies Diktieren läuft immer wie *Zwischenablage mit Vorschau* (1.4, 1.10): live mit grauem Entwurf im Vorschau-Fenster, der fertige Text bleibt in der Zwischenablage, eingefügt wird nichts (Ergänzung vom 26.10.2026 auf Linus' Wunsch). Der eingestellte Einfügemodus bleibt dabei unverändert; das nächste Diktat mit gehaltener Taste folgt wieder ihm. Alle Absicherungen aus 2.2 außer der Tasten-Gegenprüfung gelten weiter; die harte Grenze von 10 Minuten bleibt.
 7a. **Bei Anmeldung starten** (Schalter, Ergänzung vom 19.10.2026 auf Linus' Wunsch, standardmäßig an, sobald Wad im Programme-Ordner liegt): meldet Wad über Apples Anmeldeobjekte an (`SMAppService`). macOS startet Wad dann nach der Anmeldung genau einmal, wie jede andere App in dieser Liste; Wad hat dafür keinen eigenen Hilfsprozess.
 8. **Beenden.**
 
@@ -64,6 +64,7 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 - **Nach dem Diktat:** Alles wird erst nach dem Loslassen umgewandelt und als Ganzes eingefügt.
 - **Nur in die Zwischenablage:** Nach dem Loslassen wird alles umgewandelt und dauerhaft in die Zwischenablage gelegt, eingefügt wird nichts. Der alte Inhalt der Zwischenablage ist dann bewusst weg. Der Text ist ein normaler (nicht vorübergehender) Eintrag, erscheint aber nicht zusätzlich im Zwischenablage-Verlauf von Wad, weil er schon unter „Letzte Diktate“ steht.
 - **Zwischenablage mit Vorschau:** wie *Nur in die Zwischenablage*, dazu zeigt das Vorschau-Fenster (1.10) den Text, immer live.
+- Freies Diktieren (3c) gilt immer als *Zwischenablage mit Vorschau*, egal welcher Modus eingestellt ist. Die Einstellung ändert sich dadurch nicht.
 - Sprache und Einfügemodus merkt sich Wad pro macOS-Benutzer (UserDefaults). Ein Wechsel während einer Aufnahme gilt ab dem nächsten Diktat.
 - Bei gesperrtem Bildschirm kommt nichts in die Zwischenablage, der Text liegt unter „Letzte Diktate“.
 
@@ -102,7 +103,7 @@ Wad lädt und installiert nie selbst etwas. Es sagt nur Bescheid, wenn es eine n
 - **Veröffentlichen:** Wad liest die neueste Version auf GitHub (Releases). Die Versionsnummer steht im Tag, etwa `v1.1.1`, die Beschreibung des Release erscheint im Fenster. Vorabversionen wie `1.2.0-beta` bietet Wad nie an.
 
 ### 1.10 Vorschau-Fenster
-Nur im Modus *Zwischenablage mit Vorschau*.
+Im Modus *Zwischenablage mit Vorschau* und bei jedem freien Diktieren (3c).
 - **Aussehen und Ort:** kleines Fenster im Apple-Stil, 360 Punkte breit, hängt mittig unter Wads Symbol (sonst oben rechts). Es liegt über allem, auf jedem Schreibtisch und über Vollbild-Apps, und nimmt der aktiven App nicht den Fokus.
 - **Erscheinen:** erst nach 0,3 s Aufnahme, damit beim Antippen nichts aufblitzt.
 - **Text:** Fertiger Text erscheint normal, vorläufiger Text grau. Etwa alle 1,5 Sekunden wandelt Wad den offenen Teil probeweise um; ist das Modell beschäftigt, wird dieser Durchgang übersprungen. In die Zwischenablage kommt nur der endgültige Text.
