@@ -13,9 +13,19 @@ struct WadApp: App {
                 Divider()
             }
             Toggle("Diktieren", isOn: $model.isEnabled)
-            Picker("Modus", selection: $model.mode) {
-                Text("Live").tag(DictationController.Mode.live)
-                Text("Am Ende einfügen").tag(DictationController.Mode.atEnd)
+            Picker("Sprache", selection: $model.language) {
+                ForEach(AppModel.languages, id: \.code) { language in
+                    Text(language.name).tag(language.code)
+                }
+                Divider()
+                Text("Sprachoffen").tag("auto")
+            }
+            Picker("Einfügen", selection: $model.insertMode) {
+                Text("Während des Diktats").tag(InsertMode.whileDictating)
+                Text("Nach dem Diktat").tag(InsertMode.afterDictating)
+                Divider()
+                Text("Nur in die Zwischenablage").tag(InsertMode.clipboard)
+                Text("Zwischenablage mit Vorschau").tag(InsertMode.clipboardPreview)
             }
             Toggle("Kleinschreibung", isOn: $model.isLowercase)
             // Freies Diktieren: läuft ohne gehaltene Taste, bis man es stoppt oder die Höchstdauer erreicht ist.

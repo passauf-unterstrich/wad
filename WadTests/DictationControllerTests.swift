@@ -31,8 +31,8 @@ final class DictationControllerTests: XCTestCase {
             background: { $0() },
             main: { $0() }
         )
-        controller.onText = { [unowned self] in inserted.append($0) }
-        controller.onDictationFinished = { [unowned self] in finished.append($0) }
+        controller.onText = { [unowned self] text, _ in inserted.append(text) }
+        controller.onDictationFinished = { [unowned self] text, _, _ in finished.append(text) }
         controller.onNotice = { [unowned self] in notices.append($0) }
     }
 
@@ -184,7 +184,7 @@ final class DictationControllerTests: XCTestCase {
             isKeyPhysicallyDown: { [unowned self] in keyIsDown },
             now: { [unowned self] in clock },
             background: { pending.append($0) }, main: { $0() })
-        controller.onText = { [unowned self] in inserted.append($0) }
+        controller.onText = { [unowned self] text, _ in inserted.append(text) }
 
         controller.keyPressed()
         microphone.deliver(seconds: 3, speech: true)
@@ -267,5 +267,55 @@ final class DictationControllerTests: XCTestCase {
         clock += 16
         release()
         XCTAssertEqual(transcriber.chunkLengths.reduce(0, +), Int(16 * AudioBuffer.sampleRate))
+    }
+
+    // MARK: Sprache und Modus (SPEC 1.3, 1.5)
+
+    func testFixedLanguageGoesToEveryChunk() {
+        controller.language = "de"
+        controller.keyPressed()
+        microphone.deliver(seconds: 11, speech: true)
+        microphone.deliver(seconds: 1, speech: false)
+        microphone.deliver(seconds: 4, speech: true)
+        clock += 16
+        release()
+        XCTAssertEqual(transcriber.languages, ["de", "de"], "Fest gewählte Sprache, kein Raten")
+    }
+
+    func testModeChangeDuringRecordingAppliesToNextDictation() {
+        controller.keyPressed()
+        controller.mode = .atEnd
+        microphone.deliver(seconds: 11, speech: true)
+        microphone.deliver(seconds: 1, speech: false)
+        XCTAssertEqual(inserted, ["Stück 1"], "Die laufende Aufnahme bleibt live")
+    }
+
+    func testDictationAfterLockIsNotDelivered() {
+        var delivered: [Bool] = []
+        controller.onDictationFinished = { _, isDelivered, _ in delivered.append(isDelivered) }
+        controller.keyPressed()
+        microphone.deliver(seconds: 3, speech: true)
+        clock += 3
+        controller.stopUnexpectedly(reason: "weil der Bildschirm gesperrt wurde", insert: false)
+        XCTAssertEqual(delivered, [false], "Gesperrt: nur in den Verlauf, nicht in die Zwischenablage")
+    }
+
+    func testPreviewGetsDraftsBeforeTheFirstChunkIsReady() {
+        var drafts: [String] = []
+        controller.deliversDrafts = true
+        controller.onDraft = { draft, _ in drafts.append(draft) }
+        controller.keyPressed()
+        microphone.deliver(seconds: 2, speech: true)
+        XCTAssertEqual(drafts.count, 1, "Nach 1,5 Sekunden gibt es schon vorläufigen Text")
+        XCTAssertEqual(inserted, [], "Vorläufiger Text wird nie eingefügt")
+        XCTAssertEqual(microphone.buffer?.count, Int(2 * AudioBuffer.sampleRate), "Probelauf löscht kein Audio")
+    }
+
+    func testNoDraftsWithoutPreview() {
+        var drafts: [String] = []
+        controller.onDraft = { draft, _ in drafts.append(draft) }
+        controller.keyPressed()
+        microphone.deliver(seconds: 5, speech: true)
+        XCTAssertEqual(drafts, [])
     }
 }

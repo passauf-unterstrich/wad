@@ -33,7 +33,19 @@ final class DictationController {
     /// Takt der Gegenprüfung, ob die Taste wirklich noch gehalten wird: fünfmal pro Sekunde.
     static let safetyCheckInterval: TimeInterval = 0.2
 
+    /// Gilt ab der nächsten Aufnahme, eine laufende behält ihren Modus.
     var mode = Mode.live
+    /// Sprache fürs Modell, z. B. „de“. `nil` erkennt sie zu Beginn jedes Diktats selbst (SPEC 1.5).
+    /// Gilt wie `mode` ab der nächsten Aufnahme.
+    var language: String?
+    /// Liefert im Live-Modus zusätzlich vorläufigen Text fürs Vorschau-Fenster (SPEC 1.10).
+    /// Gilt ab der nächsten Aufnahme.
+    var deliversDrafts = false
+    /// Abstand der Probeläufe für den vorläufigen Text, in Sekunden neuen Tons.
+    static let draftInterval = 1.5
+    /// Zählt die Aufnahmen. Jede Rückmeldung nennt die Nummer ihres Diktats, denn das vorige kann
+    /// noch fertig werden, während schon das nächste aufgenommen wird.
+    private(set) var dictationNumber = 0
     /// Höchstdauer beim freien Diktieren über das Menü. Einstellbar, nie länger als `maxDuration`.
     var handsFreeLimit: TimeInterval = 5 * 60
     /// Läuft gerade eine frei gestartete Aufnahme, die nicht an der gehaltenen Taste hängt?
@@ -45,9 +57,12 @@ final class DictationController {
     }
     var onStateChange: ((State) -> Void)?
     /// Text zum Einfügen: im Live-Modus Stück für Stück, sonst einmal am Ende.
-    var onText: ((String) -> Void)?
-    /// Der vollständige Text, sobald ein Diktat fertig ist.
-    var onDictationFinished: ((String) -> Void)?
+    var onText: ((_ text: String, _ dictation: Int) -> Void)?
+    /// Vorläufiger Text des noch offenen Teils. Wird vom nächsten fertigen Stück abgelöst.
+    var onDraft: ((_ draft: String, _ dictation: Int) -> Void)?
+    /// Der vollständige Text, sobald ein Diktat fertig ist. `isDelivered` ist falsch, wenn das
+    /// Diktat nicht weitergegeben werden soll, etwa weil der Bildschirm gesperrt wurde.
+    var onDictationFinished: ((_ text: String, _ isDelivered: Bool, _ dictation: Int) -> Void)?
     /// Ein kurzer, verständlicher Hinweis, wenn eine Aufnahme anders endete als gewollt.
     var onNotice: ((String) -> Void)?
 
@@ -59,6 +74,9 @@ final class DictationController {
     private let main: (@escaping () -> Void) -> Void
 
     private var session: DictationSession?
+    private var isLive = true
+    private var isDrafting = false
+    private var nextDraft = 0
     private var startedAt: Date?
     private var safetyTimer: Timer?
     private var nextLiveCheck = 0
@@ -116,7 +134,12 @@ final class DictationController {
             onNotice?(error.localizedDescription)
             return
         }
-        session = DictationSession(audio: audio, transcriber: transcriber, vocabularyHint: vocabularyHint())
+        session = DictationSession(audio: audio, transcriber: transcriber, language: language,
+                                   vocabularyHint: vocabularyHint())
+        isLive = mode == .live
+        isDrafting = isLive && deliversDrafts
+        nextDraft = Int(Self.draftInterval * AudioBuffer.sampleRate)
+        dictationNumber += 1
         nextLiveCheck = ChunkPlanner.minChunk
         startedAt = now()
         keyUpChecks = 0
@@ -179,18 +202,29 @@ final class DictationController {
     }
 }
 private extension DictationController {
-    /// Live-Modus: höchstens einmal pro Sekunde neuen Tons nach einer passenden Pause suchen.
-    /// Ausgelöst vom Eintreffen neuer Samples, nicht von einem eigenen Takt.
+    /// Live-Modus: höchstens einmal pro Sekunde neuen Tons nach einer passenden Pause suchen,
+    /// mit Vorschau zusätzlich alle 1,5 Sekunden einen Probelauf für den vorläufigen Text.
+    /// Ausgelöst vom Eintreffen neuer Samples, nicht von einem eigenen Takt. Ist die Spracherkennung
+    /// noch beschäftigt, fällt die Runde aus, damit fertiger Text nie auf einen Probelauf wartet.
     func audioArrived() {
-        guard state == .recording, mode == .live, !isLiveCheckPending, let session else { return }
-        guard session.audio.count >= nextLiveCheck else { return }
-        nextLiveCheck = session.audio.count + Int(AudioBuffer.sampleRate)
+        guard state == .recording, isLive, !isLiveCheckPending, let session else { return }
+        let count = session.audio.count
+        let wantsChunk = count >= nextLiveCheck
+        let wantsDraft = isDrafting && count >= nextDraft
+        guard wantsChunk || wantsDraft else { return }
+        if wantsChunk { nextLiveCheck = count + Int(AudioBuffer.sampleRate) }
+        if wantsDraft { nextDraft = count + Int(Self.draftInterval * AudioBuffer.sampleRate) }
         isLiveCheckPending = true
+        let number = dictationNumber
         background { [weak self] in
-            let text = session.transcribeReadyChunk()
+            let text = wantsChunk ? session.transcribeReadyChunk() : nil
+            // Gerade wurde ein Stück fertig: Der offene Rest ist frisch, ein Probelauf lohnt erst später.
+            let draft = wantsDraft && text == nil ? session.transcribeDraft() : nil
             self?.main {
                 self?.isLiveCheckPending = false
-                if let text, !session.isCancelled { self?.onText?(text) }
+                guard !session.isCancelled else { return }
+                if let text { self?.onText?(text, number) }
+                if let draft { self?.onDraft?(draft, number) }
             }
         }
     }
@@ -206,14 +240,15 @@ private extension DictationController {
             return
         }
         state = .processing
+        let number = dictationNumber
         // Die Warteschlange arbeitet der Reihe nach: Ein noch laufendes Live-Stück ist vorher fertig.
         background { [weak self] in
             let text = session.transcribeRemainder()
             let fullText = session.fullText
             session.discard()
             self?.main {
-                if let text, !session.isCancelled { self?.onText?(text) }
-                if !fullText.isEmpty { self?.onDictationFinished?(fullText) }
+                if let text, !session.isCancelled { self?.onText?(text, number) }
+                if !fullText.isEmpty { self?.onDictationFinished?(fullText, !session.isCancelled, number) }
                 // Läuft inzwischen schon die nächste Aufnahme, bleibt es bei „nimmt auf“.
                 if self?.state == .processing { self?.state = .idle }
             }

@@ -17,9 +17,11 @@ final class DictationSession {
     private var language: String?
     private var texts: [String] = []
 
-    init(audio: AudioBuffer, transcriber: Transcriber, vocabularyHint: String? = nil) {
+    /// - Parameter language: fest gewählte Sprache wie „de“. `nil` erkennt sie am ersten Stück.
+    init(audio: AudioBuffer, transcriber: Transcriber, language: String? = nil, vocabularyHint: String? = nil) {
         self.audio = audio
         self.transcriber = transcriber
+        self.language = language
         self.vocabularyHint = vocabularyHint
     }
 
@@ -46,6 +48,17 @@ final class DictationSession {
         }
         advance(by: length)
         return text
+    }
+
+    /// Vorschau: wandelt den noch offenen Teil probeweise um, ohne ihn als fertig abzuhaken.
+    /// Das Ergebnis ist nur ein vorläufiger Text fürs Vorschau-Fenster und wird nirgends gespeichert.
+    func transcribeDraft() -> String? {
+        audio.withSamples(from: offset) { open -> String? in
+            let speech = transcriber.speechSegments(in: open)
+            guard ChunkPlanner.containsSpeech(speech) else { return nil }
+            let prompt = [vocabularyHint, texts.last].compactMap { $0 }.joined(separator: " ")
+            return try? transcriber.transcribe(open, language: language, prompt: prompt.isEmpty ? nil : prompt).text
+        }
     }
 
     /// Löscht Audio und Zwischenstände. Danach existiert von diesem Diktat nur noch, was eingefügt wurde.

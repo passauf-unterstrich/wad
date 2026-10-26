@@ -47,26 +47,31 @@ Wad lebt ausschließlich in der Menüleiste (kein Dock-Symbol, kein Fenster). So
 
 ### 1.3 Dropdown-Menü (schlicht, Apple-typisch)
 1. **Diktieren an / aus** (Schalter). Ist es aus, reagiert Wad nicht auf die Taste.
-2. **Modus:** *Live (Standard)* oder *Am Ende einfügen*.
-2a. **Kleinschreibung** (Schalter, Ergänzung vom 18.10.2026 auf Linus' Wunsch): schreibt jedes Diktat komplett klein. Wad merkt sich diesen Schalter über einen Neustart hinweg, als einzigen Ja/Nein-Wert in den macOS-Einstellungen, nie als Text.
-2b. **Vokabeln ▸** (Ergänzung vom 19.10.2026 auf Linus' Wunsch): *Korrigieren …* (⌃⌥W, liest das markierte Wort über die Bedienungshilfen), *Vokabelliste öffnen*, *Vorlage für deine KI kopieren*. Einträge gelten nur bis zum Neustart oder dauerhaft in `~/Library/Application Support/Wad/Vokabeln.txt`. Wad ersetzt falsche Schreibweisen als ganze Wörter und gibt dem Modell höchstens 40 richtige Schreibweisen als Hinweis. Kleinschreibung wirkt danach und gewinnt immer.
-3. **Letzte Diktate ▸** bis zu 20 Einträge, neuester oben. Klick kopiert den Text in die Zwischenablage. Darunter: *Diktate löschen*.
-4. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
-5. **Fenstermanager an / aus** (Schalter, ab Etappe 9, standardmäßig an). Ist er aus, sind seine Kürzel nicht registriert. Darunter: *Fenster-Kürzel …* (siehe 1.8).
-6. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.
-2c. **Aufnahme starten / stoppen** und **Höchstdauer freies Diktieren ▸** (Ergänzung vom 21.10.2026 auf Linus' Wunsch): freies Diktieren ohne gehaltene Taste. Stopp über das Menü oder einen kurzen Druck auf die rechte Option-Taste. Höchstdauer 2, 5 oder 10 Minuten (Standard 5), danach stoppt Wad, fügt ein und meldet es. Alle Absicherungen aus 2.2 außer der Tasten-Gegenprüfung gelten weiter; die harte Grenze von 10 Minuten bleibt.
-6a. **Bei Anmeldung starten** (Schalter, Ergänzung vom 19.10.2026 auf Linus' Wunsch, standardmäßig an, sobald Wad im Programme-Ordner liegt): meldet Wad über Apples Anmeldeobjekte an (`SMAppService`). macOS startet Wad dann nach der Anmeldung genau einmal, wie jede andere App in dieser Liste; Wad hat dafür keinen eigenen Hilfsprozess.
-7. **Beenden.**
+2. **Sprache ▸** Deutsch (Standard), Englisch, Französisch, Spanisch, Sprachoffen.
+3. **Einfügen ▸** *Während des Diktats* (Standard), *Nach dem Diktat*, *Nur in die Zwischenablage*, *Zwischenablage mit Vorschau*.
+3a. **Kleinschreibung** (Schalter, Ergänzung vom 18.10.2026 auf Linus' Wunsch): schreibt jedes Diktat komplett klein. Wad merkt sich diesen Schalter über einen Neustart hinweg, als einzigen Ja/Nein-Wert in den macOS-Einstellungen, nie als Text.
+3b. **Vokabeln ▸** (Ergänzung vom 19.10.2026 auf Linus' Wunsch): *Korrigieren …* (⌃⌥W, liest das markierte Wort über die Bedienungshilfen), *Vokabelliste öffnen*, *Vorlage für deine KI kopieren*. Einträge gelten nur bis zum Neustart oder dauerhaft in `~/Library/Application Support/Wad/Vokabeln.txt`. Wad ersetzt falsche Schreibweisen als ganze Wörter und gibt dem Modell höchstens 40 richtige Schreibweisen als Hinweis. Kleinschreibung wirkt danach und gewinnt immer.
+4. **Letzte Diktate ▸** bis zu 20 Einträge, neuester oben. Klick kopiert den Text in die Zwischenablage. Darunter: *Diktate löschen*.
+5. **Zwischenablage-Verlauf ▸** die letzten 20 kopierten Texte, neuester oben. Klick legt den Eintrag wieder in die Zwischenablage. Darunter: *Verlauf löschen*.
+6. **Fenstermanager an / aus** (Schalter, ab Etappe 9, standardmäßig an). Ist er aus, sind seine Kürzel nicht registriert. Darunter: *Fenster-Kürzel …* (siehe 1.8).
+7. Hinweiszeile, falls eine Berechtigung fehlt, mit Klick direkt zur passenden Systemeinstellung.
+3c. **Aufnahme starten / stoppen** und **Höchstdauer freies Diktieren ▸** (Ergänzung vom 21.10.2026 auf Linus' Wunsch): freies Diktieren ohne gehaltene Taste. Stopp über das Menü oder einen kurzen Druck auf die rechte Option-Taste. Höchstdauer 2, 5 oder 10 Minuten (Standard 5), danach stoppt Wad, fügt ein und meldet es. Alle Absicherungen aus 2.2 außer der Tasten-Gegenprüfung gelten weiter; die harte Grenze von 10 Minuten bleibt.
+7a. **Bei Anmeldung starten** (Schalter, Ergänzung vom 19.10.2026 auf Linus' Wunsch, standardmäßig an, sobald Wad im Programme-Ordner liegt): meldet Wad über Apples Anmeldeobjekte an (`SMAppService`). macOS startet Wad dann nach der Anmeldung genau einmal, wie jede andere App in dieser Liste; Wad hat dafür keinen eigenen Hilfsprozess.
+8. **Beenden.**
 
 ### 1.4 Modi
-- **Live (Standard):** Während man spricht, wird die Aufnahme an natürlichen Sprechpausen in Stücke geteilt. Jedes fertige Stück wird sofort umgewandelt und eingefügt, während man weiterspricht. Ziel: mindestens so gut wie Linus' alte Version, also keine abgeschnittenen Wörter, keine doppelten Wörter an den Übergängen, saubere Leerzeichen zwischen den Stücken.
-- **Am Ende einfügen:** Alles wird erst nach dem Loslassen umgewandelt und als Ganzes eingefügt.
+- **Während des Diktats (Standard):** Während man spricht, wird die Aufnahme an natürlichen Sprechpausen in Stücke geteilt. Jedes fertige Stück wird sofort umgewandelt und eingefügt, während man weiterspricht. Ziel: mindestens so gut wie Linus' alte Version, also keine abgeschnittenen Wörter, keine doppelten Wörter an den Übergängen, saubere Leerzeichen zwischen den Stücken.
+- **Nach dem Diktat:** Alles wird erst nach dem Loslassen umgewandelt und als Ganzes eingefügt.
+- **Nur in die Zwischenablage:** Nach dem Loslassen wird alles umgewandelt und dauerhaft in die Zwischenablage gelegt, eingefügt wird nichts. Der alte Inhalt der Zwischenablage ist dann bewusst weg. Der Text ist ein normaler (nicht vorübergehender) Eintrag, erscheint aber nicht zusätzlich im Zwischenablage-Verlauf von Wad, weil er schon unter „Letzte Diktate“ steht.
+- **Zwischenablage mit Vorschau:** wie *Nur in die Zwischenablage*, dazu zeigt das Vorschau-Fenster (1.10) den Text, immer live.
+- Sprache und Einfügemodus merkt sich Wad pro macOS-Benutzer (UserDefaults). Ein Wechsel während einer Aufnahme gilt ab dem nächsten Diktat.
+- Bei gesperrtem Bildschirm kommt nichts in die Zwischenablage, der Text liegt unter „Letzte Diktate“.
 
 ### 1.5 Spracherkennung
 - Läuft vollständig lokal mit einem Whisper-Modell über **whisper.cpp** (MIT-Lizenz, nutzt die Grafikeinheit des Mac über Metal).
 - Modell: **Whisper large-v3-turbo, komprimiert (q5_0), ca. 550 MB.** Das Modell ist in der App enthalten, nichts wird nachgeladen.
 - Die Spracherkennung sitzt hinter genau einer Schnittstelle im Code („Transkribierer“). So kann später ein anderes Modell eingesetzt werden, ohne den Rest der App anzufassen. In Etappe 3 prüft Linus die Qualität mit seiner eigenen Stimme. Falls large-v3-turbo enttäuscht, ist NVIDIA Parakeet (v3, mehrsprachig, sehr schnell auf Apple Silicon) der erste Kandidat für einen Vergleich. Gewechselt wird nur nach Linus' Entscheidung.
-- Sprache: wird am Anfang jedes Diktats automatisch erkannt und für dieses Diktat beibehalten (verhindert, dass einzelne Stücke in eine falsche Sprache springen).
+- Sprache: fest gewählt im Menü (Standard Deutsch) und so an das Modell gegeben. Grund: Whisper erkennt die Sprache sonst an den ersten Sekunden und rät bei kurzen Sätzen oder englischem Anfang falsch, dann schreibt es Deutsch auf Englisch. Mit *Sprachoffen* erkennt Wad die Sprache am Anfang jedes Diktats selbst und behält sie für dieses Diktat bei.
 - Bekannte Whisper-Halluzinationen bei Stille (z. B. „Untertitel im Auftrag des ZDF“, „Vielen Dank fürs Zuschauen“) werden verhindert, indem Stücke ohne erkannte Sprache gar nicht erst an das Modell gehen.
 
 ### 1.6 Verläufe
@@ -86,6 +91,17 @@ Ein schlanker Fenstermanager im Stil von Spectacle, als eigener, abgeschotteter 
 - **Option-Taste:** Die ⌥⇧-Kürzel lösen auch mit der rechten Option-Taste aus. Wird dabei schon eine Aufnahme gestartet, verwirft Wad diese Aufnahme sofort, ohne etwas einzufügen.
 - **Vorausschauend:** Fenster bleiben innerhalb von Menüleiste und Dock und auf dem Bildschirm, auf dem sie gerade sind. Apps mit Mindestgröße bekommen, was sie zulassen, ohne Flackern. Fenster im macOS-Vollbild und Fenster, die sich nicht verschieben lassen, werden in Ruhe gelassen.
 - **Berechtigung:** keine neue. Fenster werden über die Bedienungshilfen verschoben, die Wad schon hat.
+
+### 1.10 Vorschau-Fenster
+Nur im Modus *Zwischenablage mit Vorschau*.
+- **Aussehen und Ort:** kleines Fenster im Apple-Stil, 360 Punkte breit, hängt mittig unter Wads Symbol (sonst oben rechts). Es liegt über allem, auf jedem Schreibtisch und über Vollbild-Apps, und nimmt der aktiven App nicht den Fokus.
+- **Erscheinen:** erst nach 0,3 s Aufnahme, damit beim Antippen nichts aufblitzt.
+- **Text:** Fertiger Text erscheint normal, vorläufiger Text grau. Etwa alle 1,5 Sekunden wandelt Wad den offenen Teil probeweise um; ist das Modell beschäftigt, wird dieser Durchgang übersprungen. In die Zwischenablage kommt nur der endgültige Text.
+- **Größe:** Der Textbereich ist mindestens drei bis vier Zeilen hoch und wächst bis etwa 13 Zeilen, danach scrollt er ans Ende.
+- **Nach dem Loslassen:** Das Fenster bleibt offen, der Text liegt automatisch in der Zwischenablage, der Knopf zeigt kurz „Kopiert ✓“.
+- **Bedienung:** oben links ein X, unten „In Zwischenablage kopieren“. Der Text lässt sich markieren, aber nicht bearbeiten. Ein neues Diktat ersetzt den Inhalt.
+- **Schließen:** bei anderem Modus, bei ausgeschaltetem Diktieren und wenn kein Text herauskam.
+- **Datenschutz:** keine Berechtigung nötig, der Text liegt nur im Arbeitsspeicher.
 
 ---
 
@@ -131,6 +147,7 @@ Diese Regeln sind nicht verhandelbar. Jede Etappe muss sie einhalten.
 - Der kurzzeitige Diktat-Text wird als „vorübergehend“ markiert, damit er weder im eigenen Verlauf noch in fremden Zwischenablage-Programmen landet.
 - Hat der Nutzer in der Zwischenzeit selbst etwas kopiert, wird nichts überschrieben.
 - Ergebnis: Für den Nutzer sieht es so aus, als hätte Wad die Zwischenablage nie benutzt.
+- Gilt für die Modi *Während* und *Nach dem Diktat*. In den Zwischenablage-Modi soll der Text gerade bleiben.
 
 ### 2.6 Kein Netzwerk
 - Wad enthält **keinen Netzwerkcode**: keine Analyse, keine Absturzberichte, keine Update-Prüfung, kein Nachladen von Modellen. Das ist im Code einfach überprüfbar und wird in der README zugesichert.
@@ -183,6 +200,7 @@ Jede Etappe endet mit etwas, das Linus selbst ausprobieren kann. Erst nach seine
 | 7 | **Robustheit** | Alle Fälle aus dem Designprinzip „vorausschauend“ (Teil 0, Punkt 7), Intel-Hinweis, Ruhezustand und Sperre, Feinschliff am Symbol, Tests. | Mac während der Aufnahme sperren: Aufnahme endet. Mikrofon während der Aufnahme wechseln. |
 | 8 | **Verteilung** | Signierte App als DMG, README (inklusive „Wo liegen die Daten?“), Lizenz GPL-3.0, Download auf Linus' Website mit Zugangscode. | Ein Freund installiert Wad nach Anleitung und kann diktieren. |
 | 9 | **Fenstermanager** | Schalter im Menü, die Aktionen aus 1.8 mit Durchschalten, kleines Fenster für die Kürzel. Eigene Datei, kein Eingriff in Aufnahme oder Einfügen. | Mit jedem Kürzel ein Fenster verschieben, Links dreimal drücken (½, ⅔, ⅓), auf einem zweiten Bildschirm testen, Schalter aus: Kürzel tun nichts mehr und Text markieren geht normal. |
+| 10 | **Sprache und Einfügemodi** | Sprachwahl im Menü (Standard Deutsch, 1.5), vier Einfügemodi (1.4) und Vorschau-Fenster (1.10). Wahl bleibt über einen Neustart erhalten. | Deutscher Satz mit englischem Anfang bleibt Deutsch. Neustart behält die Wahl. Bild kopieren, Modus 3, Cmd+V gibt den Text. Vorschau in Safari, im Vollbild und auf einem zweiten Schreibtisch prüfen. |
 
 ### Zur Verteilung (Etappe 8)
 - **Apple Developer Program:** Bis einschließlich Etappe 7 wird ohne gearbeitet. Linus signiert Wad für sich selbst mit seiner kostenlosen Apple-ID. Ob er das Programm (99 $ pro Jahr) für Etappe 8 holt, entscheidet er dann. Etappe 8 beschreibt beide Wege:
@@ -191,5 +209,5 @@ Jede Etappe endet mit etwas, das Linus selbst ausprobieren kann. Erst nach seine
 - **Lizenz: GPL-3.0.** Wer Wad weiterverbreitet oder verändert weitergibt, muss es ebenfalls offen und frei lassen. whisper.cpp (MIT) ist damit vereinbar.
 - Der Quellcode liegt öffentlich auf GitHub. Der Zugangscode auf der Website schützt nur den bequemen Download, nicht den Code selbst.
 
-### Geplant für 1.0.3
+### Geplant für 1.1.0
 - **Installations-DMG automatisch auswerfen.** Nach dem Installieren bleibt das Laufwerk „Wad“ in der Finder-Seitenleiste hängen. Startet Wad aus dem Programme-Ordner, wirft es dieses Laufwerk selbst aus. Ausgeworfen wird nur, was sicher das Wad-Installationsabbild ist: ein eingebundenes Disk-Image (kein echtes Laufwerk, kein Netzlaufwerk) unter `/Volumes`, das eine `Wad.app` mit derselben Bundle-ID enthält. Alles andere bleibt unberührt. Klappt das Auswerfen nicht (etwa weil ein Finder-Fenster darauf geöffnet ist), passiert nichts weiter, keine Fehlermeldung.

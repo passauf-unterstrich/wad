@@ -6,13 +6,51 @@ import Carbon.HIToolbox
 import ServiceManagement
 import SwiftUI
 
+/// Die vier Einfügemodi im Menü (SPEC 1.3). Der Rohwert ist, was Wad sich merkt.
+enum InsertMode: String {
+    /// Stücke werden an Sprechpausen eingefügt, während man weiterspricht.
+    case whileDictating
+    /// Alles wird nach dem Loslassen als Ganzes eingefügt.
+    case afterDictating
+    /// Nichts wird eingefügt, der Text bleibt in der Zwischenablage.
+    case clipboard
+    /// Wie `clipboard`, dazu eine Vorschau, die live mitläuft.
+    case clipboardPreview
+
+    var pastes: Bool { self == .whileDictating || self == .afterDictating }
+    var isLive: Bool { self == .whileDictating || self == .clipboardPreview }
+}
+
 final class AppModel: ObservableObject {
     @Published var isEnabled = true {
-        didSet { if !isEnabled { dictation.cancel(reason: "Diktieren ausgeschaltet") } }
+        didSet {
+            guard !isEnabled else { return }
+            dictation.cancel(reason: "Diktieren ausgeschaltet")
+            preview.close()
+        }
     }
-    @Published var mode = DictationController.Mode.live {
-        didSet { dictation.mode = mode }
+    /// Wohin der Text geht (SPEC 1.3). Gemerkt pro macOS-Benutzer, gilt ab dem nächsten Diktat.
+    @Published var insertMode = UserDefaults.standard.string(forKey: AppModel.insertModeKey)
+        .flatMap(InsertMode.init) ?? .whileDictating {
+        didSet {
+            UserDefaults.standard.set(insertMode.rawValue, forKey: Self.insertModeKey)
+            applyInsertMode()
+            if insertMode != .clipboardPreview { preview.close() }
+        }
     }
+    private static let insertModeKey = "Einfügen"
+    /// Sprache fürs Modell (SPEC 1.5), als Kürzel wie „de“. „auto“ heißt sprachoffen.
+    /// Gemerkt pro macOS-Benutzer, gilt ab dem nächsten Diktat.
+    @Published var language = UserDefaults.standard.string(forKey: AppModel.languageKey)
+        .flatMap { code in AppModel.languages.contains { $0.code == code } ? code : nil } ?? "de" {
+        didSet {
+            UserDefaults.standard.set(language, forKey: Self.languageKey)
+            dictation.language = language == "auto" ? nil : language
+        }
+    }
+    private static let languageKey = "Sprache"
+    static let languages = [(code: "de", name: "Deutsch"), (code: "en", name: "Englisch"),
+                            (code: "fr", name: "Französisch"), (code: "es", name: "Spanisch")]
     /// Schreibt alles klein. Die einzige Einstellung, die Wad sich über einen Neustart hinweg merkt:
     /// ein einzelner Ja/Nein-Wert in macOS' Einstellungsablage, nie ein Text.
     @Published var isLowercase = UserDefaults.standard.bool(forKey: AppModel.lowercaseKey) {
@@ -57,6 +95,7 @@ final class AppModel: ObservableObject {
     private let hotKeys = HotKeyCenter()
     let windowManager: WindowManager
     private let shortcutsPanel = ShortcutsPanel()
+    private let preview = PreviewPanel()
     private let dictation: DictationController
     /// Die eine Warteschlange für alles, was die Spracherkennung tut: laden, prüfen, umwandeln.
     private let worker: DispatchQueue
@@ -65,6 +104,9 @@ final class AppModel: ObservableObject {
     private var noticeTimer: Timer?
     /// Hält Bildschirm und Mac wach, solange aufgenommen wird (siehe `keepAwake`).
     private var awakeActivity: NSObjectProtocol?
+    /// Der Einfügemodus der laufenden oder zuletzt begonnenen Aufnahme. Ein Wechsel im Menü
+    /// während eines Diktats ändert so nicht mittendrin, wohin dessen Text geht.
+    private var deliveryMode = InsertMode.whileDictating
 
     init() {
         transcriber = WhisperTranscriber()
@@ -76,20 +118,40 @@ final class AppModel: ObservableObject {
                                         background: { worker.async(execute: $0) })
         dictation.onStateChange = { [weak self] state in
             guard let self else { return }
+            if state == .recording {
+                deliveryMode = insertMode
+                if deliveryMode == .clipboardPreview { preview.begin(dictation: dictation.dictationNumber) }
+            }
+            if state == .idle { preview.settle() }
             dictationState = state
             isHandsFreeRecording = state == .recording && dictation.isHandsFree
             keepAwake(state == .recording)
         }
         dictation.handsFreeLimit = TimeInterval(handsFreeMinutes * 60)
+        applyInsertMode()
+        dictation.language = language == "auto" ? nil : language
         dictation.vocabularyHint = { [weak self] in self?.vocabulary.vocabulary.hint }
-        dictation.onText = { [weak self] text in
+        dictation.onText = { [weak self] text, number in
             guard let self else { return }
-            inserter.insert(styled(text))
+            if deliveryMode.pastes {
+                inserter.insert(styled(text))
+            } else {
+                preview.append(styled(text), dictation: number)
+            }
         }
-        dictation.onDictationFinished = { [weak self] text in
+        dictation.onDraft = { [weak self] draft, number in
             guard let self else { return }
-            dictations.add(styled(text))
+            preview.showDraft(styled(draft), dictation: number)
         }
+        dictation.onDictationFinished = { [weak self] text, isDelivered, number in
+            guard let self else { return }
+            let text = styled(text)
+            dictations.add(text)
+            let keeps = isDelivered && !deliveryMode.pastes
+            if keeps { keepInClipboard(text) }
+            preview.finish(text: text, isCopied: keeps, dictation: number)
+        }
+        preview.onCopy = { [weak self] text in self?.keepInClipboard(text) }
         clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
         clipboardWatcher.start()
         worker.async { [weak self, transcriber] in
@@ -242,6 +304,19 @@ final class AppModel: ObservableObject {
     func copyToClipboard(_ text: String) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    private func applyInsertMode() {
+        dictation.mode = insertMode.isLive ? .live : .atEnd
+        dictation.deliversDrafts = insertMode == .clipboardPreview
+    }
+
+    /// Modi „Nur in die Zwischenablage“ und „mit Vorschau“: Der Text bleibt dort, der alte Inhalt ist bewusst weg.
+    /// Ein normaler Eintrag, nicht „vorübergehend“. In Wads eigenem Zwischenablage-Verlauf erscheint
+    /// er nicht noch einmal, weil er schon unter „Letzte Diktate“ steht.
+    private func keepInClipboard(_ text: String) {
+        copyToClipboard(text)
+        clipboardWatcher.skipCurrentChange()
     }
 
     func clearDictations() {
