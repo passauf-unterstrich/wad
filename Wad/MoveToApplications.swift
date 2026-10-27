@@ -64,13 +64,21 @@ enum InstallerVolumeEject {
                                                            options: [.skipHiddenVolumes]) ?? []
         let ownVolume = try? Bundle.main.bundleURL.resourceValues(forKeys: [.volumeURLKey]).volume
         return volumes.filter { volume in
-            guard volume.path.hasPrefix("/Volumes/"), volume != ownVolume,
+            guard volume.path.hasPrefix("/Volumes/"), volume != ownVolume, isMountedByCurrentUser(volume),
                   let values = try? volume.resourceValues(forKeys: Set(keys)),
                   values.volumeIsReadOnly == true, values.volumeIsLocal == true,
                   isDiskImage(volume) else { return false }
             let app = volume.appendingPathComponent("Wad.app")
             return Bundle(url: app)?.bundleIdentifier == Bundle.main.bundleIdentifier
         }
+    }
+
+    /// Nur Laufwerke, die dieser Benutzer selbst geöffnet hat. Das Abbild eines anderen Benutzers am selben Mac
+    /// auszuwerfen, bräuchte Administratorrechte, und macOS fragte dann im Namen von Wad nach dem Passwort.
+    private static func isMountedByCurrentUser(_ volume: URL) -> Bool {
+        var info = statfs()
+        guard statfs(volume.path, &info) == 0 else { return false }
+        return info.f_owner == getuid()
     }
 
     /// Nur eingebundene Disk-Images, nie ein echtes Laufwerk wie ein USB-Stick.
