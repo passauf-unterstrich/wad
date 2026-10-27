@@ -31,11 +31,20 @@ final class ClipboardWatcher {
         lastChange = pasteboard.changeCount
     }
 
+    /// Was vor dem Start kopiert wurde, etwa während der Verlauf aus war, zählt nicht als neu kopiert.
+    /// Läuft die Abfrage schon, bleibt alles, wie es ist.
     func start() {
-        timer?.invalidate()
+        guard timer == nil else { return }
+        lastChange = pasteboard.changeCount
         timer = Timer.scheduledTimer(withTimeInterval: Self.interval, repeats: true) { [weak self] _ in
             self?.check()
         }
+    }
+
+    /// Hört auf nachzusehen. Dann liest Wad die Zwischenablage gar nicht mehr.
+    func stop() {
+        timer?.invalidate()
+        timer = nil
     }
 
     /// Übergeht den jetzigen Stand der Zwischenablage, etwa nachdem Wad sie kurz selbst benutzt hat.

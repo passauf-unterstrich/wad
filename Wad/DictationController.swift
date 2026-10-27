@@ -71,6 +71,8 @@ final class DictationController {
     var onDictationFinished: ((_ text: String, _ isDelivered: Bool, _ dictation: Int) -> Void)?
     /// Ein kurzer, verständlicher Hinweis, wenn eine Aufnahme anders endete als gewollt.
     var onNotice: ((String) -> Void)?
+    /// Sagt im Hinweis, wo ein nicht eingefügtes Diktat geblieben ist. Ist „Letzte Diktate“ aus, bleibt es nirgends.
+    var undeliveredNote = "Der Text liegt unter „Letzte Diktate“."
 
     private let capture: AudioCapture
     private let transcriber: Transcriber
@@ -203,8 +205,7 @@ final class DictationController {
         guard state == .recording, let session else { return }
         if !insert { session.isCancelled = true }
         finish(reason: reason)
-        onNotice?(insert ? "Aufnahme gestoppt, \(reason)"
-                         : "Aufnahme gestoppt, \(reason). Der Text liegt unter „Letzte Diktate“.")
+        onNotice?(insert ? "Aufnahme gestoppt, \(reason)" : "Aufnahme gestoppt, \(reason). \(undeliveredNote)")
     }
 
     /// Bricht ein laufendes Diktat ab und verwirft es. Nur für Fälle, die der Nutzer selbst

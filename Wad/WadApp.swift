@@ -54,10 +54,10 @@ struct WadApp: App {
             Divider()
             // Untermenüs statt langer Zeilen: Das Hauptmenü bleibt schmal,
             // macOS klappt die Listen zur Seite auf, an der Platz ist.
-            historyMenu("Letzte Diktate", entries: model.dictations.entries,
+            historyMenu("Letzte Diktate", isOn: $model.keepsDictations, entries: model.dictations.entries,
                         empty: "Noch keine Diktate", clear: "Diktate löschen",
                         onClear: model.clearDictations)
-            historyMenu("Zwischenablage-Verlauf", entries: model.clipboard.entries,
+            historyMenu("Zwischenablage-Verlauf", isOn: $model.keepsClipboard, entries: model.clipboard.entries,
                         empty: "Noch nichts kopiert", clear: "Verlauf löschen",
                         onClear: model.clearClipboardHistory)
             Divider()
@@ -96,10 +96,16 @@ struct WadApp: App {
     }
 
     /// Ein Verlauf als Untermenü. Ein Klick legt den vollen Text in die Zwischenablage.
-    private func historyMenu(_ title: String, entries: [String], empty: String, clear: String,
-                             onClear: @escaping () -> Void) -> some View {
+    /// Der Schalter oben bestimmt, ob überhaupt mitgeschrieben wird. Er sitzt im Untermenü,
+    /// damit das Hauptmenü nicht länger wird.
+    private func historyMenu(_ title: String, isOn: Binding<Bool>, entries: [String], empty: String,
+                             clear: String, onClear: @escaping () -> Void) -> some View {
         Menu(title) {
-            if entries.isEmpty {
+            Toggle("Mitschreiben", isOn: isOn)
+            Divider()
+            if !isOn.wrappedValue {
+                Text("Ausgeschaltet")
+            } else if entries.isEmpty {
                 Text(empty)
             }
             ForEach(entries, id: \.self) { entry in

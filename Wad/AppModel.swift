@@ -73,6 +73,22 @@ final class AppModel: ObservableObject {
         }
     }
     private static let handsFreeKey = "Höchstdauer freies Diktieren"
+    /// Ob die beiden Verläufe mitschreiben (SPEC 1.6). Ausschalten leert den Verlauf sofort.
+    /// Gemerkt wie die anderen Schalter, Standard an.
+    @Published var keepsDictations = UserDefaults.standard.object(forKey: AppModel.keepsDictationsKey) as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(keepsDictations, forKey: Self.keepsDictationsKey)
+            applyHistorySettings()
+        }
+    }
+    private static let keepsDictationsKey = "Letzte Diktate mitschreiben"
+    @Published var keepsClipboard = UserDefaults.standard.object(forKey: AppModel.keepsClipboardKey) as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(keepsClipboard, forKey: Self.keepsClipboardKey)
+            applyHistorySettings()
+        }
+    }
+    private static let keepsClipboardKey = "Zwischenablage mitschreiben"
     @Published private(set) var dictationState = DictationController.State.idle
     @Published private(set) var isHandsFreeRecording = false
     @Published private(set) var hasMicrophone = Permissions.hasMicrophone
@@ -168,14 +184,14 @@ final class AppModel: ObservableObject {
         dictation.onDictationFinished = { [weak self] text, isDelivered, number in
             guard let self else { return }
             let text = styled(text)
-            dictations.add(text)
+            if keepsDictations { dictations.add(text) }
             let keeps = isDelivered && !deliveryMode.pastes
             if keeps { keepInClipboard(text) }
             preview.finish(text: text, isCopied: keeps, dictation: number)
         }
         preview.onCopy = { [weak self] text in self?.keepInClipboard(text) }
         clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
-        clipboardWatcher.start()
+        applyHistorySettings()
         worker.async { [weak self, transcriber] in
             let ready = (try? transcriber.load()) != nil
             DispatchQueue.main.async {
@@ -412,6 +428,20 @@ final class AppModel: ObservableObject {
     private func keepInClipboard(_ text: String) {
         copyToClipboard(text)
         clipboardWatcher.skipCurrentChange()
+    }
+
+    /// Ein ausgeschalteter Verlauf wird geleert, und die Zwischenablage liest Wad dann gar nicht mehr.
+    private func applyHistorySettings() {
+        if !keepsDictations { dictations.clear() }
+        dictation.undeliveredNote = keepsDictations
+            ? "Der Text liegt unter „Letzte Diktate“."
+            : "Der Text ist verworfen, „Letzte Diktate“ ist aus."
+        if keepsClipboard {
+            clipboardWatcher.start()
+        } else {
+            clipboardWatcher.stop()
+            clipboard.clear()
+        }
     }
 
     func clearDictations() {
