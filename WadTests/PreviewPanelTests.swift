@@ -110,4 +110,26 @@ final class PreviewPanelTests: XCTestCase {
         page.appendFinal("weiter")
         XCTAssertEqual(page.pageText, "Anf weiter")
     }
+
+    /// Wer bei einem langen Diktat hochscrollt, bleibt dort. Unten rückt die Ansicht wie gewohnt mit.
+    func testScrolledUpViewStaysWhileTextArrives() {
+        page.scrollView.frame = NSRect(x: 0, y: 0, width: 332, height: 200)
+        page.beginDictation(atCursor: false)
+        for i in 1...300 { page.appendFinal("Satz \(i) mit ein paar Wörtern, damit es lang wird.") }
+        page.sizeToFit()
+        XCTAssertGreaterThan(page.frame.height, 2000, "Der Text ist viel höher als das Fenster")
+        XCTAssertTrue(page.followsWriting, "Nach dem Mitrücken ist man unten")
+
+        page.scrollView.contentView.scroll(to: .zero)
+        page.scrollView.reflectScrolledClipView(page.scrollView.contentView)
+        XCTAssertFalse(page.followsWriting)
+        for i in 1...20 {
+            page.setDraft("vorläufig \(i)")
+            page.appendFinal("Noch ein Satz \(i).")
+        }
+        XCTAssertEqual(page.scrollView.contentView.bounds.origin.y, 0, "Hochgescrollt bleibt hochgescrollt")
+
+        page.scrollView.contentView.scroll(to: NSPoint(x: 0, y: page.frame.height - 200))
+        XCTAssertTrue(page.followsWriting, "Wieder unten: Die Ansicht rückt wieder mit")
+    }
 }

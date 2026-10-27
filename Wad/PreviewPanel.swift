@@ -333,12 +333,17 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
         drawsBackground = false
         textContainerInset = .zero
         isVerticallyResizable = true
+        minSize = .zero
+        maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: .greatestFiniteMagnitude)
         isHorizontallyResizable = false
         autoresizingMask = .width
         typingAttributes = Self.normal
         scrollView.documentView = self
         scrollView.drawsBackground = false
-        scrollView.hasVerticalScroller = false
+        // Ein schmaler Rollbalken, der nur beim Scrollen erscheint, wie überall in macOS.
+        scrollView.hasVerticalScroller = true
+        scrollView.autohidesScrollers = true
+        scrollView.scrollerStyle = .overlay
         scrollView.verticalScrollElasticity = .none
     }
 
@@ -372,24 +377,46 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
 
     func appendFinal(_ text: String) {
         clampAnchor()
-        setDraft("")
+        let follows = followsWriting
+        setDraft("", follows: false)
         let spaced = spaced(text)
         guard !spaced.isEmpty else { return }
         replace(NSRange(location: anchor, length: 0), with: NSAttributedString(string: spaced, attributes: Self.normal))
         anchor += (spaced as NSString).length
-        scrollRangeToVisible(NSRange(location: anchor, length: 0))
+        if follows { scrollRangeToVisible(NSRange(location: anchor, length: 0)) }
         changed()
     }
 
     func setDraft(_ text: String) {
+        setDraft(text, follows: nil)
+    }
+
+    /// - Parameter follows: ob die Ansicht mitrückt. `nil` entscheidet nach `followsWriting`.
+    private func setDraft(_ text: String, follows: Bool?) {
         clampAnchor()
         let spaced = text.isEmpty ? "" : spaced(text)
         guard draftLength > 0 || !spaced.isEmpty else { return }
+        let follows = follows ?? followsWriting
         replace(NSRange(location: anchor, length: draftLength), with: NSAttributedString(string: spaced, attributes: Self.draft))
         draftLength = (spaced as NSString).length
-        if draftLength > 0 { scrollRangeToVisible(NSRange(location: anchor + draftLength, length: 0)) }
+        if follows, draftLength > 0 { scrollRangeToVisible(NSRange(location: anchor + draftLength, length: 0)) }
         changed()
     }
+
+    /// Rückt die Ansicht mit, wenn neuer Text kommt? Nur, wenn man unten ist oder die Schreibstelle sieht.
+    /// Wer hochgescrollt hat, um nachzulesen, bleibt dort, bis er selbst wieder nach unten scrollt.
+    var followsWriting: Bool {
+        let visible = scrollView.contentView.documentVisibleRect
+        guard visible.height > 0 else { return true }
+        if visible.maxY >= bounds.height - Self.followSlack { return true }
+        guard let layoutManager, let textContainer else { return true }
+        let glyphs = layoutManager.glyphRange(forCharacterRange: NSRange(location: anchor, length: 0), actualCharacterRange: nil)
+        let spot = layoutManager.boundingRect(forGlyphRange: glyphs, in: textContainer)
+        return spot.minY >= visible.minY - Self.followSlack && spot.minY <= visible.maxY
+    }
+
+    /// So nah am unteren Rand gilt man noch als „unten“.
+    private static let followSlack: CGFloat = 24
 
     func reset() {
         replace(NSRange(location: 0, length: (string as NSString).length), with: NSAttributedString())
