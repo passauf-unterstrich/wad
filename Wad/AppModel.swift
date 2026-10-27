@@ -301,7 +301,7 @@ final class AppModel: ObservableObject {
         }
     }
 
-    /// Menü „Was ist neu …“.
+    /// Menü „Updates → Was ist neu …“.
     func openWhatsNew() {
         updateWindows.showWhatsNew(title: "Neu in Wad \(UpdateChecker.current)")
     }
@@ -315,7 +315,7 @@ final class AppModel: ObservableObject {
         }
     }
 
-    /// Menü „Nach Updates suchen …“. Man wartet gerade auf das Ergebnis, also kommt es sichtbar als
+    /// Menü „Updates → Jetzt suchen …“. Man wartet gerade auf das Ergebnis, also kommt es sichtbar als
     /// kleines Systemfenster, nicht nur als Zeile im geschlossenen Menü. Eine neue Version öffnet ihr Fenster.
     func checkForUpdatesNow() {
         updates.checkNow { [weak self] result in

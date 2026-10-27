@@ -33,12 +33,7 @@ struct WadApp: App {
             }
             Toggle("Kleinschreibung", isOn: $model.isLowercase)
             // Freies Diktieren: läuft ohne gehaltene Taste, bis man es stoppt oder die Höchstdauer erreicht ist.
-            // Die zweite Zeile nennt die Taste dafür, klein und grau wie bei Apple: zweimal rechte ⌥ tippen
-            // startet, einmal stoppt.
-            Button(action: model.toggleHandsFree) {
-                Text(model.isHandsFreeRecording ? "Aufnahme stoppen" : "Aufnahme starten (freies Diktieren)")
-                Text(model.isHandsFreeRecording ? "1× ⌥" : "2× ⌥")
-            }
+            Button(model.isHandsFreeRecording ? "Aufnahme stoppen" : "Aufnahme starten (freies Diktieren)", action: model.toggleHandsFree)
                 .disabled(!model.isEnabled || (model.dictationState == .recording && !model.isHandsFreeRecording))
             Picker("Höchstdauer freies Diktieren", selection: $model.handsFreeMinutes) {
                 Text("2 Minuten").tag(2)
@@ -81,9 +76,13 @@ struct WadApp: App {
             if !model.hasMicrophone || !model.hasAccessibility {
                 Divider()
             }
-            Toggle("Automatisch nach Updates suchen", isOn: $model.checksForUpdates)
-            Button("Nach Updates suchen …", action: model.checkForUpdatesNow)
-            Button("Was ist neu …", action: model.openWhatsNew)
+            // Alles zu Updates in einem Untermenü, damit das Hauptmenü kurz bleibt.
+            Menu("Updates") {
+                Toggle("Automatisch suchen", isOn: $model.checksForUpdates)
+                Button("Jetzt suchen …", action: model.checkForUpdatesNow)
+                Divider()
+                Button("Was ist neu …", action: model.openWhatsNew)
+            }
             Divider()
             Toggle("Bei Anmeldung starten", isOn: $model.launchesAtLogin)
             Button("Wad beenden") {

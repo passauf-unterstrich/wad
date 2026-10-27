@@ -143,7 +143,7 @@ final class UpdateChecker {
         schedule()
     }
 
-    /// Menü „Nach Updates suchen …“: gilt auch bei ausgeschalteter Prüfung und für übersprungene
+    /// Menü „Updates → Jetzt suchen …“: gilt auch bei ausgeschalteter Prüfung und für übersprungene
     /// Versionen, weil man ausdrücklich gefragt hat. `nil` heißt: auf dem neuesten Stand.
     func checkNow(completion: @escaping (Result<Release?, Error>) -> Void) {
         fetch { result in

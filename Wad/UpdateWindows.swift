@@ -114,7 +114,7 @@ private struct UpdateInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Immer auf dem neuesten Stand?").font(.headline)
-            Text("Wad kann einmal am Tag nachsehen, ob es eine neue Version gibt. Das ist sinnvoll, damit du Verbesserungen und Fehlerbehebungen bekommst. Dabei fragt Wad bei GitHub nur nach der neuesten Versionsnummer. Diktate, Vokabeln oder Daten über dich werden nie gesendet. Du kannst das jederzeit im Menü ändern oder selbst über „Nach Updates suchen …“ nachsehen.")
+            Text("Wad kann einmal am Tag nachsehen, ob es eine neue Version gibt. Das ist sinnvoll, damit du Verbesserungen und Fehlerbehebungen bekommst. Dabei fragt Wad bei GitHub nur nach der neuesten Versionsnummer. Diktate, Vokabeln oder Daten über dich werden nie gesendet. Du kannst das jederzeit im Menü unter „Updates“ ändern oder dort selbst nachsehen.")
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()
