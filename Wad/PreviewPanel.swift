@@ -61,7 +61,7 @@ final class PreviewPanel {
     private var pending: PendingAction?
 
     private enum PendingAction {
-        case done, close
+        case copy, done, close
     }
 
     init() {
@@ -73,6 +73,7 @@ final class PreviewPanel {
     /// sonst blitzte es bei jedem kurzen Antippen auf.
     func begin(dictation: Int) {
         switch pending {
+        case .copy: finishCopy()
         case .done: finishDone()
         case .close: finishClose()
         case nil: break
@@ -116,13 +117,12 @@ final class PreviewPanel {
             page.setDraft("")
         }
         switch pending {
-        case .done:
-            finishDone()
-        case .close:
-            finishClose()
-        case nil:
-            if page.pageText.isEmpty { panel?.orderOut(nil) }
+        case .copy: finishCopy()
+        case .done: finishDone()
+        case .close: finishClose()
+        case nil: break
         }
+        if page.pageText.isEmpty { panel?.orderOut(nil) }
     }
 
     /// Schließt das Fenster. Der Zettel kommt unter „Letzte Diktate“, der nächste beginnt leer.
@@ -185,14 +185,25 @@ final class PreviewPanel {
         clearPage()
     }
 
+    /// Knopf „Kopieren“: Der Zettel bleibt offen. Läuft noch eine Aufnahme, endet sie zuerst,
+    /// kopiert wird mit ihrem letzten Wort.
     private func copyTapped() {
         if let index = content.historyIndex, index < content.history.count {
             onCopy?(content.history[index])
+            setCopied(true)
+        } else if content.isListening {
+            pending = .copy
+            onStopRequest?()
         } else {
-            guard !pageText.isEmpty else { return }
-            onCopy?(pageText)
-            store()
+            finishCopy()
         }
+    }
+
+    private func finishCopy() {
+        pending = nil
+        guard !pageText.isEmpty else { return }
+        onCopy?(pageText)
+        store()
         setCopied(true)
     }
 
@@ -529,7 +540,8 @@ private struct PreviewView: View {
         .onPreferenceChange(SizeKey.self, perform: onResize)
     }
 
-    private var hasText: Bool { content.historyIndex != nil || !content.isEmpty }
+    /// Während Wad zuhört, gehen beide Knöpfe immer: Sie beenden die Aufnahme zuerst.
+    private var hasText: Bool { content.historyIndex != nil || !content.isEmpty || content.isListening }
 
     private func arrow(_ symbol: String, help: String, disabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
