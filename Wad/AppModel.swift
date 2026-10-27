@@ -192,7 +192,7 @@ final class AppModel: ObservableObject {
             self?.dictation.stopUnexpectedly(reason: "weil kein Mikrofon mehr verfügbar ist")
         }
         inserter.onRestored = { [weak self] in self?.clipboardWatcher.skipCurrentChange() }
-        hotkey.onChange = { [weak self] isPressed in self?.keyChanged(isPressed) }
+        hotkey.onChange = { [weak self] isPressed, isAlone in self?.keyChanged(isPressed, isAlone: isAlone) }
         hotKeys.register(KeyCombo(keyCode: UInt32(kVK_ANSI_W), modifiers: UInt32(controlKey | optionKey))) { [weak self] in
             self?.openCorrection()
         }
@@ -431,14 +431,14 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private func keyChanged(_ isPressed: Bool) {
+    private func keyChanged(_ isPressed: Bool, isAlone: Bool) {
         guard isPressed else {
-            dictation.keyReleased()
+            dictation.keyReleased(isAlone: isAlone)
             return
         }
         // Ein Druck beendet freies Diktieren immer, auch wenn sonst gerade nichts starten dürfte.
         guard isHandsFreeRecording || canStartRecording() else { return }
-        dictation.keyPressed()
+        dictation.keyPressed(isAlone: isAlone)
     }
 
     /// Menü: freies Diktieren starten oder beenden.

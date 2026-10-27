@@ -32,6 +32,12 @@ final class DictationController {
     static let minDuration: TimeInterval = 0.3
     /// Takt der Gegenprüfung, ob die Taste wirklich noch gehalten wird: fünfmal pro Sekunde.
     static let safetyCheckInterval: TimeInterval = 0.2
+    /// Doppeltipp: Der zweite Druck muss so kurz nach dem Loslassen des ersten Tipps kommen.
+    static let doubleTapWindow: TimeInterval = 0.4
+    /// Ein Tipp beendet freies Diktieren erst, wenn es so lange läuft. Sonst stoppte ein dritter Tipp gleich wieder.
+    static let minHandsFreeBeforeStop: TimeInterval = 0.5
+    /// So lange nach dem Ende eines freien Diktats startet ein Doppeltipp kein neues.
+    static let doubleTapPause: TimeInterval = 1
 
     /// Gilt ab der nächsten Aufnahme, eine laufende behält ihren Modus.
     var mode = Mode.live
@@ -82,6 +88,10 @@ final class DictationController {
     private var nextLiveCheck = 0
     private var isLiveCheckPending = false
     private var keyUpChecks = 0
+    /// Wann zuletzt ein Tipp losgelassen wurde, der als erste Hälfte eines Doppeltipps zählen kann.
+    private var lastTapEnd: Date?
+    /// Wann zuletzt ein freies Diktat endete, egal wodurch.
+    private var handsFreeEndedAt: Date?
 
     /// - Parameters:
     ///   - isKeyPhysicallyDown: fragt direkt beim System nach, ob die Taste gerade unten ist.
@@ -101,10 +111,27 @@ final class DictationController {
         self.main = main
     }
 
-    func keyPressed() {
-        // Beim freien Diktieren beendet ein kurzer Druck auf die Taste die Aufnahme.
+    /// - Parameter isAlone: Seit dem letzten Loslassen wurde keine andere Taste gedrückt und keine
+    ///   andere Sondertaste gehalten. Nur dann kann dieser Druck die zweite Hälfte eines Doppeltipps sein.
+    func keyPressed(isAlone: Bool = false) {
+        // Beim freien Diktieren beendet ein kurzer Druck auf die Taste die Aufnahme,
+        // aber erst nach einer halben Sekunde, damit ein dritter Tipp sie nicht gleich wieder stoppt.
         if isHandsFree {
+            guard let startedAt, now().timeIntervalSince(startedAt) >= Self.minHandsFreeBeforeStop else {
+                log.notice("Tipp direkt nach dem Start des freien Diktierens übergangen")
+                return
+            }
             finish(reason: "Freies Diktieren beendet")
+            return
+        }
+        // Doppeltipp: Der erste Tipp hat eine zu kurze Aufnahme gestartet, die schon still verworfen ist.
+        // Der zweite Druck startet freies Diktieren, sein Loslassen beendet es nicht.
+        let tapEnd = lastTapEnd
+        lastTapEnd = nil
+        if isAlone, state != .recording, let tapEnd, now().timeIntervalSince(tapEnd) < Self.doubleTapWindow,
+           handsFreeEndedAt.map({ now().timeIntervalSince($0) >= Self.doubleTapPause }) ?? true {
+            log.notice("Doppeltipp: freies Diktieren")
+            startRecording(handsFree: true)
             return
         }
         startRecording(handsFree: false)
@@ -153,13 +180,18 @@ final class DictationController {
     /// Ein Loslassen zählt nur, wenn das System die Taste auch wirklich oben sieht. Andere Programme
     /// können Sondertasten-Signale senden; ein solches falsches „losgelassen“ beendet nichts mehr.
     /// War es echt, beendet spätestens die Gegenprüfung die Aufnahme kurz danach.
-    func keyReleased() {
-        guard !isHandsFree, state == .recording else { return }
+    /// - Parameter isAlone: Zwischen Drücken und Loslassen kam keine andere Taste oder Sondertaste dazu.
+    ///   Nur dann kann ein zu kurzer Druck die erste Hälfte eines Doppeltipps sein.
+    func keyReleased(isAlone: Bool = false) {
+        guard !isHandsFree, state == .recording, let startedAt else { return }
         guard !isKeyPhysicallyDown() else {
             log.notice("Loslassen gemeldet, Taste aber noch unten: Aufnahme läuft weiter")
             return
         }
+        // Zu kurz zum Diktieren: `finish` verwirft die Aufnahme still, ohne Hinweis und ohne Ton.
+        let isTap = isAlone && now().timeIntervalSince(startedAt) < Self.minDuration
         finish(reason: "Taste losgelassen")
+        lastTapEnd = isTap ? now() : nil
     }
 
     /// Beendet die Aufnahme, obwohl der Nutzer weiterreden wollte, etwa weil das Mikrofon wegfiel
@@ -261,6 +293,7 @@ private extension DictationController {
         safetyTimer?.invalidate()
         safetyTimer = nil
         startedAt = nil
+        if isHandsFree { handsFreeEndedAt = now() }
         isHandsFree = false
         session = nil
         capture.stop()

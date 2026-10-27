@@ -164,6 +164,107 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(microphone.startCount, 1, "Der Druck zum Stoppen startet keine neue Aufnahme")
     }
 
+    // MARK: Doppeltipp
+
+    /// Ein kurzer Tipp ohne andere Tasten: drücken, 0,1 Sekunden, loslassen.
+    private func tap(isAlone: Bool = true) {
+        keyIsDown = true
+        controller.keyPressed(isAlone: isAlone)
+        clock += 0.1
+        keyIsDown = false
+        controller.keyReleased(isAlone: isAlone)
+    }
+
+    func testDoubleTapStartsHandsFreeAndItsReleaseKeepsItRunning() {
+        tap()
+        XCTAssertEqual(controller.state, .idle, "Der erste Tipp wird still verworfen")
+        XCTAssertEqual(notices, [])
+        clock += 0.2
+        controller.keyPressed(isAlone: true)
+        XCTAssertTrue(controller.isHandsFree)
+        clock += 2
+        release()
+        controller.checkSafeguards()
+        controller.checkSafeguards()
+        XCTAssertEqual(controller.state, .recording, "Loslassen und Gegenprüfung beenden freies Diktieren nicht")
+        XCTAssertEqual(transcriber.chunkLengths, [], "Der erste Tipp erreicht das Modell nie")
+    }
+
+    func testSlowSecondPressIsNormalHold() {
+        tap()
+        clock += DictationController.doubleTapWindow + 0.05
+        controller.keyPressed(isAlone: true)
+        XCTAssertEqual(controller.state, .recording)
+        XCTAssertFalse(controller.isHandsFree)
+    }
+
+    func testTapWithOtherKeysDoesNotCount() {
+        tap(isAlone: false)
+        clock += 0.1
+        controller.keyPressed(isAlone: true)
+        XCTAssertFalse(controller.isHandsFree, "⌥ plus Buchstabe oder ⌥⇧ ist kein Tipp")
+
+        release()
+        clock += 1
+        tap()
+        clock += 0.1
+        controller.keyPressed(isAlone: false)
+        XCTAssertFalse(controller.isHandsFree, "Eine andere Taste zwischen den Tipps zählt auch")
+    }
+
+    func testHoldThenQuickPressIsNoDoubleTap() {
+        controller.keyPressed(isAlone: true)
+        clock += 1
+        release()
+        clock += 0.1
+        controller.keyPressed(isAlone: true)
+        XCTAssertFalse(controller.isHandsFree, "Nur ein zu kurzer Druck ist die erste Hälfte")
+    }
+
+    func testStopTapNeedsHalfASecond() {
+        tap()
+        clock += 0.1
+        controller.keyPressed(isAlone: true)
+        release()
+        clock += 0.2
+        tap()
+        XCTAssertEqual(controller.state, .recording, "Ein dritter Tipp direkt danach stoppt nicht")
+        XCTAssertTrue(controller.isHandsFree)
+        clock += DictationController.minHandsFreeBeforeStop
+        controller.keyPressed(isAlone: true)
+        XCTAssertFalse(controller.isHandsFree)
+        XCTAssertNotEqual(controller.state, .recording)
+    }
+
+    func testNoRestartRightAfterStop() {
+        controller.startHandsFree()
+        clock += 2
+        controller.keyPressed(isAlone: true)
+        release()
+        clock += 0.1
+        tap()
+        clock += 0.1
+        controller.keyPressed(isAlone: true)
+        XCTAssertFalse(controller.isHandsFree, "Eine Sekunde nach dem Stopp startet kein Doppeltipp")
+        release()
+        XCTAssertEqual(microphone.isRunning, false)
+
+        clock += DictationController.doubleTapPause
+        tap()
+        clock += 0.1
+        controller.keyPressed(isAlone: true)
+        XCTAssertTrue(controller.isHandsFree)
+    }
+
+    func testDoubleTapWithFailingMicrophoneStaysIdle() {
+        tap()
+        microphone.failsToStart = true
+        clock += 0.1
+        controller.keyPressed(isAlone: true)
+        XCTAssertEqual(controller.state, .idle)
+        XCTAssertFalse(controller.isHandsFree)
+    }
+
     func testHandsFreeIsAlwaysLiveWithDraftsAndLeavesTheModeAlone() {
         var drafts: [String] = []
         controller.onDraft = { draft, _ in drafts.append(draft) }

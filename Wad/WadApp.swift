@@ -24,7 +24,7 @@ struct WadApp: App {
                 Divider()
                 Text("Sprachoffen").tag("auto")
             }
-            Picker("Einfügen", selection: $model.insertMode) {
+            Picker("Einfügemodus", selection: $model.insertMode) {
                 Text("Während des Diktats").tag(InsertMode.whileDictating)
                 Text("Nach dem Diktat").tag(InsertMode.afterDictating)
                 Divider()
@@ -33,7 +33,12 @@ struct WadApp: App {
             }
             Toggle("Kleinschreibung", isOn: $model.isLowercase)
             // Freies Diktieren: läuft ohne gehaltene Taste, bis man es stoppt oder die Höchstdauer erreicht ist.
-            Button(model.isHandsFreeRecording ? "Aufnahme stoppen" : "Aufnahme starten (freies Diktieren)", action: model.toggleHandsFree)
+            // Die zweite Zeile nennt die Taste dafür, klein und grau wie bei Apple: zweimal rechte ⌥ tippen
+            // startet, einmal stoppt.
+            Button(action: model.toggleHandsFree) {
+                Text(model.isHandsFreeRecording ? "Aufnahme stoppen" : "Aufnahme starten (freies Diktieren)")
+                Text(model.isHandsFreeRecording ? "1× ⌥" : "2× ⌥")
+            }
                 .disabled(!model.isEnabled || (model.dictationState == .recording && !model.isHandsFreeRecording))
             Picker("Höchstdauer freies Diktieren", selection: $model.handsFreeMinutes) {
                 Text("2 Minuten").tag(2)
