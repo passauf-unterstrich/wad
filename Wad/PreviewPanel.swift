@@ -329,7 +329,10 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
 
     var pageText: String {
         let text = string as NSString
-        return text.replacingCharacters(in: NSRange(location: anchor, length: draftLength), with: "")
+        // Nie über das Ende hinaus, auch wenn Schreibstelle und Text einmal nicht zusammenpassen sollten.
+        let location = min(anchor, text.length)
+        let draft = NSRange(location: location, length: min(draftLength, text.length - location))
+        return text.replacingCharacters(in: draft, with: "")
     }
 
     var hasDraft: Bool { draftLength > 0 }
@@ -354,6 +357,7 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
         replace(NSRange(location: anchor, length: 0), with: NSAttributedString(string: spaced, attributes: Self.normal))
         anchor += (spaced as NSString).length
         scrollRangeToVisible(NSRange(location: anchor, length: 0))
+        changed()
     }
 
     func setDraft(_ text: String) {
@@ -362,6 +366,7 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
         replace(NSRange(location: anchor, length: draftLength), with: NSAttributedString(string: spaced, attributes: Self.draft))
         draftLength = (spaced as NSString).length
         if draftLength > 0 { scrollRangeToVisible(NSRange(location: anchor + draftLength, length: 0)) }
+        changed()
     }
 
     func reset() {
@@ -369,6 +374,7 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
         anchor = 0
         draftLength = 0
         setSelectedRange(NSRange(location: 0, length: 0))
+        changed()
     }
 
     /// Setzt bei Bedarf ein Leerzeichen davor und dahinter, damit Diktiertes nicht an Wörtern klebt.
@@ -394,6 +400,7 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
     /// Ändert den Text im Namen von Wad. Der Cursor des Nutzers bleibt, wo er war, und rückt nur weiter,
     /// wenn er hinter der Änderung steht. Rückgängig machen gilt danach nur für die eigenen Änderungen
     /// ab hier, sonst passten die gemerkten Stellen nicht mehr zum Text.
+    /// Meldet die Änderung nicht selbst: Erst müssen Schreibstelle und grauer Teil wieder stimmen (`changed`).
     private func replace(_ range: NSRange, with text: NSAttributedString) {
         guard let textStorage else { return }
         let delta = text.length - range.length
@@ -414,6 +421,10 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
                                                                      length: min($0.length, length - min($0.location, length)))) },
                           affinity: .downstream, stillSelecting: false)
         undoManager?.removeAllActions()
+    }
+
+    /// Meldet eine eigene Änderung, sobald Text, Schreibstelle und grauer Teil wieder zusammenpassen.
+    private func changed() {
         isUserEdit = false
         onChange?()
     }

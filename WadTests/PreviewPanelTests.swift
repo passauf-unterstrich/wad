@@ -81,4 +81,18 @@ final class PreviewPanelTests: XCTestCase {
         page.appendFinal("Neu")
         XCTAssertEqual(page.pageText, "Neu")
     }
+
+    /// Wer bei jeder Änderung den Text liest (wie das Fenster), sieht nie einen halb fertigen Stand.
+    /// Früher stürzte Wad hier ab, wenn ein fertiges Stück einen längeren Entwurf ablöste.
+    func testPageTextIsConsistentOnEveryChange() {
+        var seen: [String] = []
+        page.onChange = { [unowned self] in seen.append(page.pageText) }
+        page.beginDictation(atCursor: false)
+        page.setDraft("ein ziemlich langer vorläufiger Satz")
+        page.appendFinal("Kurz.")
+        page.setDraft("noch was")
+        page.setDraft("")
+        page.reset()
+        XCTAssertEqual(seen, ["", "", "Kurz.", "Kurz.", "Kurz.", ""])
+    }
 }
