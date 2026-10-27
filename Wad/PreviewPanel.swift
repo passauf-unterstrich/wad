@@ -371,6 +371,7 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
     }
 
     func appendFinal(_ text: String) {
+        clampAnchor()
         setDraft("")
         let spaced = spaced(text)
         guard !spaced.isEmpty else { return }
@@ -381,6 +382,7 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
     }
 
     func setDraft(_ text: String) {
+        clampAnchor()
         let spaced = text.isEmpty ? "" : spaced(text)
         guard draftLength > 0 || !spaced.isEmpty else { return }
         replace(NSRange(location: anchor, length: draftLength), with: NSAttributedString(string: spaced, attributes: Self.draft))
@@ -461,7 +463,20 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
                      range editedRange: NSRange, changeInLength delta: Int) {
         guard !isOwnEdit, editedMask.contains(.editedCharacters) else { return }
         let oldLength = editedRange.length - delta
-        if editedRange.location + oldLength <= anchor { anchor += delta }
+        if editedRange.location + oldLength <= anchor {
+            anchor += delta
+        } else if editedRange.location < anchor {
+            // Die Änderung reicht über die Schreibstelle hinweg: Weiter geht es direkt hinter dem neuen Text.
+            anchor = editedRange.upperBound
+        }
+        clampAnchor()
+    }
+
+    /// Schreibstelle und grauer Teil liegen immer innerhalb des Textes, was auch passiert.
+    private func clampAnchor() {
+        let length = (string as NSString).length
+        anchor = min(max(anchor, 0), length)
+        draftLength = min(max(draftLength, 0), length - anchor)
     }
 
     func textDidChange(_ notification: Notification) {

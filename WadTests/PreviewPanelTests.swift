@@ -95,4 +95,19 @@ final class PreviewPanelTests: XCTestCase {
         page.reset()
         XCTAssertEqual(seen, ["", "", "Kurz.", "Kurz.", "Kurz.", ""])
     }
+
+    /// Eine Markierung über die Schreibstelle hinweg löschen: Danach geht es dahinter weiter, nie außerhalb des Textes.
+    func testDeletingAcrossTheDictationPositionKeepsItInside() {
+        page.beginDictation(atCursor: false)
+        page.appendFinal("Anfang Ende")
+        page.setSelectedRange(NSRange(location: 6, length: 0))
+        page.beginDictation(atCursor: true)
+        let range = NSRange(location: 3, length: 8)
+        XCTAssertTrue(page.shouldChangeText(in: range, replacementString: ""))
+        page.textStorage?.replaceCharacters(in: range, with: "")
+        page.didChangeText()
+        page.setDraft("weiter")
+        page.appendFinal("weiter")
+        XCTAssertEqual(page.pageText, "Anf weiter")
+    }
 }

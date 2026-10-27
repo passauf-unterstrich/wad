@@ -209,7 +209,11 @@ final class AppModel: ObservableObject {
             guard let self, keepsDictations else { return }
             dictations.replace(old, with: new)
         }
-        preview.onStopRequest = { [weak self] in self?.dictation.stopRecording(reason: "Im Vorschau-Fenster beendet") }
+        // Nur eine Aufnahme, die in das Fenster schreibt. Ein Diktat in eine andere App bleibt unberührt.
+        preview.onStopRequest = { [weak self] in
+            guard let self, preview.isRecording else { return }
+            dictation.stopRecording(reason: "Im Vorschau-Fenster beendet")
+        }
         preview.onContinue = { [weak self] in self?.continueInPreview() }
         clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
         applyHistorySettings()
