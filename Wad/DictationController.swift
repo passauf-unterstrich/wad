@@ -139,7 +139,7 @@ final class DictationController {
         startRecording(handsFree: false)
     }
 
-    /// Freies Diktieren über das Menü: nimmt auf, bis „Aufnahme stoppen“, die Taste oder die Höchstdauer es beendet.
+    /// Freies Diktieren über das Menü: nimmt auf, bis „Freies Diktieren stoppen“, die Taste oder die Höchstdauer es beendet.
     func startHandsFree() {
         startRecording(handsFree: true)
     }

@@ -17,34 +17,16 @@ struct WadApp: App {
                 Divider()
             }
             Toggle("Diktieren", isOn: $model.isEnabled)
-            Picker("Sprache", selection: $model.language) {
-                ForEach(AppModel.languages, id: \.code) { language in
-                    Text(language.name).tag(language.code)
-                }
-                Divider()
-                Text("Sprachoffen").tag("auto")
-            }
+            // Freies Diktieren: läuft ohne gehaltene Taste, bis man es stoppt oder die Höchstdauer erreicht ist.
+            Button(model.isHandsFreeRecording ? "Freies Diktieren stoppen" : "Freies Diktieren starten", action: model.toggleHandsFree)
+                .disabled(!model.isEnabled || (model.dictationState == .recording && !model.isHandsFreeRecording))
+            // Oben, weil man ihn oft umstellt.
             Picker("Einfügemodus", selection: $model.insertMode) {
                 Text("Während des Diktats").tag(InsertMode.whileDictating)
                 Text("Nach dem Diktat").tag(InsertMode.afterDictating)
                 Divider()
                 Text("Nur in die Zwischenablage").tag(InsertMode.clipboard)
                 Text("Zwischenablage mit Vorschau").tag(InsertMode.clipboardPreview)
-            }
-            Toggle("Kleinschreibung", isOn: $model.isLowercase)
-            // Freies Diktieren: läuft ohne gehaltene Taste, bis man es stoppt oder die Höchstdauer erreicht ist.
-            Button(model.isHandsFreeRecording ? "Aufnahme stoppen" : "Aufnahme starten (freies Diktieren)", action: model.toggleHandsFree)
-                .disabled(!model.isEnabled || (model.dictationState == .recording && !model.isHandsFreeRecording))
-            Picker("Höchstdauer freies Diktieren", selection: $model.handsFreeMinutes) {
-                Text("2 Minuten").tag(2)
-                Text("5 Minuten").tag(5)
-                Text("10 Minuten").tag(10)
-            }
-            Menu("Vokabeln") {
-                Button("Wort korrigieren …", action: model.openCorrection)
-                    .keyboardShortcut("w", modifiers: [.control, .option])
-                Button("Vokabelliste im Finder zeigen", action: model.revealVocabularyFile)
-                Button("Vorlage für deine KI kopieren", action: model.copyVocabularyPrompt)
             }
             Divider()
             // Untermenüs statt langer Zeilen: Das Hauptmenü bleibt schmal,
@@ -56,8 +38,36 @@ struct WadApp: App {
                         empty: "Noch nichts kopiert", clear: "Verlauf löschen",
                         onClear: model.clearClipboardHistory)
             Divider()
-            Toggle("Fenstermanager", isOn: $model.isWindowManagerEnabled)
-            Button("Fenster-Kürzel …", action: model.openShortcutsPanel)
+            Picker("Sprache", selection: $model.language) {
+                ForEach(AppModel.languages, id: \.code) { language in
+                    Text(language.name).tag(language.code)
+                }
+                Divider()
+                Text("Sprachoffen").tag("auto")
+            }
+            Toggle("Kleinschreibung", isOn: $model.isLowercase)
+            Picker("Höchstdauer freies Diktieren", selection: $model.handsFreeMinutes) {
+                Text("2 Minuten").tag(2)
+                Text("5 Minuten").tag(5)
+                Text("10 Minuten").tag(10)
+            }
+            Menu("Vokabeln") {
+                Button("Wort korrigieren …", action: model.openCorrection)
+                    .keyboardShortcut("w", modifiers: [.control, .option])
+                Button("Vokabelliste im Finder zeigen", action: model.revealVocabularyFile)
+                Button("Vorlage für deine KI kopieren", action: model.copyVocabularyPrompt)
+            }
+            Menu("Fenstermanager") {
+                Toggle("Eingeschaltet", isOn: $model.isWindowManagerEnabled)
+                Button("Kürzel …", action: model.openShortcutsPanel)
+            }
+            // Alles zu Updates in einem Untermenü, damit das Hauptmenü kurz bleibt.
+            Menu("Updates") {
+                Toggle("Automatisch suchen", isOn: $model.checksForUpdates)
+                Button("Jetzt suchen …", action: model.checkForUpdatesNow)
+                Divider()
+                Button("Was ist neu …", action: model.openWhatsNew)
+            }
             Divider()
             if model.isTranscriberReady == false {
                 Text("Spracherkennung nicht verfügbar")
@@ -76,14 +86,6 @@ struct WadApp: App {
             if !model.hasMicrophone || !model.hasAccessibility {
                 Divider()
             }
-            // Alles zu Updates in einem Untermenü, damit das Hauptmenü kurz bleibt.
-            Menu("Updates") {
-                Toggle("Automatisch suchen", isOn: $model.checksForUpdates)
-                Button("Jetzt suchen …", action: model.checkForUpdatesNow)
-                Divider()
-                Button("Was ist neu …", action: model.openWhatsNew)
-            }
-            Divider()
             Toggle("Bei Anmeldung starten", isOn: $model.launchesAtLogin)
             Button("Wad beenden") {
                 NSApplication.shared.terminate(nil)
