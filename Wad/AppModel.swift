@@ -164,6 +164,7 @@ final class AppModel: ObservableObject {
                 deliveryMode = dictation.isHandsFree || preview.isFocused ? .clipboardPreview : insertMode
                 if deliveryMode == .clipboardPreview { preview.begin(dictation: dictation.dictationNumber) }
             }
+            preview.isRecording = state == .recording && deliveryMode == .clipboardPreview
             if state == .idle { preview.settle() }
             dictationState = state
             isHandsFreeRecording = state == .recording && dictation.isHandsFree
@@ -208,7 +209,8 @@ final class AppModel: ObservableObject {
             guard let self, keepsDictations else { return }
             dictations.replace(old, with: new)
         }
-        preview.onStopRequest = { [weak self] in self?.dictation.stopHandsFree() }
+        preview.onStopRequest = { [weak self] in self?.dictation.stopRecording(reason: "Im Vorschau-Fenster beendet") }
+        preview.onContinue = { [weak self] in self?.continueInPreview() }
         clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
         applyHistorySettings()
         worker.async { [weak self, transcriber] in
@@ -489,6 +491,14 @@ final class AppModel: ObservableObject {
         // Ein Druck beendet freies Diktieren immer, auch wenn sonst gerade nichts starten dürfte.
         guard isHandsFreeRecording || canStartRecording() else { return }
         dictation.keyPressed(isAlone: isAlone)
+    }
+
+    /// Knopf „Diktat fortsetzen“ im Vorschau-Fenster: freies Diktieren, das ans Ende des Zettels schreibt.
+    private func continueInPreview() {
+        guard dictationState != .recording, canStartRecording() else { return }
+        preview.appendsAtEnd = true
+        dictation.startHandsFree()
+        preview.appendsAtEnd = false
     }
 
     /// Menü: freies Diktieren starten oder beenden.

@@ -293,6 +293,17 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertFalse(controller.isHandsFree)
     }
 
+    func testStopButtonEndsHandsFreeAndKeepsTheText() {
+        controller.startHandsFree()
+        microphone.deliver(seconds: 3, speech: true)
+        clock += 3
+        controller.stopRecording(reason: "Im Vorschau-Fenster beendet")
+        XCTAssertEqual(controller.state, .idle)
+        XCTAssertFalse(microphone.isRunning)
+        XCTAssertEqual(finished.count, 1, "Der Rest wird noch umgewandelt, nichts geht verloren")
+        XCTAssertEqual(notices, [], "Ein gewolltes Ende, kein Hinweis")
+    }
+
     func testHandsFreeIsAlwaysLiveWithDraftsAndLeavesTheModeAlone() {
         var drafts: [String] = []
         controller.onDraft = { draft, _ in drafts.append(draft) }

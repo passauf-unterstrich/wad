@@ -153,6 +153,12 @@ final class DictationController {
         startRecording(handsFree: true)
     }
 
+    /// Beendet jede laufende Aufnahme, gehalten oder frei, wie ein gewolltes Ende: Der Rest wird umgewandelt.
+    func stopRecording(reason: String) {
+        guard state == .recording else { return }
+        finish(reason: reason)
+    }
+
     func stopHandsFree() {
         guard isHandsFree else { return }
         finish(reason: "Freies Diktieren beendet")

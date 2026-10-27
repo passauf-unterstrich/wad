@@ -13,6 +13,8 @@ final class PreviewPanel {
     /// Was das Fenster zeigt. Liegt nur im Arbeitsspeicher, wie alle Diktate (SPEC 2.4).
     final class Content: ObservableObject {
         @Published var isListening = false
+        /// Nimmt gerade eine Aufnahme für den Zettel auf? Danach, bis zum letzten Wort, ist nur noch `isListening` wahr.
+        @Published var isRecording = false
         @Published var isCopied = false
         @Published var isEmpty = true
         @Published var hasDraft = false
@@ -33,6 +35,17 @@ final class PreviewPanel {
     var onStore: ((_ old: String?, _ new: String) -> Void)?
     /// Bittet darum, eine laufende Aufnahme zu beenden, bevor der Zettel fertig ist oder schließt.
     var onStopRequest: (() -> Void)?
+    /// Knopf „Diktat fortsetzen“: freies Diktieren starten, das ans Ende dieses Zettels schreibt.
+    var onContinue: (() -> Void)?
+    /// Die nächste Aufnahme schreibt ans Ende, egal wo der Cursor steht.
+    var appendsAtEnd = false
+
+    /// Ob gerade für den Zettel aufgenommen wird. Kommt von Wads Aufnahme-Automat, damit der Knopf
+    /// immer stimmt, egal wodurch die Aufnahme endete (Tipp, Höchstdauer, Sperren, Mikrofon weg).
+    var isRecording: Bool {
+        get { content.isRecording }
+        set { content.isRecording = newValue }
+    }
     /// Das Diktat, das gerade auf den Zettel schreibt.
     private(set) var dictation: Int?
 
@@ -82,7 +95,8 @@ final class PreviewPanel {
         content.historyIndex = nil
         content.isListening = true
         setCopied(false)
-        page.beginDictation(atCursor: isFocused && panel?.firstResponder === page)
+        page.beginDictation(atCursor: !appendsAtEnd && isFocused && panel?.firstResponder === page)
+        appendsAtEnd = false
         DispatchQueue.main.asyncAfter(deadline: .now() + DictationController.minDuration) { [weak self] in
             guard let self, self.dictation == dictation, content.isListening, pending == nil else { return }
             show()
@@ -249,6 +263,8 @@ final class PreviewPanel {
                                onClose: { [weak self] in self?.close() },
                                onCopy: { [weak self] in self?.copyTapped() },
                                onDone: { [weak self] in self?.doneTapped() },
+                               onStop: { [weak self] in self?.onStopRequest?() },
+                               onContinue: { [weak self] in self?.onContinue?() },
                                onResize: { [weak self, weak panel] size in
                                    guard let self, let panel else { return }
                                    panel.setContentSize(size)
@@ -465,6 +481,8 @@ private struct PreviewView: View {
     let onClose: () -> Void
     let onCopy: () -> Void
     let onDone: () -> Void
+    let onStop: () -> Void
+    let onContinue: () -> Void
     let onResize: (CGSize) -> Void
 
     /// Ab dieser Höhe scrollt der Text.
@@ -521,6 +539,16 @@ private struct PreviewView: View {
                                Self.maxTextHeight))
 
             HStack {
+                // Zeigt immer, ob Wad noch zuhört, damit man eine laufende Aufnahme nicht vergisst.
+                if content.historyIndex == nil {
+                    if content.isRecording {
+                        Button("Diktat beenden", action: onStop)
+                    } else if content.isListening {
+                        Button("Wird beendet …") {}.disabled(true)
+                    } else {
+                        Button("Diktat fortsetzen", action: onContinue)
+                    }
+                }
                 Spacer()
                 Button(content.isCopied ? "Kopiert ✓" : "Kopieren", action: onCopy)
                     .disabled(!hasText)
