@@ -209,7 +209,6 @@ final class AppModel: ObservableObject {
             dictations.replace(old, with: new)
         }
         preview.onStopRequest = { [weak self] in self?.dictation.stopHandsFree() }
-        preview.onPaste = { [weak self] text, target, done in self?.paste(text, into: target, done: done) }
         clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
         applyHistorySettings()
         worker.async { [weak self, transcriber] in
@@ -448,31 +447,6 @@ final class AppModel: ObservableObject {
     private func keepInClipboard(_ text: String) {
         copyToClipboard(text)
         clipboardWatcher.skipCurrentChange()
-    }
-
-    /// Knopf „Einfügen“ im Vorschau-Fenster: Der Text bleibt dauerhaft in der Zwischenablage, damit man
-    /// ihn noch einmal einfügen kann. Dann geht Wad zurück zur App, in der man war, und drückt dort ⌘V.
-    /// Ist die App weg oder ein Passwortfeld aktiv (macOS sperrt dort fremde Tastendrücke), bleibt es beim Kopieren.
-    private func paste(_ text: String, into target: NSRunningApplication?, done: @escaping (Bool) -> Void) {
-        keepInClipboard(text)
-        guard let target, !target.isTerminated else {
-            show(notice: "Text liegt in der Zwischenablage")
-            return done(false)
-        }
-        target.activate()
-        // Kurz warten, bis die App wieder vorne ist und ihr Textfeld den Fokus zurück hat.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            guard NSWorkspace.shared.frontmostApplication == target else {
-                self?.show(notice: "Text liegt in der Zwischenablage")
-                return done(false)
-            }
-            guard !IsSecureEventInputEnabled() else {
-                self?.show(notice: "Hier ist Einfügen gesperrt, der Text liegt in der Zwischenablage")
-                return done(false)
-            }
-            TextInserter.postCommandV()
-            done(true)
-        }
     }
 
     /// Ein ausgeschalteter Verlauf wird geleert, und die Zwischenablage liest Wad dann gar nicht mehr.

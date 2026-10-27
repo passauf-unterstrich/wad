@@ -256,6 +256,34 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertTrue(controller.isHandsFree)
     }
 
+    /// Zack zack: Das Loslassen des ersten Tipps wird erst verarbeitet, als die Taste schon wieder unten ist.
+    func testVeryFastDoubleTapStartsHandsFree() {
+        controller.keyPressed(isAlone: true)
+        clock += 0.05
+        keyIsDown = true                  // der zweite Druck ist schon passiert
+        controller.keyReleased(isAlone: true)
+        XCTAssertEqual(controller.state, .recording, "Erst einmal wird das Loslassen nicht geglaubt")
+        clock += 0.05
+        controller.keyPressed(isAlone: true)
+        XCTAssertTrue(controller.isHandsFree, "Das zweite Drücken beweist das Loslassen")
+        XCTAssertEqual(microphone.startCount, 2)
+        XCTAssertEqual(transcriber.chunkLengths, [], "Der erste Tipp erreicht das Modell nie")
+        clock += 0.05
+        release()
+        XCTAssertEqual(controller.state, .recording)
+    }
+
+    func testFalseReleaseDuringHoldIsNotATap() {
+        controller.keyPressed(isAlone: true)
+        clock += 0.1
+        controller.keyReleased(isAlone: true)   // falsches Signal, die Taste bleibt unten
+        clock += 2
+        release()
+        XCTAssertFalse(controller.isHandsFree)
+        XCTAssertEqual(controller.state, .idle, "Ein normales Diktat, sauber beendet")
+        XCTAssertFalse(microphone.isRunning)
+    }
+
     func testDoubleTapWithFailingMicrophoneStaysIdle() {
         tap()
         microphone.failsToStart = true

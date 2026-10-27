@@ -2,7 +2,7 @@
 // Das Vorschau-Fenster für „Zwischenablage mit Vorschau“ und freies Diktieren (SPEC 1.10): ein kleiner
 // Notizzettel. Zeigt live, was man diktiert, fertigen Text normal, vorläufigen grau dahinter. Der fertige
 // Text lässt sich schon während des Diktats korrigieren, jedes weitere Diktat kommt auf denselben Zettel.
-// „Einfügen“ bringt den Zettel in die App, in der man vorher war, und beginnt einen neuen.
+// „Einfügen“ legt den fertigen Zettel in die Zwischenablage, schließt das Fenster und beginnt einen neuen.
 // Hängt unter Wads Symbol in der Menüleiste, liegt über allem, auch über Apps im Vollbild, und nimmt der
 // App, in der man gerade ist, nicht den Fokus. Ein gewöhnliches eigenes Fenster, dafür braucht Wad keine
 // Berechtigung. Was man in dieses Fenster tippt, sieht Wad wie jede App ihr eigenes Textfeld, nie mehr.
@@ -29,11 +29,9 @@ final class PreviewPanel {
 
     /// Legt einen Text in die Zwischenablage, über den Knopf im Fenster.
     var onCopy: ((String) -> Void)?
-    /// Fügt einen Text in die App `target` ein. Meldet über `done`, ob es geklappt hat.
-    var onPaste: ((_ text: String, _ target: NSRunningApplication?, _ done: @escaping (Bool) -> Void) -> Void)?
     /// Ein Zettel soll unter „Letzte Diktate“: `old` ist seine dort schon abgelegte frühere Fassung.
     var onStore: ((_ old: String?, _ new: String) -> Void)?
-    /// Bittet darum, eine laufende Aufnahme zu beenden, bevor eingefügt oder geschlossen wird.
+    /// Bittet darum, eine laufende Aufnahme zu beenden, bevor der Zettel fertig ist oder schließt.
     var onStopRequest: (() -> Void)?
     /// Das Diktat, das gerade auf den Zettel schreibt.
     private(set) var dictation: Int?
@@ -63,8 +61,7 @@ final class PreviewPanel {
     private var pending: PendingAction?
 
     private enum PendingAction {
-        case paste(NSRunningApplication?)
-        case close
+        case done, close
     }
 
     init() {
@@ -75,8 +72,11 @@ final class PreviewPanel {
     /// sonst ans Ende. Sichtbar wird das Fenster erst, wenn sie kein versehentlicher Tipper war,
     /// sonst blitzte es bei jedem kurzen Antippen auf.
     func begin(dictation: Int) {
-        if case .close = pending { finishClose() }
-        pending = nil
+        switch pending {
+        case .done: finishDone()
+        case .close: finishClose()
+        case nil: break
+        }
         self.dictation = dictation
         content.historyIndex = nil
         content.isListening = true
@@ -116,9 +116,8 @@ final class PreviewPanel {
             page.setDraft("")
         }
         switch pending {
-        case .paste(let target):
-            pending = nil
-            paste(pageText, into: target, clearsPage: true)
+        case .done:
+            finishDone()
         case .close:
             finishClose()
         case nil:
@@ -160,36 +159,30 @@ final class PreviewPanel {
         page.reset()
     }
 
-    /// Knopf „Einfügen“. Ziel ist die App, die vorne ist: Wads Fenster nimmt ihr den Fokus nie ab.
-    /// Läuft noch eine Aufnahme, endet sie zuerst, eingefügt wird mit ihrem letzten Wort.
-    private func pasteTapped() {
-        let target = NSWorkspace.shared.frontmostApplication.flatMap { $0 == .current ? nil : $0 }
+    /// Knopf „Einfügen“: Der Zettel ist fertig. Er kommt endgültig in die Zwischenablage und unter
+    /// „Letzte Diktate“, das Fenster schließt, der nächste Zettel beginnt leer. Läuft noch eine Aufnahme,
+    /// endet sie zuerst, und ihr letztes Wort kommt noch mit. Beim Blättern gilt das für den gezeigten Text,
+    /// der aktuelle Zettel bleibt dann, wie er ist.
+    private func doneTapped() {
         if let index = content.historyIndex, index < content.history.count {
-            paste(content.history[index], into: target, clearsPage: false)
+            onCopy?(content.history[index])
+            content.historyIndex = nil
+            panel?.orderOut(nil)
         } else if content.isListening {
-            pending = .paste(target)
+            pending = .done
             panel?.orderOut(nil)
             onStopRequest?()
         } else {
-            paste(pageText, into: target, clearsPage: true)
+            finishDone()
         }
     }
 
-    /// Das Fenster geht weg, damit die Ziel-App den Tastendruck bekommt. Klappt das Einfügen nicht,
-    /// etwa in einem Passwortfeld, bleibt der Zettel, wie er ist, und das Fenster kommt wieder.
-    private func paste(_ text: String, into target: NSRunningApplication?, clearsPage: Bool) {
-        guard !text.isEmpty else { return }
+    private func finishDone() {
+        pending = nil
         panel?.orderOut(nil)
-        content.historyIndex = nil
-        onPaste?(text, target) { [weak self] pasted in
-            guard let self else { return }
-            if pasted, clearsPage {
-                store()
-                clearPage()
-            } else if !page.pageText.isEmpty {
-                show()
-            }
-        }
+        if !pageText.isEmpty { onCopy?(pageText) }
+        store()
+        clearPage()
     }
 
     private func copyTapped() {
@@ -244,7 +237,7 @@ final class PreviewPanel {
         let view = PreviewView(content: content, page: page,
                                onClose: { [weak self] in self?.close() },
                                onCopy: { [weak self] in self?.copyTapped() },
-                               onPaste: { [weak self] in self?.pasteTapped() },
+                               onDone: { [weak self] in self?.doneTapped() },
                                onResize: { [weak self, weak panel] size in
                                    guard let self, let panel else { return }
                                    panel.setContentSize(size)
@@ -460,7 +453,7 @@ private struct PreviewView: View {
     let page: PageTextView
     let onClose: () -> Void
     let onCopy: () -> Void
-    let onPaste: () -> Void
+    let onDone: () -> Void
     let onResize: (CGSize) -> Void
 
     /// Ab dieser Höhe scrollt der Text.
@@ -520,10 +513,10 @@ private struct PreviewView: View {
                 Spacer()
                 Button(content.isCopied ? "Kopiert ✓" : "Kopieren", action: onCopy)
                     .disabled(!hasText)
-                Button("Einfügen", action: onPaste)
+                Button("Einfügen", action: onDone)
                     .keyboardShortcut(.return, modifiers: .command)
                     .buttonStyle(.borderedProminent)
-                    .help("In die App einfügen, in der du vorher warst (⌘↩)")
+                    .help("Fertig: Text in die Zwischenablage, Fenster schließen (⌘↩)")
                     .disabled(!hasText)
             }
             .controlSize(.small)

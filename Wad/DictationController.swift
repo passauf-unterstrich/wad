@@ -94,6 +94,9 @@ final class DictationController {
     private var lastTapEnd: Date?
     /// Wann zuletzt ein freies Diktat endete, egal wodurch.
     private var handsFreeEndedAt: Date?
+    /// Ein gemeldetes Loslassen, während das System die Taste schon wieder unten sah. Kommt danach
+    /// ein Drücken, war das Loslassen echt und nur sehr schnell: ein zackiger Doppeltipp.
+    private var unconfirmedRelease: (at: Date, isAlone: Bool)?
 
     /// - Parameters:
     ///   - isKeyPhysicallyDown: fragt direkt beim System nach, ob die Taste gerade unten ist.
@@ -125,6 +128,12 @@ final class DictationController {
             }
             finish(reason: "Freies Diktieren beendet")
             return
+        }
+        // Sehr schnell getippt: Das Loslassen des ersten Tipps kam an, als die Taste schon wieder unten war,
+        // und wurde deshalb erst einmal nicht geglaubt. Dieses Drücken beweist, dass es echt war.
+        if let release = unconfirmedRelease, state == .recording {
+            unconfirmedRelease = nil
+            endHold(at: release.at, isAlone: release.isAlone)
         }
         // Doppeltipp: Der erste Tipp hat eine zu kurze Aufnahme gestartet, die schon still verworfen ist.
         // Der zweite Druck startet freies Diktieren, sein Loslassen beendet es nicht.
@@ -174,6 +183,7 @@ final class DictationController {
         nextLiveCheck = ChunkPlanner.minChunk
         startedAt = now()
         keyUpChecks = 0
+        unconfirmedRelease = nil
         isHandsFree = handsFree
         state = .recording
         startSafetyTimer()
@@ -185,15 +195,22 @@ final class DictationController {
     /// - Parameter isAlone: Zwischen Drücken und Loslassen kam keine andere Taste oder Sondertaste dazu.
     ///   Nur dann kann ein zu kurzer Druck die erste Hälfte eines Doppeltipps sein.
     func keyReleased(isAlone: Bool = false) {
-        guard !isHandsFree, state == .recording, let startedAt else { return }
+        guard !isHandsFree, state == .recording else { return }
         guard !isKeyPhysicallyDown() else {
             log.notice("Loslassen gemeldet, Taste aber noch unten: Aufnahme läuft weiter")
+            unconfirmedRelease = (now(), isAlone)
             return
         }
-        // Zu kurz zum Diktieren: `finish` verwirft die Aufnahme still, ohne Hinweis und ohne Ton.
-        let isTap = isAlone && now().timeIntervalSince(startedAt) < Self.minDuration
-        finish(reason: "Taste losgelassen")
-        lastTapEnd = isTap ? now() : nil
+        endHold(at: now(), isAlone: isAlone)
+    }
+
+    /// Beendet eine gehaltene Aufnahme zum Zeitpunkt des Loslassens. Zu kurz zum Diktieren:
+    /// `finish` verwirft sie still, ohne Hinweis und ohne Ton.
+    private func endHold(at releasedAt: Date, isAlone: Bool) {
+        guard let startedAt else { return }
+        let isTap = isAlone && releasedAt.timeIntervalSince(startedAt) < Self.minDuration
+        finish(reason: "Taste losgelassen", endedAt: releasedAt)
+        lastTapEnd = isTap ? releasedAt : nil
     }
 
     /// Beendet die Aufnahme, obwohl der Nutzer weiterreden wollte, etwa weil das Mikrofon wegfiel
@@ -264,9 +281,10 @@ private extension DictationController {
         }
     }
 
-    func finish(reason: String) {
+    /// - Parameter endedAt: wann die Aufnahme eigentlich endete, falls das schon etwas her ist.
+    func finish(reason: String, endedAt: Date? = nil) {
         guard state == .recording, let session, let startedAt else { return }
-        let duration = now().timeIntervalSince(startedAt)
+        let duration = (endedAt ?? now()).timeIntervalSince(startedAt)
         stopMicrophone()
         log.notice("Aufnahme beendet: \(reason, privacy: .public)")
         guard duration >= Self.minDuration else {
