@@ -35,7 +35,8 @@ final class AppModel: ObservableObject {
         didSet {
             UserDefaults.standard.set(insertMode.rawValue, forKey: Self.insertModeKey)
             applyInsertMode()
-            if insertMode != .clipboardPreview { preview.close() }
+            // Ein laufendes Diktat im Fenster bricht ein Wechsel nicht ab.
+            if insertMode != .clipboardPreview, dictationState == .idle { preview.close() }
         }
     }
     private static let insertModeKey = "Einfügen"
@@ -98,7 +99,9 @@ final class AppModel: ObservableObject {
     /// Kurzer Hinweis oben im Menü, wenn etwas schiefging. Verschwindet nach einigen Sekunden.
     @Published private(set) var notice: String?
     /// Die beiden Verläufe, nur im Arbeitsspeicher (SPEC 2.4).
-    @Published private(set) var dictations = History()
+    @Published private(set) var dictations = History() {
+        didSet { preview.history = keepsDictations ? dictations.entries : [] }
+    }
     @Published private(set) var clipboard = History()
     /// Automatisch nach Updates suchen (SPEC 1.9). Standard aus, Wad weist einmal darauf hin.
     @Published var checksForUpdates = false {
@@ -157,7 +160,8 @@ final class AppModel: ObservableObject {
             if state == .recording {
                 // Freies Diktieren immer mit Vorschau, ohne die Einstellung zu ändern (SPEC 1.3).
                 // `isHandsFree` steht schon fest, bevor der Zustand auf „Aufnahme“ wechselt.
-                deliveryMode = dictation.isHandsFree ? .clipboardPreview : insertMode
+                // Wer gerade im Vorschau-Fenster schreibt, diktiert auch dort hinein, nicht in eine andere App.
+                deliveryMode = dictation.isHandsFree || preview.isFocused ? .clipboardPreview : insertMode
                 if deliveryMode == .clipboardPreview { preview.begin(dictation: dictation.dictationNumber) }
             }
             if state == .idle { preview.settle() }
@@ -184,12 +188,28 @@ final class AppModel: ObservableObject {
         dictation.onDictationFinished = { [weak self] text, isDelivered, number in
             guard let self else { return }
             let text = styled(text)
-            if keepsDictations { dictations.add(text) }
-            let keeps = isDelivered && !deliveryMode.pastes
-            if keeps { keepInClipboard(text) }
-            preview.finish(text: text, isCopied: keeps, dictation: number)
+            guard deliveryMode == .clipboardPreview else {
+                if keepsDictations { dictations.add(text) }
+                if isDelivered && !deliveryMode.pastes { keepInClipboard(text) }
+                return
+            }
+            // Vorschau-Fenster: Unter „Letzte Diktate“ kommt erst der fertige Zettel, beim Kopieren,
+            // Einfügen oder Schließen. In der Zwischenablage liegt nach jedem Diktat der ganze Zettel.
+            // Nur ein nicht zugestelltes Diktat (Sperrbildschirm) kommt gleich in den Verlauf, wie der Hinweis sagt.
+            if isDelivered {
+                if !preview.pageText.isEmpty { keepInClipboard(preview.pageText) }
+            } else if keepsDictations {
+                dictations.add(text)
+            }
+            preview.finish(isCopied: isDelivered, dictation: number)
         }
         preview.onCopy = { [weak self] text in self?.keepInClipboard(text) }
+        preview.onStore = { [weak self] old, new in
+            guard let self, keepsDictations else { return }
+            dictations.replace(old, with: new)
+        }
+        preview.onStopRequest = { [weak self] in self?.dictation.stopHandsFree() }
+        preview.onPaste = { [weak self] text, target, done in self?.paste(text, into: target, done: done) }
         clipboardWatcher.onCopy = { [weak self] text in self?.clipboard.add(text) }
         applyHistorySettings()
         worker.async { [weak self, transcriber] in
@@ -430,9 +450,35 @@ final class AppModel: ObservableObject {
         clipboardWatcher.skipCurrentChange()
     }
 
+    /// Knopf „Einfügen“ im Vorschau-Fenster: Der Text bleibt dauerhaft in der Zwischenablage, damit man
+    /// ihn noch einmal einfügen kann. Dann geht Wad zurück zur App, in der man war, und drückt dort ⌘V.
+    /// Ist die App weg oder ein Passwortfeld aktiv (macOS sperrt dort fremde Tastendrücke), bleibt es beim Kopieren.
+    private func paste(_ text: String, into target: NSRunningApplication?, done: @escaping (Bool) -> Void) {
+        keepInClipboard(text)
+        guard let target, !target.isTerminated else {
+            show(notice: "Text liegt in der Zwischenablage")
+            return done(false)
+        }
+        target.activate()
+        // Kurz warten, bis die App wieder vorne ist und ihr Textfeld den Fokus zurück hat.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard NSWorkspace.shared.frontmostApplication == target else {
+                self?.show(notice: "Text liegt in der Zwischenablage")
+                return done(false)
+            }
+            guard !IsSecureEventInputEnabled() else {
+                self?.show(notice: "Hier ist Einfügen gesperrt, der Text liegt in der Zwischenablage")
+                return done(false)
+            }
+            TextInserter.postCommandV()
+            done(true)
+        }
+    }
+
     /// Ein ausgeschalteter Verlauf wird geleert, und die Zwischenablage liest Wad dann gar nicht mehr.
     private func applyHistorySettings() {
         if !keepsDictations { dictations.clear() }
+        preview.history = keepsDictations ? dictations.entries : []
         dictation.undeliveredNote = keepsDictations
             ? "Der Text liegt unter „Letzte Diktate“."
             : "Der Text ist verworfen, „Letzte Diktate“ ist aus."

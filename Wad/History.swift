@@ -15,6 +15,12 @@ struct History: Equatable {
         if entries.count > Self.limit { entries.removeLast(entries.count - Self.limit) }
     }
 
+    /// Ersetzt eine frühere Fassung desselben Textes durch die neue, die dann oben steht.
+    mutating func replace(_ old: String?, with new: String) {
+        if let old { entries.removeAll { $0 == old } }
+        add(new)
+    }
+
     /// Entfernt alle Einträge sofort. Ehrliche Grenze (SPEC 2.4): Swift erlaubt nicht, den Speicher
     /// eines Textes zuverlässig mit Nullen zu überschreiben, weil jede Anzeige im Menü Kopien erzeugt,
     /// die Swift selbst verwaltet. Freigegebener Speicher bleibt im abgeschotteten Bereich von Wad,

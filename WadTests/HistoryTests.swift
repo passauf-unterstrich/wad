@@ -73,4 +73,12 @@ final class HistoryTests: XCTestCase {
         watcher.check()
         XCTAssertEqual(copied, [])
     }
+
+    func testReplaceSwapsTheEarlierVersion() {
+        var history = History()
+        history.add("Zettel")
+        history.add("Anderes")
+        history.replace("Zettel", with: "Zettel, korrigiert")
+        XCTAssertEqual(history.entries, ["Zettel, korrigiert", "Anderes"])
+    }
 }
