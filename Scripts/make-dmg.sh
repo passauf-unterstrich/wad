@@ -37,7 +37,7 @@ echo "▸ Verpacke Wad $version in eine DMG"
 staging=$(mktemp -d)
 trap 'rm -rf "$staging"' EXIT
 cp -R "$app" "$staging/"
-ln -s /Applications "$staging/Programme"
+ln -s /Applications "$staging/Applications"
 mkdir -p build/dist
 dmg="build/dist/Wad-$version.dmg"
 rm -f "$dmg"
