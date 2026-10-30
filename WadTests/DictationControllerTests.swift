@@ -16,6 +16,7 @@ final class DictationControllerTests: XCTestCase {
     private var notices: [String] = []
 
     override func setUp() {
+        L10n.shared.language = .de
         microphone = FakeMicrophone()
         transcriber = FakeTranscriber()
         keyIsDown = true

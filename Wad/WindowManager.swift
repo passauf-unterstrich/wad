@@ -65,10 +65,10 @@ final class WindowManager {
     /// Belegt eine Aktion neu. Rückgabe ist ein verständlicher Grund, falls es nicht geht.
     func setShortcut(_ combo: KeyCombo, for action: WindowAction) -> String? {
         if Self.reservedCombos.contains(combo) {
-            return "\(combo.displayName) brauchen Mac und Apps selbst, zum Beispiel zum Kopieren und Einfügen. Bitte eine andere Kombination."
+            return L10n.t("shortcuts.reserved", combo.displayName)
         }
         if let other = shortcuts.first(where: { $0.value == combo && $0.key != action })?.key {
-            return "\(combo.displayName) ist schon für „\(other.title)“ vergeben."
+            return L10n.t("shortcuts.taken", combo.displayName, other.title)
         }
         let previous = shortcuts[action]
         shortcuts[action] = combo
@@ -76,7 +76,7 @@ final class WindowManager {
         if isEnabled && !isRegistered(action) {
             shortcuts[action] = previous
             registerAll()
-            return "\(combo.displayName) ist von macOS oder einer anderen App belegt."
+            return L10n.t("shortcuts.occupied", combo.displayName)
         }
         save()
         return nil

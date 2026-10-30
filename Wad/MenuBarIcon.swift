@@ -6,10 +6,10 @@
 import AppKit
 
 enum MenuBarIcon {
-    static let enabled = template(.sparkle, description: "Wad")
-    static let disabled = template(.slashed, description: "Wad, Diktieren aus")
-    static let processing = template(.dots, description: "Wad wandelt um")
-    static let notice = template(.exclamation, description: "Wad hat einen Hinweis")
+    static let enabled = template(.sparkle)
+    static let disabled = template(.slashed)
+    static let processing = template(.dots)
+    static let notice = template(.exclamation)
 
     /// Was neben bzw. über dem Mikrofon steht. Das Mikrofon selbst bleibt immer gleich.
     private enum Accent {
@@ -27,7 +27,6 @@ enum MenuBarIcon {
             return true
         }
         image.isTemplate = false
-        image.accessibilityDescription = "Wad nimmt auf"
         return image
     }()
 
@@ -40,7 +39,7 @@ enum MenuBarIcon {
     private static let lineWidth: CGFloat = 1.4
 
     /// Template-Bilder färbt macOS selbst passend zur Menüleiste weiß oder schwarz.
-    private static func template(_ accent: Accent, description: String) -> NSImage {
+    private static func template(_ accent: Accent) -> NSImage {
         let image = NSImage(size: canvas, flipped: true) { _ in
             // Gezeichnet wird auf einem 18-pt-Raster (y nach unten), verkleinert auf 90 %,
             // damit Höhe und Linienstärke zu Apples eigenen Symbolen passen.
@@ -59,7 +58,6 @@ enum MenuBarIcon {
             return true
         }
         image.isTemplate = true
-        image.accessibilityDescription = description
         return image
     }
 

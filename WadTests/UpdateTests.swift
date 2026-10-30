@@ -95,6 +95,12 @@ final class UpdateTests: XCTestCase {
 
     // MARK: Beschreibung von GitHub
 
+    func testWhatsNewReadsGreetingAndItems() {
+        let whatsNew = UpdateRules.whatsNew("# Wad 1.3.0\nHi, das ist neu:\n- **Neu:** Eins\n- Zwei\n")
+        XCTAssertEqual(whatsNew.intro, "Hi, das ist neu:")
+        XCTAssertEqual(whatsNew.items, ["Neu: Eins", "Zwei"])
+    }
+
     func testNotesBecomePlainText() {
         let notes = "## Neu\r\n* **Schneller** beim [Einfügen](https://example.com)\n<b>Fett</b> und `Code`"
         XCTAssertEqual(UpdateRules.plainText(notes), "Neu\n- Schneller beim Einfügen\nFett und Code")

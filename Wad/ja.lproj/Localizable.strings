@@ -1,0 +1,171 @@
+/* Wads Oberflächentexte. Alle drei Sprachen haben dieselben Schlüssel, geprüft in L10nTests. */
+
+/* Allgemein */
+"common.ok" = "OK";
+"common.cancel" = "キャンセル";
+"common.later" = "あとで";
+"common.notNow" = "今はしない";
+
+/* Menü */
+"menu.updateAvailable" = "アップデートあり：%@…";
+"menu.dictation" = "音声入力";
+"menu.handsFree.start" = "ハンズフリー音声入力を開始";
+"menu.handsFree.stop" = "ハンズフリー音声入力を停止";
+"menu.insertMode" = "挿入モード";
+"menu.insertMode.whileDictating" = "音声入力中に";
+"menu.insertMode.afterDictating" = "音声入力の後に";
+"menu.insertMode.clipboard" = "クリップボードのみ";
+"menu.insertMode.clipboardPreview" = "クリップボード（プレビュー付き）";
+"menu.recentDictations" = "最近の音声入力";
+"menu.recentDictations.empty" = "履歴はありません";
+"menu.recentDictations.clear" = "履歴を消去";
+"menu.clipboardHistory" = "クリップボードの履歴";
+"menu.clipboardHistory.empty" = "コピーした項目はありません";
+"menu.clipboardHistory.clear" = "履歴を消去";
+"menu.history.keep" = "履歴を残す";
+"menu.history.off" = "オフ";
+"menu.inputLanguage" = "入力言語";
+"menu.menuLanguage" = "メニューの言語";
+"menu.lowercase" = "すべて小文字";
+"menu.handsFreeLimit" = "ハンズフリーの制限時間";
+"menu.minutes" = "%ld分";
+"menu.vocabulary" = "単語リスト";
+"menu.vocabulary.correct" = "単語を修正…";
+"menu.vocabulary.reveal" = "単語リストをFinderに表示";
+"menu.vocabulary.copyPrompt" = "AI用のテンプレートをコピー";
+"menu.windowManager" = "ウインドウ管理";
+"menu.windowManager.enabled" = "有効";
+"menu.windowManager.shortcuts" = "ショートカット…";
+"menu.updates" = "アップデート";
+"menu.updates.automatic" = "自動的に確認";
+"menu.updates.checkNow" = "今すぐ確認…";
+"menu.updates.whatsNew" = "新機能…";
+"menu.speechUnavailable" = "音声認識を利用できません";
+"menu.allowMicrophone" = "マイクを許可…";
+"menu.allowAccessibility" = "アクセシビリティを許可…";
+"menu.openAtLogin" = "ログイン時に開く";
+"menu.quit" = "Wadを終了";
+
+/* Eingabesprachen, in der Menüsprache benannt */
+"language.de" = "ドイツ語";
+"language.en" = "英語";
+"language.fr" = "フランス語";
+"language.es" = "スペイン語";
+"language.ja" = "日本語";
+"language.fi" = "フィンランド語";
+"language.zh" = "中国語";
+"language.sw" = "スワヒリ語";
+"language.auto" = "自動検出";
+
+/* Hinweise oben im Menü */
+"notice.loginItemFailed" = "「ログイン時に開く」を変更できませんでした";
+"notice.allowLoginItem" = "ログイン項目でWadを許可してください";
+"notice.templateCopied" = "テンプレートをコピーしました。AIにペーストしてください";
+"notice.noMicrophone" = "Wadにマイクの使用が許可されていません";
+"notice.stopped" = "%@、録音を停止しました";
+"notice.stoppedUndelivered" = "%@、録音を停止しました。%@";
+"notice.undelivered.kept" = "テキストは「最近の音声入力」にあります。";
+"notice.undelivered.discarded" = "「最近の音声入力」がオフのため、テキストは破棄されました。";
+"notice.timeLimit" = "%ld分経過したため録音を自動で終了し、テキストを挿入しました";
+"reason.microphoneLost" = "マイクを使用できなくなったため";
+"reason.accessibilityRevoked" = "アクセシビリティの許可が取り消されたため";
+"reason.sleep" = "Macがスリープしたため";
+"reason.displayOff" = "ディスプレイがオフになったため";
+"reason.userSwitched" = "ユーザが切り替えられたため";
+"reason.screenLocked" = "画面がロックされたため";
+
+/* Fehlermeldungen */
+"error.noMicrophone" = "マイクが見つかりません";
+"error.audioFormat" = "マイクのオーディオ形式はサポートされていません";
+"error.modelMissing" = "Wad.appに音声モデルがありません";
+"error.modelNotLoaded" = "音声モデルを読み込めませんでした";
+"error.recognitionFailed" = "音声認識に失敗しました";
+
+/* Symbol in der Menüleiste (für VoiceOver) */
+"icon.disabled" = "Wad、音声入力オフ";
+"icon.processing" = "Wad、文字起こし中";
+"icon.notice" = "Wad、お知らせあり";
+"icon.recording" = "Wad、録音中";
+
+/* Vorschau-Fenster */
+"preview.close" = "閉じる";
+"preview.closeHelp" = "閉じる（テキストは「最近の音声入力」に保存されます）";
+"preview.earlier" = "前のテキスト";
+"preview.newer" = "次のテキスト";
+"preview.listening" = "聞いています…";
+"preview.stop" = "音声入力を終了";
+"preview.stopping" = "終了しています…";
+"preview.continue" = "音声入力を続ける";
+"preview.copy" = "コピー";
+"preview.copied" = "コピー済み ✓";
+"preview.done" = "ペースト";
+"preview.doneHelp" = "完了：テキストをクリップボードにコピーしてウインドウを閉じます（⌘↩）";
+
+/* Korrektur-Fenster (⌃⌥W) */
+"correction.window" = "単語を修正";
+"correction.recognized" = "認識結果：";
+"correction.right" = "正しい表記：";
+"correction.untilRestart" = "再起動するまで";
+"correction.always" = "常に記憶";
+
+/* Vokabelliste und Vorlage für andere KIs */
+"vocabulary.prompt" = "音声入力アプリWadを使っています。Wadは単語リストがあると、専門用語や名前をより正確に認識できます。音声入力でよく使う重要な単語を40個、リストにしてください。\n\n私について：[ここに簡単に記入。例：職業、趣味、家族や友人の名前]\n\nリストのルール：\n- 1行に1語、正しい表記で書く\n- 番号、説明、見出しは付けない\n- 音声入力でよく間違えて書かれる語は、次の形式で書く：誤 -> 正";
+"vocabulary.template" = "# Wadの単語リスト。1行に1項目。#で始まる行は無視されます。\n#\n# 単語のみ：Wadが単語を覚え、この表記で書きます。\n#   Mise en place\n#\n# 誤 -> 正：Wadは誤った表記を常に正しい表記に置き換えます。\n#   Watt -> Wad";
+
+/* Update-Fenster */
+"update.none.title" = "アップデートはありません";
+"update.none.text" = "Wad %@は最新バージョンです。";
+"update.noConnection.title" = "接続できません";
+"update.noConnection.text" = "現在確認できません。しばらくしてからもう一度お試しください。";
+"update.window" = "アップデート";
+"update.available" = "Wad %@が利用可能です";
+"update.skip" = "このバージョンをスキップ";
+"update.download" = "ダウンロードへ";
+"update.consent.window" = "アップデート";
+"update.consent.title" = "常に最新の状態にしますか？";
+"update.consent.text" = "Wadは1日1回、新しいバージョンがあるか確認できます。改善や不具合の修正を受け取れるので、オンにしておくと便利です。確認の際、WadがGitHubに問い合わせるのは最新のバージョン番号だけです。音声入力の内容、単語リスト、あなたに関するデータが送信されることはありません。この設定はメニューの「アップデート」でいつでも変更でき、そこから手動で確認することもできます。";
+"update.consent.turnOn" = "オンにする";
+"whatsNew.window" = "新機能";
+"whatsNew.updated" = "Wadが%@にアップデートされました";
+"whatsNew.title" = "Wad %@の新機能";
+"whatsNew.done" = "完了";
+
+/* Fenstermanager */
+"shortcuts.window" = "ウインドウのショートカット";
+"shortcuts.press" = "キーを押してください…";
+"shortcuts.hint" = "ショートカットをクリックして、新しいキーの組み合わせを押してください。Escでキャンセルします。";
+"shortcuts.reset" = "デフォルトに戻す";
+"shortcuts.needsModifier" = "⌘、⌥、⌃のいずれかと組み合わせてください。そうしないと文字入力の妨げになります。";
+"shortcuts.reserved" = "%@はMacやアプリが使用します（コピーやペーストなど）。別の組み合わせを選んでください。";
+"shortcuts.taken" = "%@はすでに「%@」に割り当てられています。";
+"shortcuts.occupied" = "%@はmacOSまたは別のアプリで使用されています。";
+"key.space" = "スペース";
+"window.maximize" = "最大化";
+"window.left" = "左半分";
+"window.right" = "右半分";
+"window.top" = "上半分";
+"window.bottom" = "下半分";
+"window.topLeft" = "左上";
+"window.topRight" = "右上";
+"window.bottomRight" = "右下";
+"window.bottomLeft" = "左下";
+"window.center" = "中央";
+
+/* Aufräumen der alten App */
+"cleanup.ask.title" = "以前の音声入力アプリが見つかりました";
+"cleanup.ask.text" = "このMacには以前の音声入力アプリ「Wispr」が残っています。Wadと同じキーを使用します。Wadでこのアプリを終了し、ログイン時に開かないようにして、ファイルをゴミ箱に入れますか？";
+"cleanup.ask.confirm" = "片付ける";
+"cleanup.done.title" = "以前の音声入力アプリを片付けました";
+"cleanup.done.text" = "これからは右Optionキーに反応するのはWadだけです。古いファイルはゴミ箱に移動しました。ゴミ箱を空にすると、以前の音声入力の履歴も完全に削除されます。";
+"cleanup.failed.title" = "古いフォルダを移動できませんでした";
+"cleanup.failed.text" = "以前のアプリは終了し、自動で起動しなくなりました。デスクトップの「linus_apps/Wispr」フォルダは手動でゴミ箱に入れてください。次回の起動時にWadからもう一度確認します。";
+
+/* Installation */
+"move.title" = "Wadを「アプリケーション」フォルダに移動しますか？";
+"move.text" = "Wadはダウンロードしたファイルから直接実行されています。「アプリケーション」フォルダに移動すると、取り出した後も起動でき、必要に応じてログイン時に開くこともできます。";
+"move.confirm" = "移動";
+"move.failed.title" = "移動できませんでした";
+"move.failed.text" = "ダウンロードしたファイルのウインドウで、Wadを「アプリケーション」フォルダにドラッグしてください。";
+"intel.title" = "WadにはAppleシリコン搭載のMacが必要です";
+"intel.rosetta" = "WadはRosettaを使用して開かれました。FinderでWadを選択し、Command+Iで情報ウインドウを開いて、「Rosettaを使用して開く」のチェックを外してください。";
+"intel.unsupported" = "WadはM1チップ以降を搭載したMacでのみ動作します。このMacはIntelプロセッサを搭載しています。";

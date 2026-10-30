@@ -15,10 +15,10 @@ enum MoveToApplications {
         NSApplication.shared.setActivationPolicy(.accessory)
 
         let alert = NSAlert()
-        alert.messageText = "Wad in den Programme-Ordner bewegen?"
-        alert.informativeText = "Wad läuft gerade direkt aus der heruntergeladenen Datei. Im Programme-Ordner startet Wad auch nach dem Auswerfen und auf Wunsch bei jeder Anmeldung."
-        alert.addButton(withTitle: "Bewegen")
-        alert.addButton(withTitle: "Nicht jetzt")
+        alert.messageText = L10n.t("move.title")
+        alert.informativeText = L10n.t("move.text")
+        alert.addButton(withTitle: L10n.t("move.confirm"))
+        alert.addButton(withTitle: L10n.t("common.notNow"))
         NSApp.activate(ignoringOtherApps: true)
         guard alert.runModal() == .alertFirstButtonReturn else { return false }
 
@@ -35,8 +35,9 @@ enum MoveToApplications {
         } catch {
             log.error("Bewegen in Programme: \(error.localizedDescription, privacy: .public)")
             let failed = NSAlert()
-            failed.messageText = "Das hat nicht geklappt"
-            failed.informativeText = "Bitte ziehe Wad im Fenster der heruntergeladenen Datei selbst auf den Ordner „Programme“."
+            failed.messageText = L10n.t("move.failed.title")
+            failed.informativeText = L10n.t("move.failed.text")
+            failed.addButton(withTitle: L10n.t("common.ok"))
             failed.runModal()
             return false
         }

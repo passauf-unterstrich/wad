@@ -39,6 +39,9 @@ final class FakeTranscriber: Transcriber {
     private(set) var chunkLengths: [Int] = []
     private(set) var prompts: [String?] = []
     private(set) var languages: [String?] = []
+    /// Eigene Texte für die Stücke. Ohne sie gibt es nummerierte.
+    var texts: [String] = []
+    var detectedLanguage = "de"
 
     func speechSegments(in samples: UnsafeBufferPointer<Float>) -> [Range<Int>] {
         var segments: [Range<Int>] = []
@@ -55,6 +58,7 @@ final class FakeTranscriber: Transcriber {
         chunkLengths.append(samples.count)
         prompts.append(prompt)
         languages.append(language)
-        return Transcription(text: "Stück \(chunkLengths.count)", language: "de")
+        let index = chunkLengths.count - 1
+        return Transcription(text: index < texts.count ? texts[index] : "Stück \(chunkLengths.count)", language: detectedLanguage)
     }
 }

@@ -9,17 +9,17 @@ enum SystemEvents {
     static func observeInterruptions(_ handler: @escaping (String) -> Void) -> [NSObjectProtocol] {
         let workspace = NSWorkspace.shared.notificationCenter
         let events: [(NSNotification.Name, String)] = [
-            (NSWorkspace.willSleepNotification, "weil der Mac in den Ruhezustand ging"),
-            (NSWorkspace.screensDidSleepNotification, "weil der Bildschirm ausging"),
-            (NSWorkspace.sessionDidResignActiveNotification, "weil der Benutzer gewechselt wurde"),
+            (NSWorkspace.willSleepNotification, "reason.sleep"),
+            (NSWorkspace.screensDidSleepNotification, "reason.displayOff"),
+            (NSWorkspace.sessionDidResignActiveNotification, "reason.userSwitched"),
         ]
         var observers = events.map { name, reason in
-            workspace.addObserver(forName: name, object: nil, queue: .main) { _ in handler(reason) }
+            workspace.addObserver(forName: name, object: nil, queue: .main) { _ in handler(L10n.t(reason)) }
         }
         // Die Bildschirmsperre meldet macOS nur systemweit.
         observers.append(DistributedNotificationCenter.default().addObserver(
             forName: NSNotification.Name("com.apple.screenIsLocked"), object: nil, queue: .main
-        ) { _ in handler("weil der Bildschirm gesperrt wurde") })
+        ) { _ in handler(L10n.t("reason.screenLocked")) })
         return observers
     }
 }

@@ -1,0 +1,171 @@
+/* Wads Oberflächentexte. Alle drei Sprachen haben dieselben Schlüssel, geprüft in L10nTests. */
+
+/* Allgemein */
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.later" = "Later";
+"common.notNow" = "Not Now";
+
+/* Menü */
+"menu.updateAvailable" = "Update Available: %@…";
+"menu.dictation" = "Dictation";
+"menu.handsFree.start" = "Start Hands-Free Dictation";
+"menu.handsFree.stop" = "Stop Hands-Free Dictation";
+"menu.insertMode" = "Insert Mode";
+"menu.insertMode.whileDictating" = "While Dictating";
+"menu.insertMode.afterDictating" = "After Dictating";
+"menu.insertMode.clipboard" = "Clipboard Only";
+"menu.insertMode.clipboardPreview" = "Clipboard with Preview";
+"menu.recentDictations" = "Recent Dictations";
+"menu.recentDictations.empty" = "No Dictations Yet";
+"menu.recentDictations.clear" = "Clear Dictations";
+"menu.clipboardHistory" = "Clipboard History";
+"menu.clipboardHistory.empty" = "Nothing Copied Yet";
+"menu.clipboardHistory.clear" = "Clear History";
+"menu.history.keep" = "Keep History";
+"menu.history.off" = "Off";
+"menu.inputLanguage" = "Input Language";
+"menu.menuLanguage" = "Menu Language";
+"menu.lowercase" = "All Lowercase";
+"menu.handsFreeLimit" = "Hands-Free Time Limit";
+"menu.minutes" = "%ld Minutes";
+"menu.vocabulary" = "Vocabulary";
+"menu.vocabulary.correct" = "Correct Word…";
+"menu.vocabulary.reveal" = "Show Vocabulary in Finder";
+"menu.vocabulary.copyPrompt" = "Copy Template for Your AI";
+"menu.windowManager" = "Window Manager";
+"menu.windowManager.enabled" = "Enabled";
+"menu.windowManager.shortcuts" = "Shortcuts…";
+"menu.updates" = "Updates";
+"menu.updates.automatic" = "Check Automatically";
+"menu.updates.checkNow" = "Check Now…";
+"menu.updates.whatsNew" = "What’s New…";
+"menu.speechUnavailable" = "Speech Recognition Unavailable";
+"menu.allowMicrophone" = "Allow Microphone…";
+"menu.allowAccessibility" = "Allow Accessibility…";
+"menu.openAtLogin" = "Open at Login";
+"menu.quit" = "Quit Wad";
+
+/* Eingabesprachen, in der Menüsprache benannt */
+"language.de" = "German";
+"language.en" = "English";
+"language.fr" = "French";
+"language.es" = "Spanish";
+"language.ja" = "Japanese";
+"language.fi" = "Finnish";
+"language.zh" = "Chinese";
+"language.sw" = "Swahili";
+"language.auto" = "Auto-Detect";
+
+/* Hinweise oben im Menü */
+"notice.loginItemFailed" = "Couldn’t change Open at Login";
+"notice.allowLoginItem" = "Please allow Wad in Login Items";
+"notice.templateCopied" = "Template copied, now paste it into your AI";
+"notice.noMicrophone" = "Wad isn’t allowed to use the microphone";
+"notice.stopped" = "Recording stopped %@";
+"notice.stoppedUndelivered" = "Recording stopped %@. %@";
+"notice.undelivered.kept" = "The text is in Recent Dictations.";
+"notice.undelivered.discarded" = "The text was discarded because Recent Dictations is off.";
+"notice.timeLimit" = "Recording ended automatically after %ld minutes, text inserted";
+"reason.microphoneLost" = "because no microphone is available";
+"reason.accessibilityRevoked" = "because Accessibility access was revoked";
+"reason.sleep" = "because the Mac went to sleep";
+"reason.displayOff" = "because the display turned off";
+"reason.userSwitched" = "because the user was switched";
+"reason.screenLocked" = "because the screen was locked";
+
+/* Fehlermeldungen */
+"error.noMicrophone" = "No microphone found";
+"error.audioFormat" = "The microphone’s audio format isn’t supported";
+"error.modelMissing" = "A speech model is missing from Wad.app";
+"error.modelNotLoaded" = "The speech model couldn’t be loaded";
+"error.recognitionFailed" = "Speech recognition failed";
+
+/* Symbol in der Menüleiste (für VoiceOver) */
+"icon.disabled" = "Wad, dictation off";
+"icon.processing" = "Wad is transcribing";
+"icon.notice" = "Wad has a notice";
+"icon.recording" = "Wad is recording";
+
+/* Vorschau-Fenster */
+"preview.close" = "Close";
+"preview.closeHelp" = "Close, the text goes to Recent Dictations";
+"preview.earlier" = "Earlier Text";
+"preview.newer" = "Newer Text";
+"preview.listening" = "Listening…";
+"preview.stop" = "End Dictation";
+"preview.stopping" = "Ending…";
+"preview.continue" = "Continue Dictation";
+"preview.copy" = "Copy";
+"preview.copied" = "Copied ✓";
+"preview.done" = "Paste";
+"preview.doneHelp" = "Done: copies the text to the clipboard and closes the window (⌘↩)";
+
+/* Korrektur-Fenster (⌃⌥W) */
+"correction.window" = "Correct Word";
+"correction.recognized" = "Recognized:";
+"correction.right" = "Correct:";
+"correction.untilRestart" = "Until Restart";
+"correction.always" = "Always Remember";
+
+/* Vokabelliste und Vorlage für andere KIs */
+"vocabulary.prompt" = "I dictate with the app Wad. It recognizes technical terms and names better when it has a vocabulary list. Please create a list of the 40 most important terms I need when dictating.\n\nAbout me: [describe briefly here, e.g. job, hobbies, names of family and friends]\n\nRules for the list:\n- one line per term, in exactly the right spelling\n- no numbering, no explanations, no heading\n- if a term is often written wrong when dictating, write the line like this: Wrong -> Right";
+"vocabulary.template" = "# Wad’s vocabulary list. One entry per line, lines starting with # are ignored.\n#\n# Just a term: Wad should know it and write it exactly like this.\n#   Mise en place\n#\n# Wrong -> Right: Wad always replaces the wrong spelling with the right one.\n#   Watt -> Wad";
+
+/* Update-Fenster */
+"update.none.title" = "No Updates Found";
+"update.none.text" = "Wad %@ is the latest version.";
+"update.noConnection.title" = "No Connection";
+"update.noConnection.text" = "Wad couldn’t check just now. Try again later.";
+"update.window" = "Update";
+"update.available" = "Wad %@ Is Available";
+"update.skip" = "Skip This Version";
+"update.download" = "Go to Download";
+"update.consent.window" = "Updates";
+"update.consent.title" = "Always Stay Up to Date?";
+"update.consent.text" = "Wad can check once a day whether a new version is available. It’s worth it, so you get improvements and bug fixes. Wad only asks GitHub for the latest version number. Dictations, vocabulary, and data about you are never sent. You can change this at any time under “Updates” in the menu, or check there yourself.";
+"update.consent.turnOn" = "Turn On";
+"whatsNew.window" = "What’s New";
+"whatsNew.updated" = "Wad Was Updated to %@";
+"whatsNew.title" = "New in Wad %@";
+"whatsNew.done" = "Done";
+
+/* Fenstermanager */
+"shortcuts.window" = "Window Shortcuts";
+"shortcuts.press" = "Press Shortcut…";
+"shortcuts.hint" = "Click a shortcut and press the new combination. Esc cancels.";
+"shortcuts.reset" = "Restore Defaults";
+"shortcuts.needsModifier" = "Please combine with ⌘, ⌥, or ⌃, otherwise the shortcut gets in the way of typing.";
+"shortcuts.reserved" = "%@ is needed by your Mac and apps, for example to copy and paste. Please choose another combination.";
+"shortcuts.taken" = "%@ is already used for “%@”.";
+"shortcuts.occupied" = "%@ is in use by macOS or another app.";
+"key.space" = "Space";
+"window.maximize" = "Maximize";
+"window.left" = "Left Half";
+"window.right" = "Right Half";
+"window.top" = "Top Half";
+"window.bottom" = "Bottom Half";
+"window.topLeft" = "Top Left";
+"window.topRight" = "Top Right";
+"window.bottomRight" = "Bottom Right";
+"window.bottomLeft" = "Bottom Left";
+"window.center" = "Center";
+
+/* Aufräumen der alten App */
+"cleanup.ask.title" = "Old Dictation App Found";
+"cleanup.ask.text" = "The earlier dictation app “Wispr” is still on this Mac. It uses the same key as Wad. Should Wad quit it, stop it from opening at login, and move its files to the Trash?";
+"cleanup.ask.confirm" = "Clean Up";
+"cleanup.done.title" = "The Old Dictation App Is Cleaned Up";
+"cleanup.done.text" = "From now on, only Wad listens to the right Option key. The old files are in the Trash. Empty it to permanently delete the old dictation history too.";
+"cleanup.failed.title" = "The Old Folder Couldn’t Be Moved";
+"cleanup.failed.text" = "The old app has quit and won’t start on its own anymore. You can move the folder “linus_apps/Wispr” on your Desktop to the Trash yourself. Wad will ask again the next time it starts.";
+
+/* Installation */
+"move.title" = "Move Wad to the Applications Folder?";
+"move.text" = "Wad is running directly from the downloaded file. In the Applications folder, Wad still opens after ejecting and, if you like, at every login.";
+"move.confirm" = "Move";
+"move.failed.title" = "That Didn’t Work";
+"move.failed.text" = "Please drag Wad onto the Applications folder yourself, in the window of the downloaded file.";
+"intel.title" = "Wad Requires a Mac with Apple Silicon";
+"intel.rosetta" = "Wad was opened using Rosetta. Select Wad in the Finder, press Cmd+I to open Get Info, and uncheck “Open using Rosetta”.";
+"intel.unsupported" = "Wad only works on Macs with an M1 chip or later. This Mac has an Intel processor.";

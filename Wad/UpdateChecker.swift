@@ -68,6 +68,13 @@ enum UpdateRules {
     /// im Menü, bekommt ihn nicht mehr.
     static func needsInfo(stored: Bool?, infoShown: Bool) -> Bool { stored == nil && !infoShown }
 
+    /// Liest WasIstNeu: die erste Textzeile als Begrüßung, dazu die Stichpunkte als schlichter Text.
+    static func whatsNew(_ markdown: String) -> (intro: String?, items: [String]) {
+        let lines = markdown.split(whereSeparator: \.isNewline).map(String.init)
+        let items = lines.filter { $0.hasPrefix("- ") }.map { plainText(String($0.dropFirst(2))) }
+        return (lines.first { !$0.hasPrefix("#") && !$0.hasPrefix("- ") }, items)
+    }
+
     /// Macht aus der Beschreibung auf GitHub schlichten Text: keine Auszeichnungen, Links nur als Wort.
     static func plainText(_ markdown: String) -> String {
         var text = markdown.replacingOccurrences(of: "\r\n", with: "\n")

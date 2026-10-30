@@ -72,7 +72,7 @@ final class DictationController {
     /// Ein kurzer, verständlicher Hinweis, wenn eine Aufnahme anders endete als gewollt.
     var onNotice: ((String) -> Void)?
     /// Sagt im Hinweis, wo ein nicht eingefügtes Diktat geblieben ist. Ist „Letzte Diktate“ aus, bleibt es nirgends.
-    var undeliveredNote = "Der Text liegt unter „Letzte Diktate“."
+    var undeliveredNote: () -> String = { L10n.t("notice.undelivered.kept") }
 
     private let capture: AudioCapture
     private let transcriber: Transcriber
@@ -228,7 +228,7 @@ final class DictationController {
         guard state == .recording, let session else { return }
         if !insert { session.isCancelled = true }
         finish(reason: reason)
-        onNotice?(insert ? "Aufnahme gestoppt, \(reason)" : "Aufnahme gestoppt, \(reason). \(undeliveredNote)")
+        onNotice?(insert ? L10n.t("notice.stopped", reason) : L10n.t("notice.stoppedUndelivered", reason, undeliveredNote()))
     }
 
     /// Bricht ein laufendes Diktat ab und verwirft es. Nur für Fälle, die der Nutzer selbst
@@ -255,7 +255,7 @@ final class DictationController {
             finish(reason: "Loslassen verpasst, Gegenprüfung")
         } else if now().timeIntervalSince(startedAt) >= limit {
             finish(reason: "Zeitlimit erreicht")
-            onNotice?("Aufnahme nach \(Int(limit / 60)) Minuten automatisch beendet, Text ist eingefügt")
+            onNotice?(L10n.t("notice.timeLimit", Int(limit / 60)))
         }
     }
 }

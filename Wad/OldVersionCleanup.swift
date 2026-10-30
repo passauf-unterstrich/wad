@@ -49,21 +49,22 @@ enum OldVersionCleanup {
             // Erst nach echtem Erfolg nie wieder fragen. Klappt es nicht, fragt Wad beim nächsten Start erneut.
             UserDefaults.standard.set(true, forKey: doneKey)
             log.notice("Alte Version aufgeräumt")
-            done.messageText = "Die alte Diktier-App ist aufgeräumt"
-            done.informativeText = "Ab jetzt hört nur noch Wad auf die rechte Option-Taste. Die alten Dateien liegen im Papierkorb. Leere ihn, dann sind auch die alten Diktat-Verläufe endgültig gelöscht."
+            done.messageText = L10n.t("cleanup.done.title")
+            done.informativeText = L10n.t("cleanup.done.text")
         } else {
-            done.messageText = "Der alte Ordner ließ sich nicht verschieben"
-            done.informativeText = "Die alte App ist beendet und startet nicht mehr von selbst. Den Ordner „linus_apps/Wispr“ auf dem Schreibtisch kannst du selbst in den Papierkorb legen. Wad fragt beim nächsten Start noch einmal."
+            done.messageText = L10n.t("cleanup.failed.title")
+            done.informativeText = L10n.t("cleanup.failed.text")
         }
+        done.addButton(withTitle: L10n.t("common.ok"))
         done.runModal()
     }
 
     private static func askUser() -> Bool {
         let alert = NSAlert()
-        alert.messageText = "Alte Diktier-App gefunden"
-        alert.informativeText = "Auf diesem Mac ist noch die frühere Diktier-App „Wispr“. Sie benutzt dieselbe Taste wie Wad. Soll Wad sie beenden, beim Anmelden nicht mehr starten lassen und ihre Dateien in den Papierkorb legen?"
-        alert.addButton(withTitle: "Aufräumen")
-        alert.addButton(withTitle: "Später")
+        alert.messageText = L10n.t("cleanup.ask.title")
+        alert.informativeText = L10n.t("cleanup.ask.text")
+        alert.addButton(withTitle: L10n.t("cleanup.ask.confirm"))
+        alert.addButton(withTitle: L10n.t("common.later"))
         NSApp.activate(ignoringOtherApps: true)
         return alert.runModal() == .alertFirstButtonReturn
     }

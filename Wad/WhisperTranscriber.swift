@@ -11,9 +11,9 @@ final class WhisperTranscriber: Transcriber {
 
         var errorDescription: String? {
             switch self {
-            case .modelMissing: "Ein Sprachmodell fehlt in Wad.app"
-            case .modelNotLoaded: "Das Sprachmodell konnte nicht geladen werden"
-            case .failed: "Die Spracherkennung ist fehlgeschlagen"
+            case .modelMissing: L10n.t("error.modelMissing")
+            case .modelNotLoaded: L10n.t("error.modelNotLoaded")
+            case .failed: L10n.t("error.recognitionFailed")
             }
         }
     }

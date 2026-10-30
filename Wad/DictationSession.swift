@@ -16,6 +16,8 @@ final class DictationSession {
     private var offset = 0
     private var language: String?
     private var texts: [String] = []
+    /// Whisper mischt im Chinesischen Kurz- und Langzeichen. Dieser Satz in Kurzzeichen lenkt es auf Kurzzeichen.
+    private static let simplifiedChineseHint = "以下是普通话的句子。"
 
     /// - Parameter language: fest gewählte Sprache wie „de“. `nil` erkennt sie am ersten Stück.
     init(audio: AudioBuffer, transcriber: Transcriber, language: String? = nil, vocabularyHint: String? = nil) {
@@ -25,8 +27,14 @@ final class DictationSession {
         self.vocabularyHint = vocabularyHint
     }
 
-    /// Der ganze Text des Diktats, Stücke mit Leerzeichen verbunden.
-    var fullText: String { texts.joined(separator: " ") }
+    /// Der ganze Text des Diktats, Stücke verbunden wie beim Einfügen.
+    var fullText: String { texts.reduce("", TextSpacing.join) }
+
+    /// Der Zusammenhang fürs Modell: Vokabeln, bei Chinesisch der Hinweis auf Kurzzeichen, das vorige Stück.
+    private var prompt: String? {
+        let parts = [vocabularyHint, language == "zh" ? Self.simplifiedChineseHint : nil, texts.last].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " ")
+    }
 
     /// Live: sucht im noch offenen Teil eine passende Pause und wandelt das Stück davor um.
     /// Rückgabe ist der einzufügende Text, sonst `nil`.
@@ -56,8 +64,7 @@ final class DictationSession {
         audio.withSamples(from: offset) { open -> String? in
             let speech = transcriber.speechSegments(in: open)
             guard ChunkPlanner.containsSpeech(speech) else { return nil }
-            let prompt = [vocabularyHint, texts.last].compactMap { $0 }.joined(separator: " ")
-            return try? transcriber.transcribe(open, language: language, prompt: prompt.isEmpty ? nil : prompt).text
+            return try? transcriber.transcribe(open, language: language, prompt: prompt).text
         }
     }
 
@@ -72,12 +79,11 @@ final class DictationSession {
         guard ChunkPlanner.containsSpeech(speechInChunk) else { return nil }
 
         let chunk = UnsafeBufferPointer(rebasing: open[0..<cut])
-        let prompt = [vocabularyHint, texts.last].compactMap { $0 }.joined(separator: " ")
-        guard let result = try? transcriber.transcribe(chunk, language: language, prompt: prompt.isEmpty ? nil : prompt),
+        guard let result = try? transcriber.transcribe(chunk, language: language, prompt: prompt),
               !result.text.isEmpty else { return nil }
 
         language = language ?? result.language
-        let needsSpace = !texts.isEmpty && !(result.text.first.map { ",.;:!?)".contains($0) } ?? false)
+        let needsSpace = TextSpacing.needsSpace(between: texts.last?.last, and: result.text.first)
         texts.append(result.text)
         return needsSpace ? " " + result.text : result.text
     }

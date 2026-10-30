@@ -55,13 +55,5 @@ final class VocabularyStore {
         permanent = Vocabulary(text: text)
     }
 
-    private static let template = """
-    # Wads Vokabelliste. Eine Zeile pro Eintrag, Zeilen mit # werden übergangen.
-    #
-    # Nur ein Begriff: Wad soll ihn kennen und genau so schreiben.
-    #   Mise en place
-    #
-    # Falsch -> Richtig: Wad ersetzt das Falsche immer durch das Richtige.
-    #   Watt -> Wad
-    """
+    private static var template: String { L10n.t("vocabulary.template") }
 }

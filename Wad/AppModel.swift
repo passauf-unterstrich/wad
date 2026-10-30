@@ -40,18 +40,18 @@ final class AppModel: ObservableObject {
         }
     }
     private static let insertModeKey = "Einfügen"
-    /// Sprache fürs Modell (SPEC 1.5), als Kürzel wie „de“. „auto“ heißt sprachoffen.
+    /// Eingabesprache fürs Modell (SPEC 1.5), als Kürzel wie „de“. „auto“ heißt sprachoffen.
     /// Gemerkt pro macOS-Benutzer, gilt ab dem nächsten Diktat.
     @Published var language = UserDefaults.standard.string(forKey: AppModel.languageKey)
-        .flatMap { code in AppModel.languages.contains { $0.code == code } ? code : nil } ?? "de" {
+        .flatMap { code in AppModel.languages.contains(code) || code == "auto" ? code : nil } ?? "de" {
         didSet {
             UserDefaults.standard.set(language, forKey: Self.languageKey)
             dictation.language = language == "auto" ? nil : language
         }
     }
     private static let languageKey = "Sprache"
-    static let languages = [(code: "de", name: "Deutsch"), (code: "en", name: "Englisch"),
-                            (code: "fr", name: "Französisch"), (code: "es", name: "Spanisch")]
+    /// Kürzel aus der Sprachtabelle von whisper.cpp. Die Namen stehen als „language.<Kürzel>“ in den Texten.
+    static let languages = ["de", "en", "fr", "es", "ja", "fi", "zh", "sw"]
     /// Schreibt alles klein. Die einzige Einstellung, die Wad sich über einen Neustart hinweg merkt:
     /// ein einzelner Ja/Nein-Wert in macOS' Einstellungsablage, nie ein Text.
     @Published var isLowercase = UserDefaults.standard.bool(forKey: AppModel.lowercaseKey) {
@@ -174,6 +174,9 @@ final class AppModel: ObservableObject {
         applyInsertMode()
         dictation.language = language == "auto" ? nil : language
         dictation.vocabularyHint = { [weak self] in self?.vocabulary.vocabulary.hint }
+        dictation.undeliveredNote = { [weak self] in
+            L10n.t(self?.keepsDictations == false ? "notice.undelivered.discarded" : "notice.undelivered.kept")
+        }
         dictation.onText = { [weak self] text, number in
             guard let self else { return }
             if deliveryMode.pastes {
@@ -230,7 +233,7 @@ final class AppModel: ObservableObject {
             NSSound(named: "Basso")?.play()
         }
         recorder.onMicrophoneLost = { [weak self] in
-            self?.dictation.stopUnexpectedly(reason: "weil kein Mikrofon mehr verfügbar ist")
+            self?.dictation.stopUnexpectedly(reason: L10n.t("reason.microphoneLost"))
         }
         inserter.onRestored = { [weak self] in self?.clipboardWatcher.skipCurrentChange() }
         hotkey.onChange = { [weak self] isPressed, isAlone in self?.keyChanged(isPressed, isAlone: isAlone) }
@@ -238,6 +241,11 @@ final class AppModel: ObservableObject {
             self?.openCorrection()
         }
         isWindowManagerEnabled = windowManager.isEnabled
+        L10n.shared.onChange = { [weak self] in
+            self?.correctionPanel.refreshTitle()
+            self?.shortcutsPanel.refreshTitle()
+            self?.updateWindows.refreshTitle()
+        }
         enableLoginItemOnFirstLaunch()
         // Erst nach dem Start, damit die Menüleiste schon steht, wenn ein Dialog erscheint.
         // Die Update-Fenster erst danach, damit nie zwei Dialoge übereinander liegen.
@@ -312,7 +320,7 @@ final class AppModel: ObservableObject {
         guard Permissions.hasMicrophone, Permissions.hasAccessibility else { return }
         guard showsWhatsNew else { return showUpdateInfo() }
         UserDefaults.standard.set(UpdateChecker.current.description, forKey: Self.lastSeenKey)
-        updateWindows.showWhatsNew(title: "Wad wurde auf \(UpdateChecker.current) aktualisiert") { [weak self] in
+        updateWindows.showWhatsNew(title: { L10n.t("whatsNew.updated", UpdateChecker.current.description) }) { [weak self] in
             self?.showUpdateInfo()
         }
     }
@@ -328,7 +336,7 @@ final class AppModel: ObservableObject {
 
     /// Menü „Updates → Was ist neu …“.
     func openWhatsNew() {
-        updateWindows.showWhatsNew(title: "Neu in Wad \(UpdateChecker.current)")
+        updateWindows.showWhatsNew(title: { L10n.t("whatsNew.title", UpdateChecker.current.description) })
     }
 
     /// Der Hinweis auf die neue Version, aus dem Menü oder nach einer Prüfung.
@@ -350,9 +358,9 @@ final class AppModel: ObservableObject {
                 availableUpdate = release
                 showUpdate()
             case .success(nil):
-                Self.tell("Keine Updates gefunden", "Wad \(UpdateChecker.current) ist die neueste Version.")
+                Self.tell(L10n.t("update.none.title"), L10n.t("update.none.text", UpdateChecker.current.description))
             case .failure:
-                Self.tell("Keine Verbindung", "Wad konnte gerade nicht nachsehen. Versuch es später noch einmal.")
+                Self.tell(L10n.t("update.noConnection.title"), L10n.t("update.noConnection.text"))
             }
         }
     }
@@ -361,6 +369,7 @@ final class AppModel: ObservableObject {
         let alert = NSAlert()
         alert.messageText = title
         alert.informativeText = text
+        alert.addButton(withTitle: L10n.t("common.ok"))
         NSApp.activate(ignoringOtherApps: true)
         alert.runModal()
     }
@@ -392,10 +401,10 @@ final class AppModel: ObservableObject {
             }
         } catch {
             log.error("Anmeldeobjekt: \(error.localizedDescription, privacy: .public)")
-            show(notice: "Start bei Anmeldung ließ sich nicht ändern")
+            show(notice: L10n.t("notice.loginItemFailed"))
         }
         if service.status == .requiresApproval {
-            show(notice: "Bitte Wad in den Anmeldeobjekten erlauben")
+            show(notice: L10n.t("notice.allowLoginItem"))
             SMAppService.openSystemSettingsLoginItems()
         }
         let enabled = service.status == .enabled
@@ -410,22 +419,9 @@ final class AppModel: ObservableObject {
 
     /// Legt einen fertigen Auftrag für ChatGPT, Claude & Co. in die Zwischenablage.
     func copyVocabularyPrompt() {
-        copyToClipboard(Self.vocabularyPrompt)
-        show(notice: "Vorlage kopiert, jetzt in deine KI einfügen")
+        copyToClipboard(L10n.t("vocabulary.prompt"))
+        show(notice: L10n.t("notice.templateCopied"))
     }
-
-    private static let vocabularyPrompt = """
-    Ich diktiere mit der App Wad. Sie erkennt Fachbegriffe und Namen besser, wenn sie eine \
-    Vokabelliste hat. Erstelle mir bitte eine Liste mit den 40 wichtigsten Begriffen, die ich \
-    beim Diktieren brauche.
-
-    Über mich: [hier kurz beschreiben, z. B. Beruf, Hobbys, Namen von Familie und Freunden]
-
-    Regeln für die Liste:
-    - eine Zeile pro Begriff, genau in der richtigen Schreibweise
-    - keine Nummerierung, keine Erklärungen, keine Überschrift
-    - wird ein Begriff beim Diktieren oft falsch geschrieben, die Zeile so: Falsch -> Richtig
-    """
 
     /// Zeigt einen Hinweis oben im Menü und als Ausrufezeichen am Symbol, für acht Sekunden.
     private func show(notice text: String) {
@@ -459,9 +455,6 @@ final class AppModel: ObservableObject {
     private func applyHistorySettings() {
         if !keepsDictations { dictations.clear() }
         preview.history = keepsDictations ? dictations.entries : []
-        dictation.undeliveredNote = keepsDictations
-            ? "Der Text liegt unter „Letzte Diktate“."
-            : "Der Text ist verworfen, „Letzte Diktate“ ist aus."
         if keepsClipboard {
             clipboardWatcher.start()
         } else {
@@ -520,12 +513,12 @@ final class AppModel: ObservableObject {
         // Das Mikrofon-Recht kann jederzeit in den Systemeinstellungen entzogen werden.
         hasMicrophone = Permissions.hasMicrophone
         guard hasMicrophone else {
-            show(notice: "Wad darf das Mikrofon nicht benutzen")
+            show(notice: L10n.t("notice.noMicrophone"))
             return false
         }
         // Lädt das Modell noch, darf trotzdem diktiert werden: Die Umwandlung wartet einfach dahinter.
         guard isTranscriberReady != false else {
-            show(notice: "Spracherkennung nicht verfügbar")
+            show(notice: L10n.t("menu.speechUnavailable"))
             return false
         }
         notice = nil
@@ -567,7 +560,7 @@ final class AppModel: ObservableObject {
             Permissions.relaunch()
         } else {
             hotkey.stop()
-            dictation.stopUnexpectedly(reason: "weil die Bedienungshilfen-Freigabe entzogen wurde", insert: false)
+            dictation.stopUnexpectedly(reason: L10n.t("reason.accessibilityRevoked"), insert: false)
             waitForAccessibility()
         }
     }

@@ -1,0 +1,171 @@
+/* Wads Oberflächentexte. Alle drei Sprachen haben dieselben Schlüssel, geprüft in L10nTests. */
+
+/* Allgemein */
+"common.ok" = "OK";
+"common.cancel" = "Abbrechen";
+"common.later" = "Später";
+"common.notNow" = "Nicht jetzt";
+
+/* Menü */
+"menu.updateAvailable" = "Update verfügbar: %@ …";
+"menu.dictation" = "Diktieren";
+"menu.handsFree.start" = "Freies Diktieren starten";
+"menu.handsFree.stop" = "Freies Diktieren stoppen";
+"menu.insertMode" = "Einfügemodus";
+"menu.insertMode.whileDictating" = "Während des Diktats";
+"menu.insertMode.afterDictating" = "Nach dem Diktat";
+"menu.insertMode.clipboard" = "Nur in die Zwischenablage";
+"menu.insertMode.clipboardPreview" = "Zwischenablage mit Vorschau";
+"menu.recentDictations" = "Letzte Diktate";
+"menu.recentDictations.empty" = "Noch keine Diktate";
+"menu.recentDictations.clear" = "Diktate löschen";
+"menu.clipboardHistory" = "Zwischenablage-Verlauf";
+"menu.clipboardHistory.empty" = "Noch nichts kopiert";
+"menu.clipboardHistory.clear" = "Verlauf löschen";
+"menu.history.keep" = "Mitschreiben";
+"menu.history.off" = "Ausgeschaltet";
+"menu.inputLanguage" = "Eingabesprache";
+"menu.menuLanguage" = "Menüsprache";
+"menu.lowercase" = "Kleinschreibung";
+"menu.handsFreeLimit" = "Höchstdauer freies Diktieren";
+"menu.minutes" = "%ld Minuten";
+"menu.vocabulary" = "Vokabeln";
+"menu.vocabulary.correct" = "Wort korrigieren …";
+"menu.vocabulary.reveal" = "Vokabelliste im Finder zeigen";
+"menu.vocabulary.copyPrompt" = "Vorlage für deine KI kopieren";
+"menu.windowManager" = "Fenstermanager";
+"menu.windowManager.enabled" = "Eingeschaltet";
+"menu.windowManager.shortcuts" = "Kürzel …";
+"menu.updates" = "Updates";
+"menu.updates.automatic" = "Automatisch suchen";
+"menu.updates.checkNow" = "Jetzt suchen …";
+"menu.updates.whatsNew" = "Was ist neu …";
+"menu.speechUnavailable" = "Spracherkennung nicht verfügbar";
+"menu.allowMicrophone" = "Mikrofon erlauben …";
+"menu.allowAccessibility" = "Bedienungshilfen erlauben …";
+"menu.openAtLogin" = "Bei Anmeldung starten";
+"menu.quit" = "Wad beenden";
+
+/* Eingabesprachen, in der Menüsprache benannt */
+"language.de" = "Deutsch";
+"language.en" = "Englisch";
+"language.fr" = "Französisch";
+"language.es" = "Spanisch";
+"language.ja" = "Japanisch";
+"language.fi" = "Finnisch";
+"language.zh" = "Chinesisch";
+"language.sw" = "Suaheli";
+"language.auto" = "Sprachoffen";
+
+/* Hinweise oben im Menü */
+"notice.loginItemFailed" = "Start bei Anmeldung ließ sich nicht ändern";
+"notice.allowLoginItem" = "Bitte Wad in den Anmeldeobjekten erlauben";
+"notice.templateCopied" = "Vorlage kopiert, jetzt in deine KI einfügen";
+"notice.noMicrophone" = "Wad darf das Mikrofon nicht benutzen";
+"notice.stopped" = "Aufnahme gestoppt, %@";
+"notice.stoppedUndelivered" = "Aufnahme gestoppt, %@. %@";
+"notice.undelivered.kept" = "Der Text liegt unter „Letzte Diktate“.";
+"notice.undelivered.discarded" = "Der Text ist verworfen, „Letzte Diktate“ ist aus.";
+"notice.timeLimit" = "Aufnahme nach %ld Minuten automatisch beendet, Text ist eingefügt";
+"reason.microphoneLost" = "weil kein Mikrofon mehr verfügbar ist";
+"reason.accessibilityRevoked" = "weil die Bedienungshilfen-Freigabe entzogen wurde";
+"reason.sleep" = "weil der Mac in den Ruhezustand ging";
+"reason.displayOff" = "weil der Bildschirm ausging";
+"reason.userSwitched" = "weil der Benutzer gewechselt wurde";
+"reason.screenLocked" = "weil der Bildschirm gesperrt wurde";
+
+/* Fehlermeldungen */
+"error.noMicrophone" = "Kein Mikrofon gefunden";
+"error.audioFormat" = "Audioformat des Mikrofons wird nicht unterstützt";
+"error.modelMissing" = "Ein Sprachmodell fehlt in Wad.app";
+"error.modelNotLoaded" = "Das Sprachmodell konnte nicht geladen werden";
+"error.recognitionFailed" = "Die Spracherkennung ist fehlgeschlagen";
+
+/* Symbol in der Menüleiste (für VoiceOver) */
+"icon.disabled" = "Wad, Diktieren aus";
+"icon.processing" = "Wad wandelt um";
+"icon.notice" = "Wad hat einen Hinweis";
+"icon.recording" = "Wad nimmt auf";
+
+/* Vorschau-Fenster */
+"preview.close" = "Schließen";
+"preview.closeHelp" = "Schließen, der Text kommt unter „Letzte Diktate“";
+"preview.earlier" = "Früherer Text";
+"preview.newer" = "Neuerer Text";
+"preview.listening" = "Ich höre zu …";
+"preview.stop" = "Diktat beenden";
+"preview.stopping" = "Wird beendet …";
+"preview.continue" = "Diktat fortsetzen";
+"preview.copy" = "Kopieren";
+"preview.copied" = "Kopiert ✓";
+"preview.done" = "Einfügen";
+"preview.doneHelp" = "Fertig: Text in die Zwischenablage, Fenster schließen (⌘↩)";
+
+/* Korrektur-Fenster (⌃⌥W) */
+"correction.window" = "Vokabel korrigieren";
+"correction.recognized" = "Erkannt:";
+"correction.right" = "Richtig:";
+"correction.untilRestart" = "Nur bis zum Neustart";
+"correction.always" = "Immer merken";
+
+/* Vokabelliste und Vorlage für andere KIs */
+"vocabulary.prompt" = "Ich diktiere mit der App Wad. Sie erkennt Fachbegriffe und Namen besser, wenn sie eine Vokabelliste hat. Erstelle mir bitte eine Liste mit den 40 wichtigsten Begriffen, die ich beim Diktieren brauche.\n\nÜber mich: [hier kurz beschreiben, z. B. Beruf, Hobbys, Namen von Familie und Freunden]\n\nRegeln für die Liste:\n- eine Zeile pro Begriff, genau in der richtigen Schreibweise\n- keine Nummerierung, keine Erklärungen, keine Überschrift\n- wird ein Begriff beim Diktieren oft falsch geschrieben, die Zeile so: Falsch -> Richtig";
+"vocabulary.template" = "# Wads Vokabelliste. Eine Zeile pro Eintrag, Zeilen mit # werden übergangen.\n#\n# Nur ein Begriff: Wad soll ihn kennen und genau so schreiben.\n#   Mise en place\n#\n# Falsch -> Richtig: Wad ersetzt das Falsche immer durch das Richtige.\n#   Watt -> Wad";
+
+/* Update-Fenster */
+"update.none.title" = "Keine Updates gefunden";
+"update.none.text" = "Wad %@ ist die neueste Version.";
+"update.noConnection.title" = "Keine Verbindung";
+"update.noConnection.text" = "Wad konnte gerade nicht nachsehen. Versuch es später noch einmal.";
+"update.window" = "Update";
+"update.available" = "Wad %@ ist da";
+"update.skip" = "Diese Version überspringen";
+"update.download" = "Zum Download";
+"update.consent.window" = "Updates";
+"update.consent.title" = "Immer auf dem neuesten Stand?";
+"update.consent.text" = "Wad kann einmal am Tag nachsehen, ob es eine neue Version gibt. Das ist sinnvoll, damit du Verbesserungen und Fehlerbehebungen bekommst. Dabei fragt Wad bei GitHub nur nach der neuesten Versionsnummer. Diktate, Vokabeln oder Daten über dich werden nie gesendet. Du kannst das jederzeit im Menü unter „Updates“ ändern oder dort selbst nachsehen.";
+"update.consent.turnOn" = "Einschalten";
+"whatsNew.window" = "Was ist neu";
+"whatsNew.updated" = "Wad wurde auf %@ aktualisiert";
+"whatsNew.title" = "Neu in Wad %@";
+"whatsNew.done" = "Fertig";
+
+/* Fenstermanager */
+"shortcuts.window" = "Fenster-Kürzel";
+"shortcuts.press" = "Kombination drücken …";
+"shortcuts.hint" = "Klicke auf ein Kürzel und drücke die neue Kombination. Esc bricht ab.";
+"shortcuts.reset" = "Standard wiederherstellen";
+"shortcuts.needsModifier" = "Bitte mit ⌘, ⌥ oder ⌃ kombinieren, sonst stört das Kürzel beim Tippen.";
+"shortcuts.reserved" = "%@ brauchen Mac und Apps selbst, zum Beispiel zum Kopieren und Einfügen. Bitte eine andere Kombination.";
+"shortcuts.taken" = "%@ ist schon für „%@“ vergeben.";
+"shortcuts.occupied" = "%@ ist von macOS oder einer anderen App belegt.";
+"key.space" = "Leertaste";
+"window.maximize" = "Vollbild";
+"window.left" = "Linke Hälfte";
+"window.right" = "Rechte Hälfte";
+"window.top" = "Obere Hälfte";
+"window.bottom" = "Untere Hälfte";
+"window.topLeft" = "Oben links";
+"window.topRight" = "Oben rechts";
+"window.bottomRight" = "Unten rechts";
+"window.bottomLeft" = "Unten links";
+"window.center" = "Zentrieren";
+
+/* Aufräumen der alten App */
+"cleanup.ask.title" = "Alte Diktier-App gefunden";
+"cleanup.ask.text" = "Auf diesem Mac ist noch die frühere Diktier-App „Wispr“. Sie benutzt dieselbe Taste wie Wad. Soll Wad sie beenden, beim Anmelden nicht mehr starten lassen und ihre Dateien in den Papierkorb legen?";
+"cleanup.ask.confirm" = "Aufräumen";
+"cleanup.done.title" = "Die alte Diktier-App ist aufgeräumt";
+"cleanup.done.text" = "Ab jetzt hört nur noch Wad auf die rechte Option-Taste. Die alten Dateien liegen im Papierkorb. Leere ihn, dann sind auch die alten Diktat-Verläufe endgültig gelöscht.";
+"cleanup.failed.title" = "Der alte Ordner ließ sich nicht verschieben";
+"cleanup.failed.text" = "Die alte App ist beendet und startet nicht mehr von selbst. Den Ordner „linus_apps/Wispr“ auf dem Schreibtisch kannst du selbst in den Papierkorb legen. Wad fragt beim nächsten Start noch einmal.";
+
+/* Installation */
+"move.title" = "Wad in den Programme-Ordner bewegen?";
+"move.text" = "Wad läuft gerade direkt aus der heruntergeladenen Datei. Im Programme-Ordner startet Wad auch nach dem Auswerfen und auf Wunsch bei jeder Anmeldung.";
+"move.confirm" = "Bewegen";
+"move.failed.title" = "Das hat nicht geklappt";
+"move.failed.text" = "Bitte ziehe Wad im Fenster der heruntergeladenen Datei selbst auf den Ordner „Programme“.";
+"intel.title" = "Wad braucht einen Mac mit Apple-Chip";
+"intel.rosetta" = "Wad wurde über Rosetta geöffnet. Wähle Wad im Finder aus, öffne mit Cmd+I die Informationen und entferne den Haken bei „Mit Rosetta öffnen“.";
+"intel.unsupported" = "Wad funktioniert nur auf Macs mit M1-Chip oder neuer. Dieser Mac hat einen Intel-Prozessor.";

@@ -63,9 +63,20 @@
 		A70000000000000000001001 /* MoveToApplications.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000001 /* MoveToApplications.swift */; };
 		D0C0FFEE0000000000000101 /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000001 /* UpdateChecker.swift */; };
 		D0C0FFEE0000000000000102 /* UpdateWindows.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000002 /* UpdateWindows.swift */; };
-		D0C0FFEE0000000000000103 /* WasIstNeu.md in Resources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000003 /* WasIstNeu.md */; };
 		D0C0FFEE0000000000000201 /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000001 /* UpdateChecker.swift */; };
 		D0C0FFEE0000000000000204 /* UpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0FFEE0000000000000004 /* UpdateTests.swift */; };
+		E1A000000000000000000011 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000001 /* L10n.swift */; };
+		E1A000000000000000000021 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000001 /* L10n.swift */; };
+		E1A000000000000000000012 /* TextSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000002 /* TextSpacing.swift */; };
+		E1A000000000000000000022 /* TextSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000002 /* TextSpacing.swift */; };
+		E1A000000000000000000023 /* L10nTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000003 /* L10nTests.swift */; };
+		E1A000000000000000000024 /* TextSpacingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000004 /* TextSpacingTests.swift */; };
+		E1A000000000000000000041 /* WasIstNeu.de.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000031 /* WasIstNeu.de.md */; };
+		E1A000000000000000000042 /* WasIstNeu.en.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000032 /* WasIstNeu.en.md */; };
+		E1A000000000000000000043 /* WasIstNeu.ja.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000033 /* WasIstNeu.ja.md */; };
+		E1A000000000000000000051 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000050 /* Localizable.strings */; };
+		E1A000000000000000000052 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000050 /* Localizable.strings */; };
+		E1A000000000000000000061 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1A000000000000000000060 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -117,8 +128,20 @@
 		A70000000000000000000001 /* MoveToApplications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveToApplications.swift; sourceTree = "<group>"; };
 		D0C0FFEE0000000000000001 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
 		D0C0FFEE0000000000000002 /* UpdateWindows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateWindows.swift; sourceTree = "<group>"; };
-		D0C0FFEE0000000000000003 /* WasIstNeu.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = WasIstNeu.md; sourceTree = "<group>"; };
 		D0C0FFEE0000000000000004 /* UpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTests.swift; sourceTree = "<group>"; };
+		E1A000000000000000000001 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		E1A000000000000000000002 /* TextSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSpacing.swift; sourceTree = "<group>"; };
+		E1A000000000000000000003 /* L10nTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10nTests.swift; sourceTree = "<group>"; };
+		E1A000000000000000000004 /* TextSpacingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSpacingTests.swift; sourceTree = "<group>"; };
+		E1A000000000000000000031 /* WasIstNeu.de.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = WasIstNeu.de.md; sourceTree = "<group>"; };
+		E1A000000000000000000032 /* WasIstNeu.en.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = WasIstNeu.en.md; sourceTree = "<group>"; };
+		E1A000000000000000000033 /* WasIstNeu.ja.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = WasIstNeu.ja.md; sourceTree = "<group>"; };
+		E1A000000000000000000070 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E1A000000000000000000080 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E1A000000000000000000071 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E1A000000000000000000081 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E1A000000000000000000072 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E1A000000000000000000082 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,7 +169,19 @@
 				B10000000000000000001004 /* ggml-large-v3-turbo-q5_0.bin in Resources */,
 				A60000000000000000001001 /* AppIcon.icns in Resources */,
 				D10000000000000000001005 /* ggml-silero-v6.2.0.bin in Resources */,
-				D0C0FFEE0000000000000103 /* WasIstNeu.md in Resources */,
+				E1A000000000000000000041 /* WasIstNeu.de.md in Resources */,
+				E1A000000000000000000042 /* WasIstNeu.en.md in Resources */,
+				E1A000000000000000000043 /* WasIstNeu.ja.md in Resources */,
+				E1A000000000000000000051 /* Localizable.strings in Resources */,
+				E1A000000000000000000061 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E1A000000000000000000090 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1A000000000000000000052 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -201,7 +236,13 @@
 				A70000000000000000000001 /* MoveToApplications.swift */,
 				D0C0FFEE0000000000000001 /* UpdateChecker.swift */,
 				D0C0FFEE0000000000000002 /* UpdateWindows.swift */,
-				D0C0FFEE0000000000000003 /* WasIstNeu.md */,
+				E1A000000000000000000031 /* WasIstNeu.de.md */,
+				E1A000000000000000000032 /* WasIstNeu.en.md */,
+				E1A000000000000000000033 /* WasIstNeu.ja.md */,
+				E1A000000000000000000050 /* Localizable.strings */,
+				E1A000000000000000000060 /* InfoPlist.strings */,
+				E1A000000000000000000001 /* L10n.swift */,
+				E1A000000000000000000002 /* TextSpacing.swift */,
 				A10000000000000000000002 /* Info.plist */,
 			);
 			path = Wad;
@@ -228,6 +269,8 @@
 				A30000000000000000000005 /* WindowLayoutTests.swift */,
 				C10000000000000000000002 /* TextInserterTests.swift */,
 				D0C0FFEE0000000000000004 /* UpdateTests.swift */,
+				E1A000000000000000000003 /* L10nTests.swift */,
+				E1A000000000000000000004 /* TextSpacingTests.swift */,
 			);
 			path = WadTests;
 			sourceTree = "<group>";
@@ -267,6 +310,7 @@
 			buildPhases = (
 				A10000000000000000000024 /* Sources */,
 				A10000000000000000000023 /* Frameworks */,
+				E1A000000000000000000090 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -289,10 +333,12 @@
 			};
 			buildConfigurationList = A10000000000000000000061 /* Build configuration list for PBXProject "Wad" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = de;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				en,
 				de,
+				ja,
 				Base,
 			);
 			mainGroup = A10000000000000000000031;
@@ -343,6 +389,8 @@
 				A70000000000000000001001 /* MoveToApplications.swift in Sources */,
 				D0C0FFEE0000000000000101 /* UpdateChecker.swift in Sources */,
 				D0C0FFEE0000000000000102 /* UpdateWindows.swift in Sources */,
+				E1A000000000000000000011 /* L10n.swift in Sources */,
+				E1A000000000000000000012 /* TextSpacing.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,10 +421,37 @@
 				A30000000000000000002005 /* WindowLayoutTests.swift in Sources */,
 				D0C0FFEE0000000000000201 /* UpdateChecker.swift in Sources */,
 				D0C0FFEE0000000000000204 /* UpdateTests.swift in Sources */,
+				E1A000000000000000000021 /* L10n.swift in Sources */,
+				E1A000000000000000000022 /* TextSpacing.swift in Sources */,
+				E1A000000000000000000023 /* L10nTests.swift in Sources */,
+				E1A000000000000000000024 /* TextSpacingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		E1A000000000000000000050 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E1A000000000000000000070 /* en */,
+				E1A000000000000000000071 /* de */,
+				E1A000000000000000000072 /* ja */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		E1A000000000000000000060 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E1A000000000000000000080 /* en */,
+				E1A000000000000000000081 /* de */,
+				E1A000000000000000000082 /* ja */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		A10000000000000000000071 /* Debug */ = {

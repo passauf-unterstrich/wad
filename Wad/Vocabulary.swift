@@ -39,7 +39,8 @@ struct Vocabulary: Equatable {
     }
 
     /// Ersetzt jede falsche Schreibweise, aber nur als ganzes Wort und unabhängig von Groß- und
-    /// Kleinschreibung. „Watt“ in „Wattestäbchen“ bleibt also unangetastet.
+    /// Kleinschreibung. „Watt“ in „Wattestäbchen“ bleibt also unangetastet. Japanisch und Chinesisch
+    /// haben keine Wortgrenzen, solche Begriffe werden überall ersetzt.
     func apply(to text: String) -> String {
         entries.reduce(text) { result, entry in
             guard let wrong = entry.wrong else { return result }
@@ -56,10 +57,11 @@ struct Vocabulary: Equatable {
     private static func replaceWholeWords(_ word: String, with replacement: String, in text: String) -> String {
         var result = text
         var searchStart = result.startIndex
+        let matchesAnywhere = word.contains(where: \.isCJK)
         while let found = result.range(of: word, options: .caseInsensitive, range: searchStart..<result.endIndex) {
             let startsWord = found.lowerBound == result.startIndex || !isWordCharacter(result[result.index(before: found.lowerBound)])
             let endsWord = found.upperBound == result.endIndex || !isWordCharacter(result[found.upperBound])
-            if startsWord && endsWord {
+            if matchesAnywhere || (startsWord && endsWord) {
                 let offset = result.distance(from: result.startIndex, to: found.lowerBound)
                 result.replaceSubrange(found, with: replacement)
                 searchStart = result.index(result.startIndex, offsetBy: offset + replacement.count)
@@ -70,7 +72,8 @@ struct Vocabulary: Equatable {
         return result
     }
 
+    /// Japanische und chinesische Zeichen gelten als Grenze: „Watt“ in „Wattです“ ist ein ganzes Wort.
     private static func isWordCharacter(_ character: Character) -> Bool {
-        character.isLetter || character.isNumber
+        (character.isLetter || character.isNumber) && !character.isCJK
     }
 }

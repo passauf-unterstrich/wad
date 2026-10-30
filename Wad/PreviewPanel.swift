@@ -429,18 +429,18 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
     /// Setzt bei Bedarf ein Leerzeichen davor und dahinter, damit Diktiertes nicht an Wörtern klebt.
     private func spaced(_ text: String) -> String {
         let all = string as NSString
-        let before = anchor > 0 ? all.substring(with: NSRange(location: anchor - 1, length: 1)) : ""
+        // Ganze Zeichen: Manche chinesischen Zeichen belegen zwei Stellen.
+        let before = anchor > 0 ? all.substring(with: all.rangeOfComposedCharacterSequence(at: anchor - 1)) : ""
         let afterIndex = anchor + draftLength
-        let after = afterIndex < all.length ? all.substring(with: NSRange(location: afterIndex, length: 1)) : ""
+        let after = afterIndex < all.length ? all.substring(with: all.rangeOfComposedCharacterSequence(at: afterIndex)) : ""
         var result = text
         let beforeIsSpace = before.isEmpty || before.first!.isWhitespace
         if beforeIsSpace {
             result = String(result.drop { $0 == " " })
-        } else if let first = result.first, !first.isWhitespace, !",.;:!?)".contains(first) {
+        } else if TextSpacing.needsSpace(between: before.first, and: result.first) {
             result = " " + result
         }
-        if let first = after.first, !first.isWhitespace, !",.;:!?)".contains(first),
-           let last = result.last, !last.isWhitespace {
+        if TextSpacing.needsSpace(between: result.last, and: after.first) {
             result += " "
         }
         return result
@@ -533,6 +533,7 @@ private struct PreviewView: View {
     private static let minTextHeight: CGFloat = 72
     /// Höhe eines früheren Textes beim Blättern, gemessen wie der Zettel selbst.
     @State private var historyHeight: CGFloat = 0
+    @ObservedObject private var l10n = L10n.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -545,13 +546,14 @@ private struct PreviewView: View {
                         .background(.quaternary, in: Circle())
                 }
                 .buttonStyle(.plain)
-                .help("Schließen, der Text kommt unter „Letzte Diktate“")
+                .help(L10n.t("preview.closeHelp"))
+                .accessibilityLabel(L10n.t("preview.close"))
                 Spacer()
                 if !content.history.isEmpty {
-                    arrow("chevron.left", help: "Früherer Text", disabled: (content.historyIndex ?? -1) >= content.history.count - 1) {
+                    arrow("chevron.left", help: L10n.t("preview.earlier"), disabled: (content.historyIndex ?? -1) >= content.history.count - 1) {
                         content.historyIndex = (content.historyIndex ?? -1) + 1
                     }
-                    arrow("chevron.right", help: "Neuerer Text", disabled: content.historyIndex == nil) {
+                    arrow("chevron.right", help: L10n.t("preview.newer"), disabled: content.historyIndex == nil) {
                         content.historyIndex = content.historyIndex.flatMap { $0 > 0 ? $0 - 1 : nil }
                     }
                 }
@@ -572,7 +574,7 @@ private struct PreviewView: View {
                     PageView(page: page)
                         .overlay(alignment: .topLeading) {
                             if content.isEmpty && !content.hasDraft && content.isListening {
-                                Text("Ich höre zu …").foregroundStyle(.tertiary).allowsHitTesting(false)
+                                Text(L10n.t("preview.listening")).foregroundStyle(.tertiary).allowsHitTesting(false)
                             }
                         }
                 }
@@ -584,20 +586,20 @@ private struct PreviewView: View {
                 // Zeigt immer, ob Wad noch zuhört, damit man eine laufende Aufnahme nicht vergisst.
                 if content.historyIndex == nil {
                     if content.isRecording {
-                        Button("Diktat beenden", action: onStop)
+                        Button(L10n.t("preview.stop"), action: onStop)
                     } else if content.isListening {
-                        Button("Wird beendet …") {}.disabled(true)
+                        Button(L10n.t("preview.stopping")) {}.disabled(true)
                     } else {
-                        Button("Diktat fortsetzen", action: onContinue)
+                        Button(L10n.t("preview.continue"), action: onContinue)
                     }
                 }
                 Spacer()
-                Button(content.isCopied ? "Kopiert ✓" : "Kopieren", action: onCopy)
+                Button(L10n.t(content.isCopied ? "preview.copied" : "preview.copy"), action: onCopy)
                     .disabled(!hasText)
-                Button("Einfügen", action: onDone)
+                Button(L10n.t("preview.done"), action: onDone)
                     .keyboardShortcut(.return, modifiers: .command)
                     .buttonStyle(.borderedProminent)
-                    .help("Fertig: Text in die Zwischenablage, Fenster schließen (⌘↩)")
+                    .help(L10n.t("preview.doneHelp"))
                     .disabled(!hasText)
             }
             .controlSize(.small)
@@ -623,6 +625,7 @@ private struct PreviewView: View {
         .foregroundStyle(disabled ? .tertiary : .secondary)
         .disabled(disabled)
         .help(help)
+        .accessibilityLabel(help)
     }
 }
 

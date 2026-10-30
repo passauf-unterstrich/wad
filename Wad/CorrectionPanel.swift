@@ -7,11 +7,16 @@ import SwiftUI
 final class CorrectionPanel {
     private var panel: NSPanel?
 
+    /// Die Menüsprache hat gewechselt. Den Inhalt zeichnet SwiftUI von selbst neu, nur den Titel nicht.
+    func refreshTitle() {
+        panel?.title = L10n.t("correction.window")
+    }
+
     /// Öffnet das Fenster vor allen anderen. `onSave` bekommt den Eintrag und ob er dauerhaft gilt.
     func show(wrong: String, onSave: @escaping (Vocabulary.Entry, Bool) -> Void) {
         panel?.close()
         let panel = NSPanel(contentRect: .zero, styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        panel.title = "Vokabel korrigieren"
+        panel.title = L10n.t("correction.window")
         panel.isReleasedWhenClosed = false
         panel.level = .floating
         // Die Fenstergröße richtet sich nach dem Inhalt, statt fest vorgegeben zu sein.
@@ -33,6 +38,7 @@ struct CorrectionView: View {
     @State private var wrong: String
     @State private var right = ""
     @FocusState private var focusedField: Field?
+    @ObservedObject private var l10n = L10n.shared
     /// `nil` heißt abgebrochen.
     let finish: (Vocabulary.Entry?, Bool) -> Void
 
@@ -47,12 +53,12 @@ struct CorrectionView: View {
         VStack(alignment: .leading, spacing: 16) {
             Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
                 GridRow {
-                    Text("Erkannt:").gridColumnAlignment(.trailing)
+                    Text(L10n.t("correction.recognized")).gridColumnAlignment(.trailing)
                     TextField("", text: $wrong)
                         .focused($focusedField, equals: .wrong)
                 }
                 GridRow {
-                    Text("Richtig:")
+                    Text(L10n.t("correction.right"))
                     TextField("", text: $right)
                         .focused($focusedField, equals: .right)
                 }
@@ -60,12 +66,12 @@ struct CorrectionView: View {
             .textFieldStyle(.roundedBorder)
 
             HStack {
-                Button("Abbrechen", role: .cancel) { finish(nil, false) }
+                Button(L10n.t("common.cancel"), role: .cancel) { finish(nil, false) }
                     .keyboardShortcut(.cancelAction)
                 Spacer()
                 Group {
-                    Button("Nur bis zum Neustart") { save(permanently: false) }
-                    Button("Immer merken") { save(permanently: true) }
+                    Button(L10n.t("correction.untilRestart")) { save(permanently: false) }
+                    Button(L10n.t("correction.always")) { save(permanently: true) }
                         .keyboardShortcut(.defaultAction)
                 }
                 .disabled(right.trimmingCharacters(in: .whitespaces).isEmpty)

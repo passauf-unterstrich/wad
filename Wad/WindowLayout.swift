@@ -10,16 +10,16 @@ enum WindowAction: String, CaseIterable, Codable {
 
     var title: String {
         switch self {
-        case .maximize: "Vollbild"
-        case .left: "Linke Hälfte"
-        case .right: "Rechte Hälfte"
-        case .top: "Obere Hälfte"
-        case .bottom: "Untere Hälfte"
-        case .topLeft: "Oben links"
-        case .topRight: "Oben rechts"
-        case .bottomRight: "Unten rechts"
-        case .bottomLeft: "Unten links"
-        case .center: "Zentrieren"
+        case .maximize: L10n.t("window.maximize")
+        case .left: L10n.t("window.left")
+        case .right: L10n.t("window.right")
+        case .top: L10n.t("window.top")
+        case .bottom: L10n.t("window.bottom")
+        case .topLeft: L10n.t("window.topLeft")
+        case .topRight: L10n.t("window.topRight")
+        case .bottomRight: L10n.t("window.bottomRight")
+        case .bottomLeft: L10n.t("window.bottomLeft")
+        case .center: L10n.t("window.center")
         }
     }
 

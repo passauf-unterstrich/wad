@@ -5,6 +5,7 @@ import SwiftUI
 
 struct WadApp: App {
     @StateObject private var model = AppModel()
+    @ObservedObject private var l10n = L10n.shared
 
     var body: some Scene {
         MenuBarExtra {
@@ -13,81 +14,86 @@ struct WadApp: App {
                 Divider()
             }
             if let update = model.availableUpdate {
-                Button("Update verfügbar: \(update.version.description) …") { model.showUpdate() }
+                Button(L10n.t("menu.updateAvailable", update.version.description)) { model.showUpdate() }
                 Divider()
             }
-            Toggle("Diktieren", isOn: $model.isEnabled)
+            Toggle(L10n.t("menu.dictation"), isOn: $model.isEnabled)
             // Freies Diktieren: läuft ohne gehaltene Taste, bis man es stoppt oder die Höchstdauer erreicht ist.
-            Button(model.isHandsFreeRecording ? "Freies Diktieren stoppen" : "Freies Diktieren starten", action: model.toggleHandsFree)
+            Button(L10n.t(model.isHandsFreeRecording ? "menu.handsFree.stop" : "menu.handsFree.start"), action: model.toggleHandsFree)
                 .disabled(!model.isEnabled || (model.dictationState == .recording && !model.isHandsFreeRecording))
             // Oben, weil man ihn oft umstellt.
-            Picker("Einfügemodus", selection: $model.insertMode) {
-                Text("Während des Diktats").tag(InsertMode.whileDictating)
-                Text("Nach dem Diktat").tag(InsertMode.afterDictating)
+            Picker(L10n.t("menu.insertMode"), selection: $model.insertMode) {
+                Text(L10n.t("menu.insertMode.whileDictating")).tag(InsertMode.whileDictating)
+                Text(L10n.t("menu.insertMode.afterDictating")).tag(InsertMode.afterDictating)
                 Divider()
-                Text("Nur in die Zwischenablage").tag(InsertMode.clipboard)
-                Text("Zwischenablage mit Vorschau").tag(InsertMode.clipboardPreview)
+                Text(L10n.t("menu.insertMode.clipboard")).tag(InsertMode.clipboard)
+                Text(L10n.t("menu.insertMode.clipboardPreview")).tag(InsertMode.clipboardPreview)
             }
             Divider()
             // Untermenüs statt langer Zeilen: Das Hauptmenü bleibt schmal,
             // macOS klappt die Listen zur Seite auf, an der Platz ist.
-            historyMenu("Letzte Diktate", isOn: $model.keepsDictations, entries: model.dictations.entries,
-                        empty: "Noch keine Diktate", clear: "Diktate löschen",
+            historyMenu(L10n.t("menu.recentDictations"), isOn: $model.keepsDictations, entries: model.dictations.entries,
+                        empty: L10n.t("menu.recentDictations.empty"), clear: L10n.t("menu.recentDictations.clear"),
                         onClear: model.clearDictations)
-            historyMenu("Zwischenablage-Verlauf", isOn: $model.keepsClipboard, entries: model.clipboard.entries,
-                        empty: "Noch nichts kopiert", clear: "Verlauf löschen",
+            historyMenu(L10n.t("menu.clipboardHistory"), isOn: $model.keepsClipboard, entries: model.clipboard.entries,
+                        empty: L10n.t("menu.clipboardHistory.empty"), clear: L10n.t("menu.clipboardHistory.clear"),
                         onClear: model.clearClipboardHistory)
             Divider()
-            Picker("Sprache", selection: $model.language) {
-                ForEach(AppModel.languages, id: \.code) { language in
-                    Text(language.name).tag(language.code)
+            Picker(L10n.t("menu.inputLanguage"), selection: $model.language) {
+                ForEach(AppModel.languages, id: \.self) { code in
+                    Text(L10n.t("language.\(code)")).tag(code)
                 }
                 Divider()
-                Text("Sprachoffen").tag("auto")
+                Text(L10n.t("language.auto")).tag("auto")
             }
-            Toggle("Kleinschreibung", isOn: $model.isLowercase)
-            Picker("Höchstdauer freies Diktieren", selection: $model.handsFreeMinutes) {
-                Text("2 Minuten").tag(2)
-                Text("5 Minuten").tag(5)
-                Text("10 Minuten").tag(10)
+            Picker(L10n.t("menu.menuLanguage"), selection: $l10n.language) {
+                ForEach(MenuLanguage.allCases, id: \.self) { language in
+                    Text(language.nativeName).tag(language)
+                }
             }
-            Menu("Vokabeln") {
-                Button("Wort korrigieren …", action: model.openCorrection)
+            Toggle(L10n.t("menu.lowercase"), isOn: $model.isLowercase)
+            Picker(L10n.t("menu.handsFreeLimit"), selection: $model.handsFreeMinutes) {
+                Text(L10n.t("menu.minutes", 2)).tag(2)
+                Text(L10n.t("menu.minutes", 5)).tag(5)
+                Text(L10n.t("menu.minutes", 10)).tag(10)
+            }
+            Menu(L10n.t("menu.vocabulary")) {
+                Button(L10n.t("menu.vocabulary.correct"), action: model.openCorrection)
                     .keyboardShortcut("w", modifiers: [.control, .option])
-                Button("Vokabelliste im Finder zeigen", action: model.revealVocabularyFile)
-                Button("Vorlage für deine KI kopieren", action: model.copyVocabularyPrompt)
+                Button(L10n.t("menu.vocabulary.reveal"), action: model.revealVocabularyFile)
+                Button(L10n.t("menu.vocabulary.copyPrompt"), action: model.copyVocabularyPrompt)
             }
-            Menu("Fenstermanager") {
-                Toggle("Eingeschaltet", isOn: $model.isWindowManagerEnabled)
-                Button("Kürzel …", action: model.openShortcutsPanel)
+            Menu(L10n.t("menu.windowManager")) {
+                Toggle(L10n.t("menu.windowManager.enabled"), isOn: $model.isWindowManagerEnabled)
+                Button(L10n.t("menu.windowManager.shortcuts"), action: model.openShortcutsPanel)
             }
             // Alles zu Updates in einem Untermenü, damit das Hauptmenü kurz bleibt.
-            Menu("Updates") {
-                Toggle("Automatisch suchen", isOn: $model.checksForUpdates)
-                Button("Jetzt suchen …", action: model.checkForUpdatesNow)
+            Menu(L10n.t("menu.updates")) {
+                Toggle(L10n.t("menu.updates.automatic"), isOn: $model.checksForUpdates)
+                Button(L10n.t("menu.updates.checkNow"), action: model.checkForUpdatesNow)
                 Divider()
-                Button("Was ist neu …", action: model.openWhatsNew)
+                Button(L10n.t("menu.updates.whatsNew"), action: model.openWhatsNew)
             }
             Divider()
             if model.isTranscriberReady == false {
-                Text("Spracherkennung nicht verfügbar")
+                Text(L10n.t("menu.speechUnavailable"))
                 Divider()
             }
             if !model.hasMicrophone {
-                Button("Mikrofon erlauben …") {
+                Button(L10n.t("menu.allowMicrophone")) {
                     Permissions.openMicrophoneSettings()
                 }
             }
             if !model.hasAccessibility {
-                Button("Bedienungshilfen erlauben …") {
+                Button(L10n.t("menu.allowAccessibility")) {
                     Permissions.openAccessibilitySettings()
                 }
             }
             if !model.hasMicrophone || !model.hasAccessibility {
                 Divider()
             }
-            Toggle("Bei Anmeldung starten", isOn: $model.launchesAtLogin)
-            Button("Wad beenden") {
+            Toggle(L10n.t("menu.openAtLogin"), isOn: $model.launchesAtLogin)
+            Button(L10n.t("menu.quit")) {
                 NSApplication.shared.terminate(nil)
             }
             .keyboardShortcut("q")
@@ -102,10 +108,10 @@ struct WadApp: App {
     private func historyMenu(_ title: String, isOn: Binding<Bool>, entries: [String], empty: String,
                              clear: String, onClear: @escaping () -> Void) -> some View {
         Menu(title) {
-            Toggle("Mitschreiben", isOn: isOn)
+            Toggle(L10n.t("menu.history.keep"), isOn: isOn)
             Divider()
             if !isOn.wrappedValue {
-                Text("Ausgeschaltet")
+                Text(L10n.t("menu.history.off"))
             } else if entries.isEmpty {
                 Text(empty)
             }
@@ -125,13 +131,15 @@ struct WadApp: App {
     }
 
     private var menuBarIcon: Image {
-        let icon: NSImage
+        let (icon, description): (NSImage, String)
         switch model.dictationState {
-        case .recording: icon = MenuBarIcon.recording
-        case .processing: icon = MenuBarIcon.processing
-        case .idle where model.notice != nil: icon = MenuBarIcon.notice
-        case .idle: icon = model.isEnabled ? MenuBarIcon.enabled : MenuBarIcon.disabled
+        case .recording: (icon, description) = (MenuBarIcon.recording, L10n.t("icon.recording"))
+        case .processing: (icon, description) = (MenuBarIcon.processing, L10n.t("icon.processing"))
+        case .idle where model.notice != nil: (icon, description) = (MenuBarIcon.notice, L10n.t("icon.notice"))
+        case .idle where model.isEnabled: (icon, description) = (MenuBarIcon.enabled, "Wad")
+        case .idle: (icon, description) = (MenuBarIcon.disabled, L10n.t("icon.disabled"))
         }
+        icon.accessibilityDescription = description
         return Image(nsImage: icon)
     }
 }

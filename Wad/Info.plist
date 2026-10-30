@@ -4,7 +4,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>de</string>
+	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>de</string>
+		<string>ja</string>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,9 +28,9 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<!-- Dieser Satz erscheint im Mikrofon-Dialog von macOS. -->
+	<!-- Dieser Satz erscheint im Mikrofon-Dialog von macOS. Übersetzungen in InfoPlist.strings. -->
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Wad hört nur zu, solange du die rechte Option-Taste gedrückt hältst. Die Aufnahme bleibt im Arbeitsspeicher deines Mac und wird nie gespeichert.</string>
+	<string>Wad only listens while you hold down the right Option key. The recording stays in your Mac’s memory and is never saved.</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<!-- Wad lebt nur in der Menüleiste: kein Dock-Symbol, kein Eintrag im App-Umschalter. -->

@@ -29,7 +29,7 @@ struct KeyCombo: Codable, Equatable, Hashable {
     private static func keyName(_ code: UInt32) -> String {
         let special: [Int: String] = [
             kVK_LeftArrow: "←", kVK_RightArrow: "→", kVK_UpArrow: "↑", kVK_DownArrow: "↓",
-            kVK_Return: "↩", kVK_Space: "Leertaste", kVK_Tab: "⇥", kVK_Escape: "⎋", kVK_Delete: "⌫",
+            kVK_Return: "↩", kVK_Space: L10n.t("key.space"), kVK_Tab: "⇥", kVK_Escape: "⎋", kVK_Delete: "⌫",
         ]
         if let name = special[Int(code)] { return name }
         // Den Buchstaben so zeigen, wie er auf der aktuellen Tastatur steht (deutsch: Z und Y richtig).

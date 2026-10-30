@@ -8,6 +8,7 @@ import AppKit
 @main
 enum WadMain {
     static func main() {
+        _ = L10n.shared     // zuerst: Die Menüsprache entscheidet sich, bevor Wad irgendeine Einstellung anlegt
         #if arch(x86_64)
         showIntelNotice()
         #else
@@ -22,13 +23,14 @@ private func showIntelNotice() {
     let app = NSApplication.shared
     app.setActivationPolicy(.accessory)
     let alert = NSAlert()
-    alert.messageText = "Wad braucht einen Mac mit Apple-Chip"
+    alert.messageText = L10n.t("intel.title")
     // Auch ein M-Mac landet hier, wenn Wad über Rosetta geöffnet wurde. Dann hilft ein Haken.
     if isRunningUnderRosetta {
-        alert.informativeText = "Wad wurde über Rosetta geöffnet. Wähle Wad im Finder aus, öffne mit Cmd+I die Informationen und entferne den Haken bei „Mit Rosetta öffnen“."
+        alert.informativeText = L10n.t("intel.rosetta")
     } else {
-        alert.informativeText = "Wad funktioniert nur auf Macs mit M1-Chip oder neuer. Dieser Mac hat einen Intel-Prozessor."
+        alert.informativeText = L10n.t("intel.unsupported")
     }
+    alert.addButton(withTitle: L10n.t("common.ok"))
     app.activate(ignoringOtherApps: true)
     alert.runModal()
 }

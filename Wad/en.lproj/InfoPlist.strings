@@ -1,0 +1,2 @@
+/* Erscheint im Mikrofon-Dialog von macOS, in der Sprache von macOS. */
+"NSMicrophoneUsageDescription" = "Wad only listens while you hold down the right Option key. The recording stays in your Mac’s memory and is never saved.";

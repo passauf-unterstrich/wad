@@ -8,6 +8,11 @@ import SwiftUI
 final class ShortcutsPanel {
     private var panel: NSPanel?
 
+    /// Die Menüsprache hat gewechselt. Den Inhalt zeichnet SwiftUI von selbst neu, nur den Titel nicht.
+    func refreshTitle() {
+        panel?.title = L10n.t("shortcuts.window")
+    }
+
     func show(manager: WindowManager) {
         if let panel, panel.isVisible {
             panel.makeKeyAndOrderFront(nil)
@@ -15,7 +20,7 @@ final class ShortcutsPanel {
             return
         }
         let panel = NSPanel(contentRect: .zero, styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        panel.title = "Fenster-Kürzel"
+        panel.title = L10n.t("shortcuts.window")
         panel.isReleasedWhenClosed = false
         let content = NSHostingController(rootView: ShortcutsView(manager: manager))
         content.sizingOptions = .preferredContentSize
@@ -34,6 +39,7 @@ private struct ShortcutsView: View {
     @State private var recording: WindowAction?
     @State private var message: String?
     @State private var monitor: Any?
+    @ObservedObject private var l10n = L10n.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -41,19 +47,19 @@ private struct ShortcutsView: View {
                 ForEach(WindowAction.allCases, id: \.self) { action in
                     GridRow {
                         Text(action.title).gridColumnAlignment(.trailing)
-                        Button(recording == action ? "Kombination drücken …" : shortcuts[action]?.displayName ?? "–") {
+                        Button(recording == action ? L10n.t("shortcuts.press") : shortcuts[action]?.displayName ?? "–") {
                             startRecording(action)
                         }
                         .frame(minWidth: 170)
                     }
                 }
             }
-            Text(message ?? "Klicke auf ein Kürzel und drücke die neue Kombination. Esc bricht ab.")
+            Text(message ?? L10n.t("shortcuts.hint"))
                 .font(.callout)
                 .foregroundStyle(message == nil ? .secondary : .primary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
-                Button("Standard wiederherstellen") {
+                Button(L10n.t("shortcuts.reset")) {
                     manager.resetToDefaults()
                     shortcuts = manager.shortcuts
                     message = nil
@@ -86,7 +92,7 @@ private struct ShortcutsView: View {
         if event.keyCode == UInt16(kVK_Escape) { return }
         let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
         guard !flags.subtracting(.shift).isEmpty else {
-            message = "Bitte mit ⌘, ⌥ oder ⌃ kombinieren, sonst stört das Kürzel beim Tippen."
+            message = L10n.t("shortcuts.needsModifier")
             return
         }
         var modifiers = 0
