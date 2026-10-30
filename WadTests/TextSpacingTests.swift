@@ -43,6 +43,11 @@ final class TextSpacingTests: XCTestCase {
         XCTAssertEqual(vocabulary.apply(to: "Wattestäbchenを使います"), "Wattestäbchenを使います", "Ganze Wörter gelten weiter")
     }
 
+    func testReplacementThatMergesWithItsNeighbourDoesNotCrash() {
+        let vocabulary = Vocabulary(text: "ワット -> \u{0301}")
+        XCTAssertEqual(vocabulary.apply(to: "eワット").count, 1, "Der Akzent verschmilzt mit dem e, der Text wird kürzer")
+    }
+
     func testLowercaseLeavesJapaneseAlone() {
         XCTAssertEqual("WadをOKで使う".lowercased(), "wadをokで使う")
     }

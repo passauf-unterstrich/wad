@@ -20,6 +20,11 @@ enum MenuLanguage: String, CaseIterable {
 
     /// Einstellung in macOS' Einstellungsablage.
     static let defaultsKey = "Menüsprache"
+    /// Die Eingabesprache fürs Modell. Bis 1.2.0 wurde sie erst mit der ersten eigenen Wahl gespeichert.
+    static let inputLanguageKey = "Sprache"
+    /// Die wählbaren Eingabesprachen: Kürzel aus der Sprachtabelle von whisper.cpp. Die Namen stehen als
+    /// „language.<Kürzel>“ in den Texten.
+    static let inputLanguages = ["de", "en", "fr", "es", "ja", "fi", "zh", "sw"]
 
     /// Alle Einstellungen, die eine Wad-Version vor 1.3.0 angelegt haben kann. Bewusst diese feste Liste und nicht
     /// „gibt es irgendwelche Einstellungen“: macOS legt selbst welche an, auch bei einer frischen Installation.
@@ -32,12 +37,23 @@ enum MenuLanguage: String, CaseIterable {
     /// Die gemerkte Sprache. Beim allerersten Start entscheidet Wad einmal: Neu installiert heißt Englisch, ein Update
     /// von einer älteren Version bleibt Deutsch, damit niemandem das Menü plötzlich die Sprache wechselt.
     /// Die Entscheidung wird sofort gemerkt, denn ab jetzt legt Wad selbst Einstellungen an und sähe beim
-    /// nächsten Start aus wie ein Update.
-    static func resolve(in defaults: UserDefaults) -> MenuLanguage {
+    /// nächsten Start aus wie ein Update. Dasselbe gilt für die Eingabesprache: Wer nie eine gewählt hat,
+    /// behält nach einem Update Deutsch, neu installiert folgt sie dem Mac. Danach sind beide Einstellungen unabhängig.
+    /// - Parameter preferred: die Sprachen des Mac, wichtigste zuerst.
+    static func resolve(in defaults: UserDefaults, preferred: [String] = Locale.preferredLanguages) -> MenuLanguage {
         if let stored = defaults.string(forKey: defaultsKey).flatMap(MenuLanguage.init) { return stored }
         let language: MenuLanguage = earlierWadKeys.contains { defaults.object(forKey: $0) != nil } ? .de : .en
         defaults.set(language.rawValue, forKey: defaultsKey)
+        if defaults.object(forKey: inputLanguageKey) == nil {
+            defaults.set(language == .en ? inputLanguage(preferred: preferred) : "de", forKey: inputLanguageKey)
+        }
         return language
+    }
+
+    /// Die erste Sprache des Mac, wenn Wad sie erkennt, sonst Englisch. „zh-Hans-CN“ zählt als „zh“.
+    static func inputLanguage(preferred: [String]) -> String {
+        let code = preferred.first.flatMap { Locale(identifier: $0).language.languageCode?.identifier }
+        return code.flatMap { inputLanguages.contains($0) ? $0 : nil } ?? "en"
     }
 }
 

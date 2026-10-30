@@ -64,7 +64,9 @@ struct Vocabulary: Equatable {
             if matchesAnywhere || (startsWord && endsWord) {
                 let offset = result.distance(from: result.startIndex, to: found.lowerBound)
                 result.replaceSubrange(found, with: replacement)
-                searchStart = result.index(result.startIndex, offsetBy: offset + replacement.count)
+                // Verschmilzt die Ersetzung mit einem Nachbarzeichen, ist der Text kürzer als gerechnet.
+                searchStart = result.index(result.startIndex, offsetBy: offset + replacement.count,
+                                           limitedBy: result.endIndex) ?? result.endIndex
             } else {
                 searchStart = found.upperBound
             }

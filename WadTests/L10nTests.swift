@@ -25,6 +25,41 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(MenuLanguage.resolve(in: defaults), .en)
     }
 
+    func testFreshInstallListensInTheLanguageOfTheMac() {
+        for (preferred, expected) in [("de-DE", "de"), ("en-US", "en"), ("fr-CH", "fr"), ("es-419", "es"), ("ja-JP", "ja"),
+                                      ("fi-FI", "fi"), ("zh-Hans-CN", "zh"), ("zh-Hant-TW", "zh"), ("sw-KE", "sw")] {
+            defaults.removePersistentDomain(forName: suite)
+            XCTAssertEqual(MenuLanguage.resolve(in: defaults, preferred: [preferred]), .en, "Das Menü bleibt Englisch")
+            XCTAssertEqual(defaults.string(forKey: MenuLanguage.inputLanguageKey), expected, preferred)
+        }
+    }
+
+    func testFreshInstallOnAnUnsupportedLanguageListensInEnglish() {
+        XCTAssertEqual(MenuLanguage.inputLanguage(preferred: ["it-IT", "de-DE"]), "en", "Nur die erste Sprache zählt")
+        XCTAssertEqual(MenuLanguage.inputLanguage(preferred: ["ko-KR"]), "en")
+        XCTAssertEqual(MenuLanguage.inputLanguage(preferred: []), "en")
+        XCTAssertEqual(MenuLanguage.inputLanguage(preferred: ["???"]), "en")
+    }
+
+    func testUpdateWithoutOwnChoiceKeepsListeningInGerman() {
+        defaults.set("1.2.0", forKey: "Zuletzt gestartete Version")
+        XCTAssertEqual(MenuLanguage.resolve(in: defaults, preferred: ["ja-JP"]), .de)
+        XCTAssertEqual(defaults.string(forKey: MenuLanguage.inputLanguageKey), "de", "Bisher galt Deutsch, ohne dass es gespeichert war")
+    }
+
+    func testUpdateKeepsChosenInputLanguage() {
+        defaults.set("auto", forKey: MenuLanguage.inputLanguageKey)
+        _ = MenuLanguage.resolve(in: defaults)
+        XCTAssertEqual(defaults.string(forKey: MenuLanguage.inputLanguageKey), "auto")
+    }
+
+    func testInputLanguageStaysAfterSwitchingTheMenuLater() {
+        _ = MenuLanguage.resolve(in: defaults, preferred: ["fi-FI"])
+        defaults.set("de", forKey: MenuLanguage.defaultsKey)
+        _ = MenuLanguage.resolve(in: defaults, preferred: ["ja-JP"])
+        XCTAssertEqual(defaults.string(forKey: MenuLanguage.inputLanguageKey), "fi", "Menü und Eingabe sind unabhängig")
+    }
+
     func testAnyEarlierSettingKeepsGerman() {
         for key in MenuLanguage.earlierWadKeys {
             defaults.removePersistentDomain(forName: suite)
@@ -134,10 +169,13 @@ final class L10nTests: XCTestCase {
     func testWhatsNewExistsInEveryLanguageAndStartsWithAGreeting() throws {
         for (language, greeting) in [(MenuLanguage.de, "Hi"), (.en, "Hi"), (.ja, "こんにちは")] {
             let url = repository.appendingPathComponent("Wad/WasIstNeu.\(language.rawValue).md")
-            let whatsNew = UpdateRules.whatsNew(try String(contentsOf: url, encoding: .utf8))
+            let text = try String(contentsOf: url, encoding: .utf8)
+            let whatsNew = UpdateRules.whatsNew(text)
             XCTAssertTrue(whatsNew.intro?.hasPrefix(greeting) == true, language.rawValue)
             XCTAssertEqual(whatsNew.items.count, 4, language.rawValue)
             XCTAssertFalse(whatsNew.items.contains { $0.contains("**") }, language.rawValue)
+            // CommonMark schließt Fettdruck nicht nach einem Satzzeichen direkt vor einem Buchstaben, etwa auf GitHub.
+            XCTAssertNil(text.range(of: #"[：:]\*\*\S"#, options: .regularExpression), language.rawValue)
         }
     }
 }

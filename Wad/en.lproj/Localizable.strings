@@ -162,7 +162,7 @@
 
 /* Installation */
 "move.title" = "Move Wad to the Applications Folder?";
-"move.text" = "Wad is running directly from the downloaded file. In the Applications folder, Wad still opens after ejecting and, if you like, at every login.";
+"move.text" = "Wad is running directly from the downloaded file. In the Applications folder, Wad keeps working after you eject the disk image and can open at every login if you like.";
 "move.confirm" = "Move";
 "move.failed.title" = "That Didn’t Work";
 "move.failed.text" = "Please drag Wad onto the Applications folder yourself, in the window of the downloaded file.";

@@ -49,9 +49,8 @@ final class AppModel: ObservableObject {
             dictation.language = language == "auto" ? nil : language
         }
     }
-    private static let languageKey = "Sprache"
-    /// Kürzel aus der Sprachtabelle von whisper.cpp. Die Namen stehen als „language.<Kürzel>“ in den Texten.
-    static let languages = ["de", "en", "fr", "es", "ja", "fi", "zh", "sw"]
+    private static let languageKey = MenuLanguage.inputLanguageKey
+    static let languages = MenuLanguage.inputLanguages
     /// Schreibt alles klein. Die einzige Einstellung, die Wad sich über einen Neustart hinweg merkt:
     /// ein einzelner Ja/Nein-Wert in macOS' Einstellungsablage, nie ein Text.
     @Published var isLowercase = UserDefaults.standard.bool(forKey: AppModel.lowercaseKey) {
