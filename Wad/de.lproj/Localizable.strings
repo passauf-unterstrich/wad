@@ -28,6 +28,8 @@
 "menu.menuLanguage" = "Menüsprache";
 "menu.lowercase" = "Kleinschreibung";
 "menu.spokenPunctuation" = "Satzzeichen ansagen";
+"menu.text" = "Text";
+"menu.autoParagraphs" = "Absätze automatisch";
 "menu.handsFreeLimit" = "Höchstdauer freies Diktieren";
 "menu.minutes" = "%ld Minuten";
 "menu.vocabulary" = "Vokabeln";

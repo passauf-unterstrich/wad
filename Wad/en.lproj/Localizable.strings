@@ -28,6 +28,8 @@
 "menu.menuLanguage" = "Menu Language";
 "menu.lowercase" = "All Lowercase";
 "menu.spokenPunctuation" = "Spoken Punctuation";
+"menu.text" = "Text";
+"menu.autoParagraphs" = "Automatic Paragraphs";
 "menu.handsFreeLimit" = "Hands-Free Time Limit";
 "menu.minutes" = "%ld Minutes";
 "menu.vocabulary" = "Vocabulary";

@@ -51,8 +51,12 @@ struct WadApp: App {
                     Text(language.nativeName).tag(language)
                 }
             }
-            Toggle(L10n.t("menu.lowercase"), isOn: $model.isLowercase)
-            Toggle(L10n.t("menu.spokenPunctuation"), isOn: $model.convertsSpokenPunctuation)
+            // Alles, was den Text selbst formt, in einem Untermenü, damit das Hauptmenü kurz bleibt.
+            Menu(L10n.t("menu.text")) {
+                Toggle(L10n.t("menu.lowercase"), isOn: $model.isLowercase)
+                Toggle(L10n.t("menu.spokenPunctuation"), isOn: $model.convertsSpokenPunctuation)
+                Toggle(L10n.t("menu.autoParagraphs"), isOn: $model.autoParagraphs)
+            }
             Picker(L10n.t("menu.handsFreeLimit"), selection: $model.handsFreeMinutes) {
                 Text(L10n.t("menu.minutes", 2)).tag(2)
                 Text(L10n.t("menu.minutes", 5)).tag(5)

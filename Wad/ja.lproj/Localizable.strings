@@ -28,6 +28,8 @@
 "menu.menuLanguage" = "メニューの言語";
 "menu.lowercase" = "すべて小文字";
 "menu.spokenPunctuation" = "句読点を声で入力";
+"menu.text" = "テキスト";
+"menu.autoParagraphs" = "自動で段落分け";
 "menu.handsFreeLimit" = "ハンズフリーの制限時間";
 "menu.minutes" = "%ld分";
 "menu.vocabulary" = "単語リスト";

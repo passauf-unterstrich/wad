@@ -433,7 +433,8 @@ final class PageTextView: NSTextView, NSTextViewDelegate, NSTextStorageDelegate 
         let before = anchor > 0 ? all.substring(with: all.rangeOfComposedCharacterSequence(at: anchor - 1)) : ""
         let afterIndex = anchor + draftLength
         let after = afterIndex < all.length ? all.substring(with: all.rangeOfComposedCharacterSequence(at: afterIndex)) : ""
-        var result = text
+        // Steht davor schon ein Umbruch, kommt keine zweite Leerzeile dazu.
+        var result = TextSpacing.trimmingLeadingBreak(text, after: before.first)
         let beforeIsSpace = before.isEmpty || before.first!.isWhitespace
         if beforeIsSpace {
             result = String(result.drop { $0 == " " })

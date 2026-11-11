@@ -205,4 +205,197 @@ final class TextSpacingTests: XCTestCase {
             XCTAssertEqual(SpokenPunctuation.apply(to: text), text)
         }
     }
+
+    // MARK: Absätze automatisch (1.3.2)
+
+    func testShortPauseMakesNoParagraph() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Eins. Zwei.", after: nil, pause: 0), "Eins. Zwei.")
+        XCTAssertEqual(planner.layout("Drei.", after: "Eins. Zwei.", pause: 1.9), " Drei.")
+    }
+
+    func testOneSentenceMakesNoParagraph() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Eins.", after: nil, pause: 0), "Eins.")
+        XCTAssertEqual(planner.layout("Zwei.", after: "Eins.", pause: 3), " Zwei.")
+    }
+
+    func testLongPauseAfterTwoSentencesMakesParagraph() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Eins. Zwei.", after: nil, pause: 0), "Eins. Zwei.")
+        XCTAssertEqual(planner.layout("Drei.", after: "Eins. Zwei.", pause: 2.5), "\n\nDrei.")
+        // Danach zählt der neue Absatz von vorn.
+        XCTAssertEqual(planner.layout("Vier.", after: "\n\nDrei.", pause: 2.5), " Vier.")
+    }
+
+    func testNoParagraphInsideASentence() {
+        var planner = ParagraphPlanner()
+        _ = planner.layout("Eins. Zwei. Und dann", after: nil, pause: 0)
+        XCTAssertEqual(planner.layout("ging es weiter.", after: "Eins. Zwei. Und dann", pause: 3), " ging es weiter.")
+    }
+
+    func testParagraphAfterSixSentencesEvenWithoutPause() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Eins. Zwei. Drei. Vier. Fünf. Sechs. Sieben. Acht.", after: nil, pause: 0),
+                       "Eins. Zwei. Drei. Vier. Fünf. Sechs.\n\nSieben. Acht.")
+        var other = ParagraphPlanner()
+        let first = other.layout("Eins. Zwei. Drei. Vier. Fünf. Sechs.", after: nil, pause: 0)
+        XCTAssertEqual(first, "Eins. Zwei. Drei. Vier. Fünf. Sechs.")
+        XCTAssertEqual(other.layout("Sieben.", after: first, pause: 0), "\n\nSieben.")
+    }
+
+    func testParagraphsInJapanese() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("一。二。三。四。五。六。七。", after: nil, pause: 0), "一。二。三。四。五。六。\n\n七。")
+        var other = ParagraphPlanner()
+        _ = other.layout("一。二。", after: nil, pause: 0)
+        XCTAssertEqual(other.layout("三。", after: "一。二。", pause: 2.5), "\n\n三。")
+    }
+
+    func testGreetingGetsItsOwnLine() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Hallo Anna, wie geht es dir? Ich wollte fragen. Kommst du morgen?", after: nil, pause: 0),
+                       "Hallo Anna,\n\nwie geht es dir? Ich wollte fragen. Kommst du morgen?")
+        var english = ParagraphPlanner()
+        XCTAssertEqual(english.layout("Dear John, thanks for the call. See you soon.", after: nil, pause: 0),
+                       "Dear John,\n\nthanks for the call. See you soon.")
+    }
+
+    func testGreetingWordsThatAreAlsoOrdinaryWordsNeedAName() {
+        var love = ParagraphPlanner()
+        XCTAssertEqual(love.layout("Liebe ist schön, aber anstrengend. Das weiß jeder. Wirklich.", after: nil, pause: 0),
+                       "Liebe ist schön, aber anstrengend. Das weiß jeder. Wirklich.")
+        var anna = ParagraphPlanner()
+        XCTAssertEqual(anna.layout("Liebe Anna, danke für alles. Es war schön. Bis bald.", after: nil, pause: 0),
+                       "Liebe Anna,\n\ndanke für alles. Es war schön. Bis bald.")
+        var all = ParagraphPlanner()
+        XCTAssertEqual(all.layout("Hallo zusammen, kurz zum Termin. Er ist morgen. Bitte kommt pünktlich.", after: nil, pause: 0),
+                       "Hallo zusammen,\n\nkurz zum Termin. Er ist morgen. Bitte kommt pünktlich.")
+    }
+
+    func testShortClosingsInMessagesNeedAName() {
+        let cases = [
+            ("Kommst du morgen? Gruß Linus", "Kommst du morgen?\n\nGruß\nLinus"),
+            ("Bin gleich da. LG, Anna.", "Bin gleich da.\n\nLG\nAnna"),
+            ("Danke dir. Viele Grüsse, Linus", "Danke dir.\n\nViele Grüsse\nLinus"),
+            ("Bis morgen. Viele liebe Grüße, Anna", "Bis morgen.\n\nViele liebe Grüße\nAnna"),
+            ("Das war's. Danke.", "Das war's. Danke."),
+            ("Gruß Linus", "Gruß Linus"),
+        ]
+        for (text, expected) in cases {
+            var planner = ParagraphPlanner()
+            XCTAssertEqual(planner.layout(text, after: nil, pause: 0), expected)
+        }
+    }
+
+    func testBrandNamesAreNoClosing() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Ich kaufe einen Fernseher. Er ist neu. LG ist gut.", after: nil, pause: 0),
+                       "Ich kaufe einen Fernseher. Er ist neu. LG ist gut.")
+    }
+
+    func testShortMessageKeepsItsGreeting() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Hey, bin gleich da.", after: nil, pause: 0), "Hey, bin gleich da.")
+        // Nur im ersten Stück eines Diktats.
+        XCTAssertEqual(planner.layout("Hallo Anna, wie geht's? Gut. Schön.", after: "Hey, bin gleich da.", pause: 0),
+                       " Hallo Anna, wie geht's? Gut. Schön.")
+    }
+
+    func testClosingGetsItsOwnParagraphAndTheNameItsOwnLine() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Ich komme vorbei. Dann bis morgen. Viele Grüße, Linus.", after: nil, pause: 0),
+                       "Ich komme vorbei. Dann bis morgen.\n\nViele Grüße\nLinus")
+        var english = ParagraphPlanner()
+        XCTAssertEqual(english.layout("Thanks a lot. Talk soon. Best regards, Anna Maria Schmidt!", after: nil, pause: 0),
+                       "Thanks a lot. Talk soon.\n\nBest regards\nAnna Maria Schmidt")
+    }
+
+    func testClosingWithoutNameOrInItsOwnPiece() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Das war's. Bis bald. Liebe Grüße an alle.", after: nil, pause: 0),
+                       "Das war's. Bis bald.\n\nLiebe Grüße an alle.")
+        var other = ParagraphPlanner()
+        let first = other.layout("Das war's. Bis bald.", after: nil, pause: 0)
+        XCTAssertEqual(other.layout("Viele Grüße, Linus.", after: first, pause: 0.7), "\n\nViele Grüße\nLinus")
+    }
+
+    func testClosingNeedsALetterBeforeIt() {
+        var planner = ParagraphPlanner()
+        XCTAssertEqual(planner.layout("Viele Grüße, Linus.", after: nil, pause: 0), "Viele Grüße, Linus.")
+        var other = ParagraphPlanner()
+        XCTAssertEqual(other.layout("Ich soll viele Grüße ausrichten. Von Anna. Und Tom.", after: nil, pause: 0),
+                       "Ich soll viele Grüße ausrichten. Von Anna. Und Tom.")
+    }
+
+    func testGroupsSplitOnlyAtLongPauses() {
+        let groups = ParagraphPlanner.groups(speech: [10..<20, 25..<35, 60..<70], length: 80, pause: 20, minSpeech: 5)
+        XCTAssertEqual(groups.map(\.range), [0..<47, 47..<80])
+        XCTAssertEqual(groups.map(\.pauseBefore), [10, 25])
+        // Ein Räuspern nach der Pause bleibt bei seinen Nachbarn.
+        let merged = ParagraphPlanner.groups(speech: [10..<20, 50..<52], length: 60, pause: 20, minSpeech: 5)
+        XCTAssertEqual(merged.map(\.range), [0..<60])
+    }
+
+    func testSpokenParagraph() {
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Erster Teil Absatz zweiter Teil"), "Erster Teil\n\nZweiter Teil")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Erster Teil. Absatz.\n\nDann weiter."), "Erster Teil.\n\nDann weiter.")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Erster Teil. Neuer Absatz. Dann weiter."), "Erster Teil.\n\nDann weiter.")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Eins. Absatz, neuer Absatz. Zwei."), "Eins.\n\nZwei.")
+        for text in ["Der Absatz ist zu lang.", "Siehe Absatz 2.", "Im zweiten Absatz steht es."] {
+            XCTAssertEqual(SpokenPunctuation.apply(to: text), text)
+        }
+    }
+
+    func testNeverTwoBlankLinesInARow() {
+        XCTAssertEqual(TextSpacing.trimmingLeadingBreak("\n\nZwei.", after: "\n"), "Zwei.")
+        XCTAssertEqual(TextSpacing.trimmingLeadingBreak(" Zwei.", after: "\n"), "Zwei.")
+        XCTAssertEqual(TextSpacing.trimmingLeadingBreak("\n\nZwei.", after: "."), "\n\nZwei.")
+        let page = PageTextView()
+        page.beginDictation(atCursor: false)
+        page.appendFinal("Eins.\n\n")
+        page.appendFinal("\n\nZwei.")
+        XCTAssertEqual(page.pageText, "Eins.\n\nZwei.")
+    }
+
+    /// Ein Diktat aus Sprache, Stille, Sprache, in Sekunden.
+    private func paragraphSession(autoParagraphs: Bool, transcriber: FakeTranscriber) -> DictationSession {
+        let audio = AudioBuffer(maxDuration: 60)
+        for (seconds, speech) in [(1.0, true), (2.5, false), (1.0, true)] {
+            let samples = [Float](repeating: speech ? 0.5 : 0, count: Int(seconds * AudioBuffer.sampleRate))
+            samples.withUnsafeBufferPointer { audio.append($0) }
+        }
+        return DictationSession(audio: audio, transcriber: transcriber, language: "de", autoParagraphs: autoParagraphs)
+    }
+
+    func testSessionMakesParagraphAtLongPauseOnlyWhenSwitchedOn() {
+        let transcriber = FakeTranscriber()
+        transcriber.texts = ["Eins. Zwei.", "Drei."]
+        let session = paragraphSession(autoParagraphs: true, transcriber: transcriber)
+        XCTAssertEqual(session.transcribeRemainder(), "Eins. Zwei.\n\nDrei.")
+        XCTAssertEqual(session.fullText, "Eins. Zwei.\n\nDrei.")
+        XCTAssertEqual(transcriber.chunkLengths.count, 2)
+        XCTAssertEqual(transcriber.prompts.last, "Eins. Zwei.")
+
+        let plain = FakeTranscriber()
+        plain.texts = ["Eins. Zwei. Drei."]
+        let off = paragraphSession(autoParagraphs: false, transcriber: plain)
+        XCTAssertEqual(off.transcribeRemainder(), "Eins. Zwei. Drei.")
+        XCTAssertEqual(plain.chunkLengths, [Int(4.5 * AudioBuffer.sampleRate)])
+    }
+
+    func testPauseAcrossPiecesCountsTheSilenceAtTheEnd() {
+        let transcriber = FakeTranscriber()
+        transcriber.texts = ["Eins. Zwei.", "Drei."]
+        let audio = AudioBuffer(maxDuration: 60)
+        let session = DictationSession(audio: audio, transcriber: transcriber, language: "de", autoParagraphs: true)
+        func add(_ seconds: Double, speech: Bool) {
+            let samples = [Float](repeating: speech ? 0.5 : 0, count: Int(seconds * AudioBuffer.sampleRate))
+            samples.withUnsafeBufferPointer { audio.append($0) }
+        }
+        add(1, speech: true); add(1.5, speech: false)
+        XCTAssertEqual(session.transcribeRemainder(), "Eins. Zwei.")
+        add(1, speech: false); add(1, speech: true)
+        XCTAssertEqual(session.transcribeRemainder(), "\n\nDrei.")
+    }
 }

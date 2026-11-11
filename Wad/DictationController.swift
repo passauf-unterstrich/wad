@@ -44,6 +44,8 @@ final class DictationController {
     /// Sprache fürs Modell, z. B. „de“. `nil` erkennt sie zu Beginn jedes Diktats selbst (SPEC 1.5).
     /// Gilt wie `mode` ab der nächsten Aufnahme.
     var language: String?
+    /// Absätze automatisch: Leerzeilen an langen Sprechpausen. Gilt wie `language` ab der nächsten Aufnahme.
+    var autoParagraphs = false
     /// Liefert im Live-Modus zusätzlich vorläufigen Text fürs Vorschau-Fenster (SPEC 1.10).
     /// Gilt ab der nächsten Aufnahme.
     var deliversDrafts = false
@@ -179,7 +181,7 @@ final class DictationController {
             return
         }
         session = DictationSession(audio: audio, transcriber: transcriber, language: language,
-                                   vocabularyHint: vocabularyHint())
+                                   vocabularyHint: vocabularyHint(), autoParagraphs: autoParagraphs)
         // Freies Diktieren läuft immer wie „Zwischenablage mit Vorschau“: live und mit grauem Entwurf,
         // egal welcher Modus eingestellt ist. Die Einstellung selbst bleibt dabei unverändert.
         isLive = handsFree || mode == .live

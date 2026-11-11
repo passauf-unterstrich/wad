@@ -63,6 +63,15 @@ final class AppModel: ObservableObject {
         didSet { UserDefaults.standard.set(convertsSpokenPunctuation, forKey: Self.spokenPunctuationKey) }
     }
     private static let spokenPunctuationKey = "Satzzeichen ansagen"
+    /// Leerzeilen an langen Sprechpausen, Anrede und Grußformel auf eigenen Zeilen. Standard an,
+    /// gilt ab dem nächsten Diktat.
+    @Published var autoParagraphs = UserDefaults.standard.object(forKey: AppModel.autoParagraphsKey) as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(autoParagraphs, forKey: Self.autoParagraphsKey)
+            dictation.autoParagraphs = autoParagraphs
+        }
+    }
+    private static let autoParagraphsKey = "Absätze automatisch"
     /// Fenstermanager an oder aus. Gemerkt wird das vom Fenstermanager selbst.
     @Published var isWindowManagerEnabled = false {
         didSet { windowManager.isEnabled = isWindowManagerEnabled }
@@ -182,6 +191,7 @@ final class AppModel: ObservableObject {
         dictation.handsFreeLimit = TimeInterval(handsFreeMinutes * 60)
         applyInsertMode()
         dictation.language = language == "auto" ? nil : language
+        dictation.autoParagraphs = autoParagraphs
         dictation.vocabularyHint = { [weak self] in self?.vocabulary.vocabulary.hint }
         dictation.undeliveredNote = { [weak self] in
             L10n.t(self?.keepsDictations == false ? "notice.undelivered.discarded" : "notice.undelivered.kept")
@@ -196,6 +206,9 @@ final class AppModel: ObservableObject {
                     if TextSpacing.needsSpace(between: characterBeforeCursor(), and: text.first) {
                         text = " " + text
                     }
+                } else {
+                    // Endete das vorige Stück schon mit einem Umbruch, kommt keine zweite Leerzeile dazu.
+                    text = TextSpacing.trimmingLeadingBreak(text, after: lastPaste?.character)
                 }
                 inserter.insert(text)
                 lastPaste = text.last.map {
