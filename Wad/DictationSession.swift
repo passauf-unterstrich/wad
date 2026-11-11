@@ -64,7 +64,8 @@ final class DictationSession {
         audio.withSamples(from: offset) { open -> String? in
             let speech = transcriber.speechSegments(in: open)
             guard ChunkPlanner.containsSpeech(speech) else { return nil }
-            return try? transcriber.transcribe(open, language: language, prompt: prompt).text
+            return (try? transcriber.transcribe(open, language: language, prompt: prompt).text)
+                .map(TextSpacing.separatingSentences)
         }
     }
 
@@ -83,9 +84,10 @@ final class DictationSession {
               !result.text.isEmpty else { return nil }
 
         language = language ?? result.language
-        let needsSpace = TextSpacing.needsSpace(between: texts.last?.last, and: result.text.first)
-        texts.append(result.text)
-        return needsSpace ? " " + result.text : result.text
+        let text = TextSpacing.separatingSentences(result.text)
+        let needsSpace = TextSpacing.needsSpace(between: texts.last?.last, and: text.first)
+        texts.append(text)
+        return needsSpace ? " " + text : text
     }
 
     private func advance(by length: Int) {

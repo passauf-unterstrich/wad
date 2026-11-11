@@ -27,6 +27,7 @@
 "menu.inputLanguage" = "Input Language";
 "menu.menuLanguage" = "Menu Language";
 "menu.lowercase" = "All Lowercase";
+"menu.spokenPunctuation" = "Spoken Punctuation";
 "menu.handsFreeLimit" = "Hands-Free Time Limit";
 "menu.minutes" = "%ld Minutes";
 "menu.vocabulary" = "Vocabulary";

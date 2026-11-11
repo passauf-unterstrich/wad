@@ -52,6 +52,7 @@ struct WadApp: App {
                 }
             }
             Toggle(L10n.t("menu.lowercase"), isOn: $model.isLowercase)
+            Toggle(L10n.t("menu.spokenPunctuation"), isOn: $model.convertsSpokenPunctuation)
             Picker(L10n.t("menu.handsFreeLimit"), selection: $model.handsFreeMinutes) {
                 Text(L10n.t("menu.minutes", 2)).tag(2)
                 Text(L10n.t("menu.minutes", 5)).tag(5)

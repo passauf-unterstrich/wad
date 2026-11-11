@@ -16,6 +16,40 @@ enum SelectedText {
         return trimmed.isEmpty ? nil : trimmed
     }
 
+    /// Was vor dem Cursor der vorderen App steht.
+    enum CursorContext: Equatable {
+        /// Der Cursor steht ganz am Anfang des Felds.
+        case atStart
+        case character(Character)
+        /// Die App verrät es nicht (viele Browser- und Electron-Apps wie Claude oder WhatsApp).
+        case unknown
+    }
+
+    /// Das Zeichen direkt vor dem Cursor, damit ein neues Diktat nicht an den Satz davor klebt („Gut.Dann“).
+    /// Liest über die Bedienungshilfen nur dieses eine Zeichen, nie mehr, und merkt es sich nicht.
+    static func contextBeforeCursor() -> CursorContext {
+        let system = AXUIElementCreateSystemWide()
+        var focused: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(system, kAXFocusedUIElementAttribute as CFString, &focused) == .success,
+              let focused, CFGetTypeID(focused) == AXUIElementGetTypeID() else { return .unknown }
+        let element = focused as! AXUIElement
+        var rangeValue: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &rangeValue) == .success,
+              let rangeValue, CFGetTypeID(rangeValue) == AXValueGetTypeID() else { return .unknown }
+        var selection = CFRange()
+        guard AXValueGetValue(rangeValue as! AXValue, .cfRange, &selection) else { return .unknown }
+        guard selection.location > 0 else { return .atStart }
+        // Zwei Stellen, weil manche Zeichen (Emoji, seltene chinesische Zeichen) zwei belegen.
+        let length = min(selection.location, 2)
+        var wanted = CFRange(location: selection.location - length, length: length)
+        guard let wantedValue = AXValueCreate(.cfRange, &wanted) else { return .unknown }
+        var text: CFTypeRef?
+        guard AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
+                                                         wantedValue, &text) == .success,
+              let last = (text as? String)?.last else { return .unknown }
+        return .character(last)
+    }
+
     private static func fromAccessibility() -> String? {
         let system = AXUIElementCreateSystemWide()
         var focused: CFTypeRef?

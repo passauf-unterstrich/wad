@@ -27,6 +27,7 @@
 "menu.inputLanguage" = "Eingabesprache";
 "menu.menuLanguage" = "Menüsprache";
 "menu.lowercase" = "Kleinschreibung";
+"menu.spokenPunctuation" = "Satzzeichen ansagen";
 "menu.handsFreeLimit" = "Höchstdauer freies Diktieren";
 "menu.minutes" = "%ld Minuten";
 "menu.vocabulary" = "Vokabeln";

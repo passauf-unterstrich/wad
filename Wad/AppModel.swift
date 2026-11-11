@@ -57,6 +57,12 @@ final class AppModel: ObservableObject {
         didSet { UserDefaults.standard.set(isLowercase, forKey: Self.lowercaseKey) }
     }
     private static let lowercaseKey = "Kleinschreibung"
+    /// Wandelt angesagte Satzzeichen wie „Komma“ oder „neue Zeile“ in Zeichen um. Standard aus,
+    /// denn Wad setzt Satzzeichen auch von selbst.
+    @Published var convertsSpokenPunctuation = UserDefaults.standard.bool(forKey: AppModel.spokenPunctuationKey) {
+        didSet { UserDefaults.standard.set(convertsSpokenPunctuation, forKey: Self.spokenPunctuationKey) }
+    }
+    private static let spokenPunctuationKey = "Satzzeichen ansagen"
     /// Fenstermanager an oder aus. Gemerkt wird das vom Fenstermanager selbst.
     @Published var isWindowManagerEnabled = false {
         didSet { windowManager.isEnabled = isWindowManagerEnabled }
@@ -113,6 +119,10 @@ final class AppModel: ObservableObject {
     private let recorder = MicrophoneRecorder()
     private let transcriber: WhisperTranscriber
     private let inserter = TextInserter()
+    /// Das Diktat, dessen erstes Stück schon eingefügt ist. Nur vor dem ersten Stück schaut Wad, was vor dem Cursor steht.
+    private var lastPastedDictation: Int?
+    /// Das zuletzt eingefügte Zeichen, in welche App und wann. Ersatz, wenn eine App nicht verrät, was vor dem Cursor steht.
+    private var lastPaste: PasteMark?
     private let clipboardWatcher = ClipboardWatcher()
     private let vocabulary = VocabularyStore()
     private let correctionPanel = CorrectionPanel()
@@ -179,7 +189,19 @@ final class AppModel: ObservableObject {
         dictation.onText = { [weak self] text, number in
             guard let self else { return }
             if deliveryMode.pastes {
-                inserter.insert(styled(text))
+                var text = styled(text)
+                // Ein neues Diktat direkt hinter „Gut.“ bekommt ein Leerzeichen davor, wie bei Apples Diktat.
+                if lastPastedDictation != number {
+                    lastPastedDictation = number
+                    if TextSpacing.needsSpace(between: characterBeforeCursor(), and: text.first) {
+                        text = " " + text
+                    }
+                }
+                inserter.insert(text)
+                lastPaste = text.last.map {
+                    PasteMark(character: $0, app: NSWorkspace.shared.frontmostApplication?.processIdentifier,
+                              at: ProcessInfo.processInfo.systemUptime)
+                }
             } else {
                 preview.append(styled(text), dictation: number)
             }
@@ -285,10 +307,32 @@ final class AppModel: ObservableObject {
         askForMissingPermissions()
     }
 
-    /// Erst die Vokabeln, dann die Kleinschreibung: So gewinnt die Kleinschreibung immer.
+    /// Was vor dem Cursor steht. Verrät die App es nicht, nimmt Wad das Ende seines letzten Diktats, aber nur,
+    /// wenn seitdem in derselben App weder getippt noch geklickt wurde: Dann steht der Cursor noch genau dahinter.
+    /// Wad fragt dafür nur ab, wie lange der letzte Tastendruck und Klick her sind, nie welche Taste (SPEC 2.1).
+    private func characterBeforeCursor() -> Character? {
+        let context = SelectedText.contextBeforeCursor()
+        // Nur die Art, nie das Zeichen selbst.
+        log.notice("Vor dem Cursor: \(context == .atStart ? "Anfang" : context == .unknown ? "unbekannt" : "Zeichen", privacy: .public)")
+        switch context {
+        case .atStart: return nil
+        case .character(let character): return character
+        case .unknown:
+            guard let lastPaste, lastPaste.app == NSWorkspace.shared.frontmostApplication?.processIdentifier else { return nil }
+            let elapsed = ProcessInfo.processInfo.systemUptime - lastPaste.at
+            // Kleiner Spielraum: Wads eigenes Cmd+V kurz vor dem Merken zählt nicht als Tippen.
+            let untouched = [CGEventType.keyDown, .leftMouseDown, .rightMouseDown].allSatisfy {
+                CGEventSource.secondsSinceLastEventType(.hidSystemState, eventType: $0) >= elapsed - 0.2
+            }
+            return untouched ? lastPaste.character : nil
+        }
+    }
+
+    /// Erst die Vokabeln, dann angesagte Satzzeichen, dann die Kleinschreibung: So gewinnt die Kleinschreibung immer.
     private func styled(_ text: String) -> String {
-        let corrected = vocabulary.vocabulary.apply(to: text)
-        return isLowercase ? corrected.lowercased(with: .current) : corrected
+        var corrected = vocabulary.vocabulary.apply(to: text)
+        if convertsSpokenPunctuation { corrected = SpokenPunctuation.apply(to: corrected) }
+        return isLowercase ? TextSpacing.lowercased(corrected) : corrected
     }
 
     /// Öffnet das Korrektur-Fenster mit dem markierten Text der vorderen App.
@@ -307,7 +351,7 @@ final class AppModel: ObservableObject {
             // Kurz warten, bis die App wieder vorne ist und ihre Markierung zurück hat.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
                 guard let self, NSWorkspace.shared.frontmostApplication == sourceApp else { return }
-                inserter.insert(isLowercase ? entry.right.lowercased(with: .current) : entry.right)
+                inserter.insert(isLowercase ? TextSpacing.lowercased(entry.right) : entry.right)
             }
         }
     }
@@ -563,4 +607,11 @@ final class AppModel: ObservableObject {
             waitForAccessibility()
         }
     }
+}
+
+/// Das letzte Zeichen, das Wad eingefügt hat, in welche App und wann (Sekunden seit dem Systemstart).
+struct PasteMark {
+    let character: Character
+    let app: pid_t?
+    let at: TimeInterval
 }

@@ -151,4 +151,58 @@ final class TextSpacingTests: XCTestCase {
             XCTAssertEqual(transcriber.prompts, ["Wad."], language)
         }
     }
+
+    // MARK: Leerzeichen nach dem Satzende (1.3.1)
+
+    func testMissingSpaceAfterSentenceIsAdded() {
+        XCTAssertEqual(TextSpacing.separatingSentences("Das ist gut.Dann gehen wir."), "Das ist gut. Dann gehen wir.")
+        XCTAssertEqual(TextSpacing.separatingSentences("Wirklich?Ja!Schön"), "Wirklich? Ja! Schön")
+        XCTAssertEqual(TextSpacing.separatingSentences("Das ist gut. Dann"), "Das ist gut. Dann")
+    }
+
+    func testAbbreviationsNumbersAndNamesStay() {
+        for text in ["z.B. morgen", "Die U.S.A. sind groß", "Version 3.5 kommt", "linushundt.com/wad",
+                     "mit ASP.NET", "Wad.app", "um 12.Mai", "今日は。明日"] {
+            XCTAssertEqual(TextSpacing.separatingSentences(text), text)
+        }
+    }
+
+    func testNewDictationAfterSentenceGetsSpace() {
+        XCTAssertTrue(TextSpacing.needsSpace(between: ".", and: "D"))
+        XCTAssertFalse(TextSpacing.needsSpace(between: nil, and: "D"))
+        XCTAssertFalse(TextSpacing.needsSpace(between: " ", and: "D"))
+        XCTAssertFalse(TextSpacing.needsSpace(between: "\n", and: "D"))
+        XCTAssertFalse(TextSpacing.needsSpace(between: "(", and: "D"))
+        XCTAssertFalse(TextSpacing.needsSpace(between: "„", and: "D"))
+    }
+
+    // MARK: Kleinschreibung (1.3.1)
+
+    func testLowercaseHasNoCapitalsAndNoEszett() {
+        XCTAssertEqual(TextSpacing.lowercased("Die Straße ist GROSS und weiß."), "die strasse ist gross und weiss.")
+        XCTAssertEqual(TextSpacing.lowercased("STRAẞE"), "strasse")
+        XCTAssertEqual(TextSpacing.lowercased("Ärger über Öl"), "ärger über öl")
+    }
+
+    // MARK: Angesagte Satzzeichen (1.3.1)
+
+    func testSpokenPunctuationBecomesMarks() {
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Das ist gut Komma dann gehen wir Punkt"), "Das ist gut, dann gehen wir.")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Das ist gut, Komma, dann gehen wir. Punkt."), "Das ist gut, dann gehen wir.")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Wie geht es dir Fragezeichen mir geht es gut Ausrufezeichen"),
+                       "Wie geht es dir? Mir geht es gut!")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Hallo neue Zeile wie geht's"), "Hallo\nWie geht's")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Hallo. Neuer Absatz. Wie geht's?"), "Hallo.\n\nWie geht's?")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Einkaufen Doppelpunkt Milch"), "Einkaufen: Milch")
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Dear John comma how are you question mark"), "Dear John, how are you?")
+        XCTAssertEqual(SpokenPunctuation.apply(to: " Punkt."), ".")
+    }
+
+    func testRealWordsStay() {
+        for text in ["Das ist der springende Punkt.", "Wir treffen uns Punkt 12 Uhr.", "Punkt für Punkt.",
+                     "Nach dem Komma kommt die Fünf.", "Ein wichtiger Punkt ist das.", "Unser Treffpunkt.",
+                     "Es kommt eine neue Zeile.", "It was a period of change.", "Die Punkte zählen."] {
+            XCTAssertEqual(SpokenPunctuation.apply(to: text), text)
+        }
+    }
 }
