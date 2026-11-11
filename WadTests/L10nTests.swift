@@ -167,12 +167,16 @@ final class L10nTests: XCTestCase {
     }
 
     func testWhatsNewExistsInEveryLanguageAndStartsWithAGreeting() throws {
+        // Jede Sprache hat so viele Punkte wie die deutsche, mindestens einen.
+        var germanCount: Int?
         for (language, greeting) in [(MenuLanguage.de, "Hi"), (.en, "Hi"), (.ja, "こんにちは")] {
             let url = repository.appendingPathComponent("Wad/WasIstNeu.\(language.rawValue).md")
             let text = try String(contentsOf: url, encoding: .utf8)
             let whatsNew = UpdateRules.whatsNew(text)
             XCTAssertTrue(whatsNew.intro?.hasPrefix(greeting) == true, language.rawValue)
-            XCTAssertEqual(whatsNew.items.count, 4, language.rawValue)
+            if germanCount == nil { germanCount = whatsNew.items.count }
+            XCTAssertGreaterThan(whatsNew.items.count, 0, language.rawValue)
+            XCTAssertEqual(whatsNew.items.count, germanCount, language.rawValue)
             XCTAssertFalse(whatsNew.items.contains { $0.contains("**") }, language.rawValue)
             // CommonMark schließt Fettdruck nicht nach einem Satzzeichen direkt vor einem Buchstaben, etwa auf GitHub.
             XCTAssertNil(text.range(of: #"[：:]\*\*\S"#, options: .regularExpression), language.rawValue)
