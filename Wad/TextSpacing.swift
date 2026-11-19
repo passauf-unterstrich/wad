@@ -78,6 +78,11 @@ enum SpokenPunctuation {
     /// Längere Ansagen zuerst, damit „neuer Absatz“ nicht als „neue…“ halb erkannt wird.
     /// Ein bloßes „Absatz“ kommt nach „neuer Absatz“, sonst bliebe „neuer“ stehen.
     private static let commands: [(words: String, mark: String)] = [
+        // Wörtliche Rede nur auf Ansage, in deutschen Anführungszeichen. „auf“ und „unten“ öffnen, „zu“ und „oben“ schließen.
+        ("anführungszeichen unten|anführungszeichen auf|anführungsstriche unten|anführungsstriche auf"
+            + "|gänsefüßchen unten|gänsefüßchen auf", SpokenPunctuation.openingQuote),
+        ("anführungszeichen oben|anführungszeichen zu|anführungsstriche oben|anführungsstriche zu"
+            + "|gänsefüßchen oben|gänsefüßchen zu", SpokenPunctuation.closingQuote),
         ("neuer absatz|new paragraph", "\n\n"),
         ("absatz", "\n\n"),
         ("neue zeile|new line|newline", "\n"),
@@ -89,6 +94,9 @@ enum SpokenPunctuation {
         ("punkt|full stop|period", "."),
     ]
 
+    static let openingQuote = "„"
+    static let closingQuote = "“"
+
     /// Steht eines dieser Wörter direkt davor, ist das Satzzeichen-Wort ein echtes Wort.
     private static let articles: Set<String> = [
         "der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "eines", "einer",
@@ -99,7 +107,7 @@ enum SpokenPunctuation {
 
     private static let pattern: NSRegularExpression = {
         let words = commands.map { "(" + $0.words.replacingOccurrences(of: " ", with: "\\s+") + ")" }.joined(separator: "|")
-        return try! NSRegularExpression(pattern: "([\\s,.;:!?]*)\\b(?:\(words))\\b[,.;:!?]*", options: [.caseInsensitive])
+        return try! NSRegularExpression(pattern: "([\\s,.;:!?]*)\\b(?:\(words))\\b([,.;:!?]*)", options: [.caseInsensitive])
     }()
 
     static func apply(to text: String) -> String {
@@ -129,6 +137,34 @@ enum SpokenPunctuation {
             if isRealWord(before: before, after: after) { continue }
 
             appendSource(upTo: match.range.location)
+            let marksBefore = source.substring(with: match.range(at: 1)).filter { !$0.isWhitespace }
+            let marksAfter = source.substring(with: match.range(at: commands.count + 2))
+            if mark == Self.openingQuote {
+                // „ kommt mit Leerzeichen davor und klebt am ersten Wort, das großgeschrieben wird: Er sagte: „Hallo
+                // Whispers Doppelpunkt davor bleibt, ein Komma direkt dahinter fällt weg.
+                result += marksBefore.filter { $0 != "," }
+                if let last = result.last, !last.isWhitespace, !"([{„‚«/".contains(last) { result += " " }
+                result += mark
+                startsSentence = true
+                trimsSpace = true
+                position = NSMaxRange(match.range)
+                continue
+            }
+            if mark == Self.closingQuote {
+                // “ klebt am letzten Wort. Ein Satzende davor bleibt drinnen („Hallo.“), ein Komma dahinter
+                // bleibt draußen („Hallo“, sagte er), ein Komma davor fällt weg.
+                while result.last?.isWhitespace == true { result.removeLast() }
+                let inside = marksBefore.last.map { ".!?".contains($0) ? String($0) : "" } ?? ""
+                var outside = marksAfter.contains(",") ? "," : ""
+                if inside.isEmpty, outside.isEmpty, let end = marksAfter.last(where: { ".!?:;".contains($0) }) {
+                    outside = String(end)
+                }
+                result += inside + mark + outside
+                if let next = after.first, next.isLetter || next.isNumber { result += " " }
+                startsSentence = outside.isEmpty ? !inside.isEmpty : ".!?".contains(outside)
+                position = NSMaxRange(match.range)
+                continue
+            }
             let isNewline = mark.hasPrefix("\n")
             // Hat Whisper vor „neue Zeile“ schon einen Punkt gesetzt, bleibt er. Vor allen anderen Zeichen fällt
             // sein eigenes Zeichen weg, das angesagte gewinnt.
@@ -172,8 +208,9 @@ enum SpokenPunctuation {
 extension TextSpacing {
     /// Nie mehr als eine Leerzeile: Endet der Text davor schon mit einem Umbruch, etwa nach einem angesagten
     /// „Absatz“, fällt der Leerraum am Anfang des neuen Stücks weg, auch sein eigener Absatz.
+    /// Ebenso nach einem öffnenden Anführungszeichen oder einer Klammer: „Hallo, nicht „ Hallo.
     static func trimmingLeadingBreak(_ text: String, after last: Character?) -> String {
-        guard let last, last.isNewline else { return text }
+        guard let last, last.isNewline || "([{„‚«".contains(last) else { return text }
         return String(text.drop { $0.isWhitespace })
     }
 }
@@ -218,6 +255,12 @@ struct ParagraphPlanner {
     /// Diese Anreden sind auch gewöhnliche Wörter („Liebe ist schön, aber …“). Als Anrede zählen sie nur
     /// vor einem großgeschriebenen Namen oder Titel. „Hallo zusammen,“ braucht das nicht.
     private static let greetingsBeforeName: Set<String> = ["sehr geehrter", "sehr geehrte", "liebes", "lieber", "liebe", "dear"]
+
+    /// Ein Satzende, das sich als bloße Sprechpause herausgestellt hat, zählt nicht mehr.
+    mutating func retractSentence() {
+        sentences = max(0, sentences - 1)
+        totalSentences = max(0, totalSentences - 1)
+    }
 
     /// Ordnet ein Stück an. `previous` ist das Stück davor im selben Diktat, `nil` beim ersten;
     /// `pause` die Stille davor in Sekunden.
@@ -402,5 +445,93 @@ struct ParagraphPlanner {
             word.first?.isUppercase == true && word.allSatisfy { $0.isLetter || $0 == "-" }
         }) else { return nil }
         return String(c[p..<end])
+    }
+}
+
+/// Punkte an Sprechpausen. Im Live-Modus bekommt Whisper jedes Stück einzeln, und weil der Ton dort aufhört,
+/// schließt es fast jedes Stück mit „.“ oder „…“ ab, auch wenn die Pause nur kurzes Nachdenken mitten im Satz war
+/// („Ich gehe morgen in den. Supermarkt“). Deshalb hält Wad den letzten Punkt eines Stücks zurück und entscheidet
+/// erst mit dem nächsten Stück, ob er bleibt. Ein zurückgehaltener Punkt kommt immer direkt ans Wort, ohne Leerzeichen.
+/// „…“ setzt Wad gar nicht: Whisper meint damit fast immer nur ein Zögern.
+enum PausePunctuation {
+    /// Wörter, die im Deutschen und Englischen nie einen Satz beenden. Bewusst ohne Wörter wie „mit“, „auf“
+    /// oder „zu“, die als abgetrennter Teil eines Verbs am Satzende stehen („Ich komme mit.“), und ohne
+    /// Pronomen wie „das“ („Ich weiß das.“).
+    static let neverEndsSentence: Set<String> = [
+        "der", "dem", "des", "den", "einem", "eines", "einen",
+        "meinem", "deinem", "seinem", "ihrem", "unserem", "eurem", "meines", "deines", "seines", "ihres", "unseres",
+        "in", "im", "am", "beim", "vom", "zum", "zur", "ins", "für", "von", "hinter", "neben", "zwischen",
+        "gegen", "ohne", "bis", "seit", "wegen", "trotz", "während", "unterm", "überm",
+        "und", "oder", "aber", "sondern", "denn", "dass", "weil", "wenn", "falls", "ob", "obwohl", "sodass",
+        "bevor", "nachdem", "sobald", "als", "sowie", "beziehungsweise",
+        "the", "a", "an", "and", "or", "but", "of", "because", "if", "than", "whether",
+        "my", "your", "our", "their", "its",
+    ]
+
+    /// Abkürzungen behalten ihren Punkt immer, sonst verlöre „bzw.“ vor einem kleinen Wort den Punkt.
+    private static let abbreviations: Set<String> = [
+        "usw", "etc", "bzw", "ca", "dr", "nr", "hr", "fr", "ggf", "evtl", "inkl", "vgl", "bspw", "sog", "str",
+        "tel", "mio", "mrd", "jh", "prof", "mr", "mrs", "ms", "vs", "jr", "sr", "st", "co", "inc", "ltd",
+    ]
+
+    private static let ellipsis = try! NSRegularExpression(pattern: "[ \\t]*(?:\\.{3,}|…)")
+
+    /// Nimmt „…“ und „...“ heraus. Mitten im Satz (danach ein kleines Wort, davor ein Wort wie „den“) bleibt nur
+    /// ein Leerzeichen, sonst wird daraus ein gewöhnlicher Punkt. Am Anfang fällt es weg, am Ende wird es ein Punkt.
+    static func removingEllipses(_ text: String) -> String {
+        let source = text as NSString
+        var result = ""
+        var position = 0
+        for match in ellipsis.matches(in: text, range: NSRange(location: 0, length: source.length)) {
+            result += source.substring(with: NSRange(location: position, length: match.range.location - position))
+            position = NSMaxRange(match.range)
+            let after = source.substring(from: position)
+            let next = after.first(where: { !$0.isWhitespace })
+            let previous = result.last(where: { !$0.isWhitespace })
+            guard let previous, previous.isLetter || previous.isNumber else {
+                // Am Anfang oder nach einem anderen Satzzeichen: einfach weg, ohne doppelten Leerraum.
+                if result.isEmpty || result.last?.isWhitespace == true {
+                    position += after.prefix { $0 == " " }.count
+                }
+                continue
+            }
+            guard let next else { result += "."; continue }
+            if next.isLowercase || ",.;:!?".contains(next) || endsWithNeverEndingWord(result) {
+                if next.isLetter || next.isNumber, after.first?.isWhitespace != true { result += " " }
+            } else {
+                result += "."
+                if after.first?.isWhitespace != true { result += " " }
+            }
+        }
+        result += source.substring(from: position)
+        return result
+    }
+
+    /// Trennt einen Punkt am Ende ab, wenn er nur von der Sprechpause kommen kann: direkt hinter einem Wort,
+    /// nicht hinter einer Abkürzung wie „z.B.“ oder „bzw.“. „!“ und „?“ bleiben, die setzt Whisper nur mit Grund.
+    static func splittingTrailingPeriod(_ text: String) -> (text: String, held: Bool) {
+        guard text.last == ".", text.count >= 2 else { return (text, false) }
+        let body = String(text.dropLast())
+        guard let before = body.last, before.isLetter else { return (text, false) }
+        let word = body.reversed().prefix { !$0.isWhitespace }
+        if word.contains(".") || abbreviations.contains(String(word.reversed()).lowercased()) { return (text, false) }
+        return (body, true)
+    }
+
+    /// Bleibt der zurückgehaltene Punkt hinter `previous`, wenn danach `next` kommt?
+    /// Nein, wenn der Satz offensichtlich weitergeht: Das Stück endete auf „den“, „und“ oder „weil“, das nächste
+    /// beginnt klein oder bringt selbst ein Satzzeichen mit. Mit „Satzzeichen ansagen“ nie: Dann kommt ein Punkt
+    /// an der Pause nur, wenn er angesagt wurde.
+    static func keepsHeldPeriod(after previous: String, before next: String, spokenPunctuation: Bool) -> Bool {
+        if spokenPunctuation { return false }
+        guard let first = next.first(where: { !$0.isWhitespace }) else { return true }
+        if first.isLowercase || ",.;:!?…".contains(first) { return false }
+        if endsWithNeverEndingWord(previous) { return false }
+        return true
+    }
+
+    private static func endsWithNeverEndingWord(_ text: String) -> Bool {
+        let word = text.reversed().drop { !$0.isLetter }.prefix { $0.isLetter }
+        return !word.isEmpty && neverEndsSentence.contains(String(word.reversed()).lowercased())
     }
 }

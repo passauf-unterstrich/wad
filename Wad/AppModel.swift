@@ -60,7 +60,10 @@ final class AppModel: ObservableObject {
     /// Wandelt angesagte Satzzeichen wie „Komma“ oder „neue Zeile“ in Zeichen um. Standard aus,
     /// denn Wad setzt Satzzeichen auch von selbst.
     @Published var convertsSpokenPunctuation = UserDefaults.standard.bool(forKey: AppModel.spokenPunctuationKey) {
-        didSet { UserDefaults.standard.set(convertsSpokenPunctuation, forKey: Self.spokenPunctuationKey) }
+        didSet {
+            UserDefaults.standard.set(convertsSpokenPunctuation, forKey: Self.spokenPunctuationKey)
+            dictation.spokenPunctuation = convertsSpokenPunctuation
+        }
     }
     private static let spokenPunctuationKey = "Satzzeichen ansagen"
     /// Leerzeilen an langen Sprechpausen, Anrede und Grußformel auf eigenen Zeilen. Standard an,
@@ -135,6 +138,7 @@ final class AppModel: ObservableObject {
     private let clipboardWatcher = ClipboardWatcher()
     private let vocabulary = VocabularyStore()
     private let correctionPanel = CorrectionPanel()
+    private let vocabularyWindow = VocabularyWindow()
     private let hotKeys = HotKeyCenter()
     let windowManager: WindowManager
     private let shortcutsPanel = ShortcutsPanel()
@@ -192,6 +196,7 @@ final class AppModel: ObservableObject {
         applyInsertMode()
         dictation.language = language == "auto" ? nil : language
         dictation.autoParagraphs = autoParagraphs
+        dictation.spokenPunctuation = convertsSpokenPunctuation
         dictation.vocabularyHint = { [weak self] in self?.vocabulary.vocabulary.hint }
         dictation.undeliveredNote = { [weak self] in
             L10n.t(self?.keepsDictations == false ? "notice.undelivered.discarded" : "notice.undelivered.kept")
@@ -275,8 +280,11 @@ final class AppModel: ObservableObject {
             self?.openCorrection()
         }
         isWindowManagerEnabled = windowManager.isEnabled
+        // Bevor das Vokabel-Fenster die Liste zum ersten Mal anfasst, eine Kopie, wie sie bisher war.
+        vocabulary.backUpOnce()
         L10n.shared.onChange = { [weak self] in
             self?.correctionPanel.refreshTitle()
+            self?.vocabularyWindow.refreshTitle()
             self?.shortcutsPanel.refreshTitle()
             self?.updateWindows.refreshTitle()
         }
@@ -465,6 +473,11 @@ final class AppModel: ObservableObject {
         }
         let enabled = service.status == .enabled
         if launchesAtLogin != enabled { launchesAtLogin = enabled }
+    }
+
+    /// Öffnet das Fenster „Vokabeln“.
+    func openVocabulary() {
+        vocabularyWindow.show(store: vocabulary) { [weak self] in self?.revealVocabularyFile() }
     }
 
     /// Zeigt die Vokabelliste im Finder, markiert, damit man sie sofort öffnen oder weitergeben kann.

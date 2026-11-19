@@ -47,6 +47,7 @@
 		A20000000000000000001003 /* GlobalShortcut.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* GlobalShortcut.swift */; };
 		A20000000000000000001004 /* SelectedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* SelectedText.swift */; };
 		A20000000000000000001005 /* CorrectionPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* CorrectionPanel.swift */; };
+		A90000000000000000001001 /* VocabularyWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000001 /* VocabularyWindow.swift */; };
 		A20000000000000000002001 /* Vocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* Vocabulary.swift */; };
 		A20000000000000000002002 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* VocabularyStore.swift */; };
 		A20000000000000000002006 /* VocabularyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* VocabularyTests.swift */; };
@@ -115,6 +116,7 @@
 		A20000000000000000000003 /* GlobalShortcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcut.swift; sourceTree = "<group>"; };
 		A20000000000000000000004 /* SelectedText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedText.swift; sourceTree = "<group>"; };
 		A20000000000000000000005 /* CorrectionPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionPanel.swift; sourceTree = "<group>"; };
+		A90000000000000000000001 /* VocabularyWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyWindow.swift; sourceTree = "<group>"; };
 		A20000000000000000000006 /* VocabularyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyTests.swift; sourceTree = "<group>"; };
 		A30000000000000000000001 /* WindowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowLayout.swift; sourceTree = "<group>"; };
 		A30000000000000000000002 /* WindowMover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowMover.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 				A20000000000000000000003 /* GlobalShortcut.swift */,
 				A20000000000000000000004 /* SelectedText.swift */,
 				A20000000000000000000005 /* CorrectionPanel.swift */,
+				A90000000000000000000001 /* VocabularyWindow.swift */,
 				A30000000000000000000001 /* WindowLayout.swift */,
 				A30000000000000000000002 /* WindowMover.swift */,
 				A30000000000000000000003 /* WindowManager.swift */,
@@ -380,6 +383,7 @@
 				A20000000000000000001003 /* GlobalShortcut.swift in Sources */,
 				A20000000000000000001004 /* SelectedText.swift in Sources */,
 				A20000000000000000001005 /* CorrectionPanel.swift in Sources */,
+				A90000000000000000001001 /* VocabularyWindow.swift in Sources */,
 				A30000000000000000001001 /* WindowLayout.swift in Sources */,
 				A30000000000000000001002 /* WindowMover.swift in Sources */,
 				A30000000000000000001003 /* WindowManager.swift in Sources */,

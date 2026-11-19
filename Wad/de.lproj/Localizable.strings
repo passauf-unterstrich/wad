@@ -34,7 +34,7 @@
 "menu.minutes" = "%ld Minuten";
 "menu.vocabulary" = "Vokabeln";
 "menu.vocabulary.correct" = "Wort korrigieren …";
-"menu.vocabulary.reveal" = "Vokabelliste im Finder zeigen";
+"menu.vocabulary.edit" = "Vokabeln bearbeiten …";
 "menu.vocabulary.copyPrompt" = "Vorlage für deine KI kopieren";
 "menu.windowManager" = "Fenstermanager";
 "menu.windowManager.enabled" = "Eingeschaltet";
@@ -114,6 +114,29 @@
 /* Vokabelliste und Vorlage für andere KIs */
 "vocabulary.prompt" = "Ich diktiere mit der App Wad. Sie erkennt Fachbegriffe und Namen besser, wenn sie eine Vokabelliste hat. Erstelle mir bitte eine Liste mit den 40 wichtigsten Begriffen, die ich beim Diktieren brauche.\n\nÜber mich: [hier kurz beschreiben, z. B. Beruf, Hobbys, Namen von Familie und Freunden]\n\nRegeln für die Liste:\n- eine Zeile pro Begriff, genau in der richtigen Schreibweise\n- keine Nummerierung, keine Erklärungen, keine Überschrift\n- wird ein Begriff beim Diktieren oft falsch geschrieben, die Zeile so: Falsch -> Richtig";
 "vocabulary.template" = "# Wads Vokabelliste. Eine Zeile pro Eintrag, Zeilen mit # werden übergangen.\n#\n# Nur ein Begriff: Wad soll ihn kennen und genau so schreiben.\n#   Mise en place\n#\n# Falsch -> Richtig: Wad ersetzt das Falsche immer durch das Richtige.\n#   Watt -> Wad";
+"vocabulary.window" = "Vokabeln";
+"vocabulary.explanation" = "Links steht, was Wad falsch hört, rechts, wie es geschrieben werden soll. Bleibt links leer, lernt Wad den Begriff nur kennen und schreibt ihn genau so.";
+"vocabulary.search" = "Suchen";
+"vocabulary.heard" = "Wad hört";
+"vocabulary.written" = "Wad schreibt";
+"vocabulary.onlyKnow" = "nur kennen";
+"vocabulary.duplicate" = "Dieses Wort steht mehrmals links. Es gilt der oberste Eintrag.";
+"vocabulary.session" = "Nur bis zum Neustart";
+"vocabulary.keep" = "Behalten";
+"vocabulary.forget" = "Vergessen";
+"vocabulary.add" = "Eintrag hinzufügen";
+"vocabulary.remove" = "Auswahl löschen";
+"vocabulary.count" = "%ld Einträge";
+"vocabulary.reveal" = "Als Datei im Finder zeigen";
+"vocabulary.add.title" = "Neuer Eintrag";
+"vocabulary.add.confirm" = "Hinzufügen";
+"vocabulary.empty.title" = "Noch keine Vokabeln";
+"vocabulary.empty.text" = "Klicke auf +, markiere ein falsch geschriebenes Wort und drücke ⌃⌥W, oder füge mit ⌘V eine Liste ein, etwa von deiner KI.";
+"vocabulary.unreadable.title" = "Die Liste lässt sich nicht lesen";
+"vocabulary.unreadable.text" = "Vokabeln.txt ist nicht als normaler Text (UTF-8) gespeichert. Wad ändert sie deshalb nicht. Öffne sie im Finder und sichere sie als reinen Text.";
+"vocabulary.undo.edit" = "Eintrag ändern";
+"vocabulary.undo.add" = "Eintrag hinzufügen";
+"vocabulary.undo.remove" = "Eintrag löschen";
 
 /* Update-Fenster */
 "update.none.title" = "Keine Updates gefunden";

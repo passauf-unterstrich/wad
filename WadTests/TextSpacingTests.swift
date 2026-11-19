@@ -375,7 +375,7 @@ final class TextSpacingTests: XCTestCase {
         XCTAssertEqual(session.transcribeRemainder(), "Eins. Zwei.\n\nDrei.")
         XCTAssertEqual(session.fullText, "Eins. Zwei.\n\nDrei.")
         XCTAssertEqual(transcriber.chunkLengths.count, 2)
-        XCTAssertEqual(transcriber.prompts.last, "Eins. Zwei.")
+        XCTAssertEqual(transcriber.prompts.last, "Eins. Zwei", "Der zurückgehaltene Punkt fehlt im Zusammenhang")
 
         let plain = FakeTranscriber()
         plain.texts = ["Eins. Zwei. Drei."]
@@ -397,5 +397,151 @@ final class TextSpacingTests: XCTestCase {
         XCTAssertEqual(session.transcribeRemainder(), "Eins. Zwei.")
         add(1, speech: false); add(1, speech: true)
         XCTAssertEqual(session.transcribeRemainder(), "\n\nDrei.")
+    }
+
+    // MARK: Punkte an Sprechpausen
+
+    func testEllipsesBecomeNothingOrAPeriod() {
+        let cases = [
+            ("Ich weiß nicht... Vielleicht morgen.", "Ich weiß nicht. Vielleicht morgen."),
+            ("Ich gehe in den ... Supermarkt.", "Ich gehe in den Supermarkt."),
+            ("Und...dann gingen wir.", "Und dann gingen wir."),
+            ("Wir haben … noch Zeit.", "Wir haben noch Zeit."),
+            ("Ich dachte...", "Ich dachte."),
+            ("...Hallo zusammen.", "Hallo zusammen."),
+            ("Gut. ... Dann weiter.", "Gut. Dann weiter."),
+            ("Ja...?", "Ja?"),
+            ("Version 1.2 ist gut.", "Version 1.2 ist gut."),
+        ]
+        for (input, expected) in cases {
+            XCTAssertEqual(PausePunctuation.removingEllipses(input), expected, input)
+        }
+    }
+
+    func testOnlyAPlainPeriodAfterAWordIsHeldBack() {
+        XCTAssertEqual(PausePunctuation.splittingTrailingPeriod("in den.").text, "in den")
+        XCTAssertTrue(PausePunctuation.splittingTrailingPeriod("in den.").held)
+        for text in ["Wirklich?", "Super!", "zum Beispiel z.B.", "Äpfel, Birnen usw.", "um 3.", "Er sagte „gut“.", "今日は。"] {
+            XCTAssertFalse(PausePunctuation.splittingTrailingPeriod(text).held, text)
+        }
+    }
+
+    func testHeldPeriodStaysOnlyAtARealSentenceEnd() {
+        func keeps(_ previous: String, _ next: String, spoken: Bool = false) -> Bool {
+            PausePunctuation.keepsHeldPeriod(after: previous, before: next, spokenPunctuation: spoken)
+        }
+        XCTAssertTrue(keeps("Das war gut", "Dann gingen wir."))
+        XCTAssertFalse(keeps("Ich gehe morgen in den", "Supermarkt."), "„den“ beendet keinen Satz")
+        XCTAssertFalse(keeps("Ich glaube, dass", "Wad gut ist."))
+        XCTAssertFalse(keeps("Wir haben", "noch Zeit."), "klein weiter heißt: derselbe Satz")
+        XCTAssertFalse(keeps("Wir haben", ", glaube ich, Zeit."))
+        XCTAssertTrue(keeps("Ich komme mit", "Morgen geht es los."), "„mit“ kann einen Satz beenden")
+        XCTAssertTrue(keeps("Ich weiß das", "Trotzdem frage ich."))
+        XCTAssertFalse(keeps("Das war gut Punkt", "Dann weiter.", spoken: true), "Die Ansage setzt den Punkt")
+        XCTAssertFalse(keeps("Das war gut", "Punkt. Dann weiter.", spoken: true))
+        XCTAssertTrue(keeps("Das ist der Punkt", "Dann weiter."), "Ohne Ansage-Modus ist „Punkt“ ein Wort")
+        XCTAssertTrue(keeps("Erster Teil neuer Absatz", "Zweiter Teil."), "ohne Ansage-Modus")
+        XCTAssertFalse(keeps("Erster Teil neuer Absatz", "Zweiter Teil.", spoken: true))
+    }
+
+    /// Ein Live-Diktat aus zwei Stücken: erst 11 s Sprache und eine Pause, dann der Rest nach dem Loslassen.
+    private func liveTwoPieces(_ texts: [String], spoken: Bool = false, autoParagraphs: Bool = false)
+        -> (pieces: [String?], full: String, prompts: [String?]) {
+        let transcriber = FakeTranscriber()
+        transcriber.texts = texts
+        let audio = AudioBuffer(maxDuration: 60)
+        let session = DictationSession(audio: audio, transcriber: transcriber, language: "de",
+                                       autoParagraphs: autoParagraphs, spokenPunctuation: spoken)
+        func add(_ seconds: Double, speech: Bool) {
+            let samples = [Float](repeating: speech ? 0.5 : 0, count: Int(seconds * AudioBuffer.sampleRate))
+            samples.withUnsafeBufferPointer { audio.append($0) }
+        }
+        add(11, speech: true); add(1, speech: false)
+        let first = session.transcribeReadyChunk()
+        add(2, speech: true)
+        let rest = session.transcribeRemainder()
+        return ([first, rest], session.fullText, transcriber.prompts)
+    }
+
+    func testWrongPeriodAtAPauseIsNeverInserted() {
+        let result = liveTwoPieces(["Ich gehe morgen in den.", "Supermarkt einkaufen."])
+        XCTAssertEqual(result.pieces, ["Ich gehe morgen in den", " Supermarkt einkaufen."])
+        XCTAssertEqual(result.full, "Ich gehe morgen in den Supermarkt einkaufen.")
+        XCTAssertEqual(result.prompts.last, "Ich gehe morgen in den", "Whisper sieht den Satz als angefangen")
+    }
+
+    func testRealPeriodIsAddedRightAtTheWord() {
+        for autoParagraphs in [false, true] {
+            let result = liveTwoPieces(["Das war gut.", "Dann gingen wir."], autoParagraphs: autoParagraphs)
+            XCTAssertEqual(result.pieces, ["Das war gut", ". Dann gingen wir."], "kein Leerzeichen vor dem Punkt")
+            XCTAssertEqual(result.full, "Das war gut. Dann gingen wir.")
+        }
+    }
+
+    func testEllipsisAtAPauseDisappears() {
+        let result = liveTwoPieces(["Wir haben...", "noch etwas Zeit..."])
+        XCTAssertEqual(result.full, "Wir haben noch etwas Zeit.")
+    }
+
+    func testSpokenPeriodAtAPauseGivesExactlyOnePeriod() {
+        let atEnd = liveTwoPieces(["Das war gut Punkt.", "Dann weiter."], spoken: true)
+        XCTAssertEqual(atEnd.pieces.map { $0.map(SpokenPunctuation.apply) }, ["Das war gut.", " Dann weiter"], "kein Schlusspunkt ohne Ansage")
+
+        let atStart = liveTwoPieces(["Das war gut.", "Punkt. Dann weiter."], spoken: true)
+        XCTAssertEqual(atStart.pieces.map { $0.map(SpokenPunctuation.apply) }, ["Das war gut", ". Dann weiter"], "kein Schlusspunkt ohne Ansage")
+    }
+
+    func testPeriodAtTheEndOfTheDictationIsKept() {
+        let transcriber = FakeTranscriber()
+        transcriber.texts = ["Alles klar."]
+        let session = session(language: "de", transcriber: transcriber)
+        XCTAssertEqual(session.transcribeRemainder(), "Alles klar.")
+        XCTAssertEqual(session.fullText, "Alles klar.")
+    }
+
+    // MARK: Anführungszeichen ansagen
+
+    func testSpokenQuotesStickToTheWords() {
+        let cases = [
+            ("Er sagte Doppelpunkt Anführungszeichen unten hallo zusammen Anführungszeichen oben und ging.",
+             "Er sagte: „Hallo zusammen“ und ging."),
+            ("Er sagte: Anführungszeichen auf, Komm her. Anführungszeichen zu.", "Er sagte: „Komm her.“"),
+            ("Anführungszeichen unten Hallo Anführungszeichen oben, sagte sie.", "„Hallo“, sagte sie."),
+            ("Sie rief Doppelpunkt Anführungszeichen auf Hilfe! Anführungszeichen zu, und rannte.",
+             "Sie rief: „Hilfe!“, und rannte."),
+            ("Das Wort Anführungszeichen unten Wad Anführungszeichen oben ist kurz.", "Das Wort „Wad“ ist kurz."),
+        ]
+        for (input, expected) in cases {
+            XCTAssertEqual(SpokenPunctuation.apply(to: input), expected, input)
+        }
+        XCTAssertEqual(SpokenPunctuation.apply(to: "Die Anführungszeichen oben fehlen."), "Die Anführungszeichen oben fehlen.",
+                       "nach einem Artikel ein echtes Wort")
+    }
+
+    func testQuotesAcrossAPause() {
+        func keeps(_ previous: String, _ next: String) -> Bool {
+            PausePunctuation.keepsHeldPeriod(after: previous, before: next, spokenPunctuation: true)
+        }
+        XCTAssertFalse(keeps("Er sagte Doppelpunkt Anführungszeichen unten", "Hallo."), "kein Punkt direkt nach „")
+        XCTAssertFalse(keeps("Er sagte", "Anführungszeichen unten Hallo."))
+        XCTAssertFalse(keeps("Hallo", "Anführungszeichen zu, sagte er."), "kein Punkt vor “, sagte er")
+        XCTAssertFalse(keeps("Er sagte Anführungszeichen unten Hallo Anführungszeichen oben", "Dann ging er."),
+                       "Im Ansage-Modus kommt ein Punkt nur auf Ansage")
+        XCTAssertEqual(TextSpacing.trimmingLeadingBreak(" Hallo", after: "„"), "Hallo")
+    }
+
+    func testSpokenModeNeverAddsItsOwnPeriodAtTheEnd() {
+        let transcriber = FakeTranscriber()
+        transcriber.texts = ["Er sagte Doppelpunkt Anführungszeichen unten hallo! Anführungszeichen oben."]
+        let audio = AudioBuffer(maxDuration: 60)
+        let samples = [Float](repeating: 0.5, count: Int(2 * AudioBuffer.sampleRate))
+        samples.withUnsafeBufferPointer { audio.append($0) }
+        let session = DictationSession(audio: audio, transcriber: transcriber, language: "de", spokenPunctuation: true)
+        XCTAssertEqual(session.transcribeRemainder().map(SpokenPunctuation.apply), "Er sagte: „Hallo!“")
+
+        let plain = liveTwoPieces(["Das war gut.", "Dann gingen wir."], spoken: true)
+        XCTAssertEqual(plain.full, "Das war gut Dann gingen wir", "ohne angesagten Punkt kein Punkt")
+        let spoken = liveTwoPieces(["Das war gut Punkt.", "Dann gingen wir Punkt."], spoken: true)
+        XCTAssertEqual(spoken.pieces.map { $0.map(SpokenPunctuation.apply) }, ["Das war gut.", " Dann gingen wir."])
     }
 }

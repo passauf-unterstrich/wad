@@ -46,6 +46,8 @@ final class DictationController {
     var language: String?
     /// Absätze automatisch: Leerzeilen an langen Sprechpausen. Gilt wie `language` ab der nächsten Aufnahme.
     var autoParagraphs = false
+    /// „Satzzeichen ansagen“: Ein angesagtes „Punkt“ an einer Stückgrenze setzt den Punkt, nicht Whisper.
+    var spokenPunctuation = false
     /// Liefert im Live-Modus zusätzlich vorläufigen Text fürs Vorschau-Fenster (SPEC 1.10).
     /// Gilt ab der nächsten Aufnahme.
     var deliversDrafts = false
@@ -181,7 +183,8 @@ final class DictationController {
             return
         }
         session = DictationSession(audio: audio, transcriber: transcriber, language: language,
-                                   vocabularyHint: vocabularyHint(), autoParagraphs: autoParagraphs)
+                                   vocabularyHint: vocabularyHint(), autoParagraphs: autoParagraphs,
+                                   spokenPunctuation: spokenPunctuation)
         // Freies Diktieren läuft immer wie „Zwischenablage mit Vorschau“: live und mit grauem Entwurf,
         // egal welcher Modus eingestellt ist. Die Einstellung selbst bleibt dabei unverändert.
         isLive = handsFree || mode == .live

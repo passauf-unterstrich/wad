@@ -34,7 +34,7 @@
 "menu.minutes" = "%ld Minutes";
 "menu.vocabulary" = "Vocabulary";
 "menu.vocabulary.correct" = "Correct Word…";
-"menu.vocabulary.reveal" = "Show Vocabulary in Finder";
+"menu.vocabulary.edit" = "Edit Vocabulary…";
 "menu.vocabulary.copyPrompt" = "Copy Template for Your AI";
 "menu.windowManager" = "Window Manager";
 "menu.windowManager.enabled" = "Enabled";
@@ -114,6 +114,29 @@
 /* Vokabelliste und Vorlage für andere KIs */
 "vocabulary.prompt" = "I dictate with the app Wad. It recognizes technical terms and names better when it has a vocabulary list. Please create a list of the 40 most important terms I need when dictating.\n\nAbout me: [describe briefly here, e.g. job, hobbies, names of family and friends]\n\nRules for the list:\n- one line per term, in exactly the right spelling\n- no numbering, no explanations, no heading\n- if a term is often written wrong when dictating, write the line like this: Wrong -> Right";
 "vocabulary.template" = "# Wad’s vocabulary list. One entry per line, lines starting with # are ignored.\n#\n# Just a term: Wad should know it and write it exactly like this.\n#   Mise en place\n#\n# Wrong -> Right: Wad always replaces the wrong spelling with the right one.\n#   Watt -> Wad";
+"vocabulary.window" = "Vocabulary";
+"vocabulary.explanation" = "On the left, what Wad mishears; on the right, how it should be written. Leave the left side empty and Wad just learns the term and writes it exactly like that.";
+"vocabulary.search" = "Search";
+"vocabulary.heard" = "Wad hears";
+"vocabulary.written" = "Wad writes";
+"vocabulary.onlyKnow" = "just know";
+"vocabulary.duplicate" = "This word is on the left more than once. The top entry wins.";
+"vocabulary.session" = "Until restart only";
+"vocabulary.keep" = "Keep";
+"vocabulary.forget" = "Forget";
+"vocabulary.add" = "Add Entry";
+"vocabulary.remove" = "Delete Selection";
+"vocabulary.count" = "%ld entries";
+"vocabulary.reveal" = "Show File in Finder";
+"vocabulary.add.title" = "New Entry";
+"vocabulary.add.confirm" = "Add";
+"vocabulary.empty.title" = "No Vocabulary Yet";
+"vocabulary.empty.text" = "Click +, select a misspelled word and press ⌃⌥W, or paste a list with ⌘V, for example from your AI.";
+"vocabulary.unreadable.title" = "The List Can’t Be Read";
+"vocabulary.unreadable.text" = "Vokabeln.txt isn’t saved as plain text (UTF-8), so Wad won’t change it. Open it from the Finder and save it as plain text.";
+"vocabulary.undo.edit" = "Edit Entry";
+"vocabulary.undo.add" = "Add Entry";
+"vocabulary.undo.remove" = "Delete Entry";
 
 /* Update-Fenster */
 "update.none.title" = "No Updates Found";

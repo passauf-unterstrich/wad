@@ -34,7 +34,7 @@
 "menu.minutes" = "%ld分";
 "menu.vocabulary" = "単語リスト";
 "menu.vocabulary.correct" = "単語を修正…";
-"menu.vocabulary.reveal" = "単語リストをFinderに表示";
+"menu.vocabulary.edit" = "単語リストを編集…";
 "menu.vocabulary.copyPrompt" = "AI用のテンプレートをコピー";
 "menu.windowManager" = "ウインドウ管理";
 "menu.windowManager.enabled" = "有効";
@@ -114,6 +114,29 @@
 /* Vokabelliste und Vorlage für andere KIs */
 "vocabulary.prompt" = "音声入力アプリWadを使っています。Wadは単語リストがあると、専門用語や名前をより正確に認識できます。音声入力でよく使う重要な単語を40個、リストにしてください。\n\n私について：[ここに簡単に記入。例：職業、趣味、家族や友人の名前]\n\nリストのルール：\n- 1行に1語、正しい表記で書く\n- 番号、説明、見出しは付けない\n- 音声入力でよく間違えて書かれる語は、次の形式で書く：誤 -> 正";
 "vocabulary.template" = "# Wadの単語リスト。1行に1項目。#で始まる行は無視されます。\n#\n# 単語のみ：Wadが単語を覚え、この表記で書きます。\n#   Mise en place\n#\n# 誤 -> 正：Wadは誤った表記を常に正しい表記に置き換えます。\n#   Watt -> Wad";
+"vocabulary.window" = "単語リスト";
+"vocabulary.explanation" = "左はWadが聞き間違える語、右は正しい表記です。左を空にすると、Wadはその語を覚えて、そのとおりに書きます。";
+"vocabulary.search" = "検索";
+"vocabulary.heard" = "Wadが聞く語";
+"vocabulary.written" = "Wadが書く語";
+"vocabulary.onlyKnow" = "覚えるだけ";
+"vocabulary.duplicate" = "この語は左側に複数あります。一番上の項目が使われます。";
+"vocabulary.session" = "再起動まで";
+"vocabulary.keep" = "残す";
+"vocabulary.forget" = "忘れる";
+"vocabulary.add" = "項目を追加";
+"vocabulary.remove" = "選択項目を削除";
+"vocabulary.count" = "%ld 項目";
+"vocabulary.reveal" = "ファイルをFinderに表示";
+"vocabulary.add.title" = "新しい項目";
+"vocabulary.add.confirm" = "追加";
+"vocabulary.empty.title" = "単語はまだありません";
+"vocabulary.empty.text" = "＋をクリックするか、間違えた語を選択して⌃⌥Wを押すか、AIが作ったリストを⌘Vでペーストしてください。";
+"vocabulary.unreadable.title" = "リストを読み込めません";
+"vocabulary.unreadable.text" = "Vokabeln.txtが標準テキスト（UTF-8）で保存されていないため、Wadは変更しません。Finderで開き、標準テキストとして保存してください。";
+"vocabulary.undo.edit" = "項目を変更";
+"vocabulary.undo.add" = "項目を追加";
+"vocabulary.undo.remove" = "項目を削除";
 
 /* Update-Fenster */
 "update.none.title" = "アップデートはありません";

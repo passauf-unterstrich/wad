@@ -65,7 +65,7 @@ struct WadApp: App {
             Menu(L10n.t("menu.vocabulary")) {
                 Button(L10n.t("menu.vocabulary.correct"), action: model.openCorrection)
                     .keyboardShortcut("w", modifiers: [.control, .option])
-                Button(L10n.t("menu.vocabulary.reveal"), action: model.revealVocabularyFile)
+                Button(L10n.t("menu.vocabulary.edit"), action: model.openVocabulary)
                 Button(L10n.t("menu.vocabulary.copyPrompt"), action: model.copyVocabularyPrompt)
             }
             Menu(L10n.t("menu.windowManager")) {
